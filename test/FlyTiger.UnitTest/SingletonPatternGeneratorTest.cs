@@ -2,7 +2,7 @@
 using System.Reflection;
 using Xunit;
 
-namespace YS.Knife.Generator.UnitTest
+namespace FlyTiger.Generator.UnitTest
 {
 
     public class SingletonPatternGeneratorTest : BaseGeneratorTest

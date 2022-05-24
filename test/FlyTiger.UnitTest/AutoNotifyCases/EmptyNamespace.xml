@@ -3,7 +3,7 @@
     <input>
         <code>
             <![CDATA[
-using YS.Knife;
+using FlyTiger;
 
 partial class Class1
 {

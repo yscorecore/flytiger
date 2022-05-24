@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
       <!--<IncludeBuildOutput>false</IncludeBuildOutput>-->
-      <RootNamespace>YS.Knife</RootNamespace>
+      <RootNamespace>FlyTiger</RootNamespace>
   </PropertyGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
@@ -11,7 +11,7 @@
         </AssemblyAttribute>
     </ItemGroup>
     <ItemGroup>
-      <None Remove="bin\Debug\netstandard2.0\\YS.Knife.Generator.dll" />
+      <None Remove="bin\Debug\netstandard2.0\\FlyTiger.Generator.dll" />
     </ItemGroup>
     <ItemGroup>
         <!--Package the generator in the analyzer directory of the nuget package-->

@@ -4,10 +4,10 @@
        
         <code>
             <![CDATA[
-using YS.Knife;
+using FlyTiger;
 namespace ConsoleApp2
 {
-    partial class Class2: YS.Knife.Generator.UnitTest.AutoNotifyGeneratorTest.BaseClass
+    partial class Class2: FlyTiger.Generator.UnitTest.AutoNotifyGeneratorTest.BaseClass
     {
         [AutoNotify]
         private int _val;

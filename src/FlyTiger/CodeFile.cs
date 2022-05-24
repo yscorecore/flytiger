@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace YS.Knife
+namespace FlyTiger
 {
     class CodeFile
     {

@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace YS.Knife
+namespace FlyTiger
 {
     [Generator]
     public class SingletonPatternGenerator : ISourceGenerator

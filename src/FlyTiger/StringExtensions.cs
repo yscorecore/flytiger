@@ -1,4 +1,4 @@
-﻿namespace YS.Knife
+﻿namespace FlyTiger
 {
     internal static class StringExtensions
     {

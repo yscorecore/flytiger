@@ -1,6 +1,6 @@
 ﻿using System;
 // ReSharper disable once CheckNamespace
-namespace YS.Knife
+namespace FlyTiger
 {
     [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
     public sealed class AutoNotifyAttribute : Attribute

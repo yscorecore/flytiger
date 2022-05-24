@@ -26,8 +26,8 @@ namespace ConsoleApp2
         </code>
         <code>
             <![CDATA[
-using YS.Knife;
-using YS.Knife.Generator.UnitTest;
+using FlyTiger;
+using FlyTiger.Generator.UnitTest;
 namespace ConsoleApp2
 {
     [ConvertToAttribute(typeof(TUser), typeof(UserInfo))]

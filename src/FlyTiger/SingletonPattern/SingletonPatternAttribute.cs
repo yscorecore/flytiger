@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace YS.Knife
+namespace FlyTiger
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class SingletonPatternAttribute : Attribute

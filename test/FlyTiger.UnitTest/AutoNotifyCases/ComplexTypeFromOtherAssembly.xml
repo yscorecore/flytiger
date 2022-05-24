@@ -3,13 +3,13 @@
     <input>
         <code>
             <![CDATA[
-using YS.Knife;
+using FlyTiger;
 namespace ConsoleApp2
 {
     partial class Class1
     {
         [AutoNotify]
-        private YS.Knife.Generator.UnitTest.AutoNotifyGeneratorTest.BaseClass _value;
+        private FlyTiger.Generator.UnitTest.AutoNotifyGeneratorTest.BaseClass _value;
 
     }
 }
@@ -26,7 +26,7 @@ namespace ConsoleApp2
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public global::YS.Knife.Generator.UnitTest.AutoNotifyGeneratorTest.BaseClass Value 
+        public global::FlyTiger.Generator.UnitTest.AutoNotifyGeneratorTest.BaseClass Value 
         {
             get 
             {

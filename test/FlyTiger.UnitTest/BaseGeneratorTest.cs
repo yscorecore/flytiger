@@ -9,7 +9,7 @@ using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace YS.Knife.Generator.UnitTest
+namespace FlyTiger.Generator.UnitTest
 {
     public class BaseGeneratorTest
     {

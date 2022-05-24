@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
-namespace YS.Knife
+namespace FlyTiger
 {
     static class KnifeDiagnostic
     {

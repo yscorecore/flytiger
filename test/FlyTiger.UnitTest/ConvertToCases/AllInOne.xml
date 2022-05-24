@@ -97,8 +97,8 @@ namespace SourceGenerator.ConvertTo
         public IQueryable<string> ArrayStringToIQueryable { get; set; }
     }
 
-    [YS.Knife.ConvertTo(typeof(From),typeof(To))]
-    [YS.Knife.ConvertTo(typeof(To),typeof(From))]
+    [FlyTiger.ConvertTo(typeof(From),typeof(To))]
+    [FlyTiger.ConvertTo(typeof(To),typeof(From))]
     public partial class Convertors
     { 
     

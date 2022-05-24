@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-namespace YS.Knife.Generator.UnitTest
+namespace FlyTiger.Generator.UnitTest
 {
 
     public class AutoConstructorGeneratorTest : BaseGeneratorTest

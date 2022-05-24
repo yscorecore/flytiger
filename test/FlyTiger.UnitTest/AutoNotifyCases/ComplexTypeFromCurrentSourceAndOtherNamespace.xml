@@ -3,7 +3,7 @@
     <input>
         <code>
             <![CDATA[
-using YS.Knife;
+using FlyTiger;
 namespace ConsoleApp3.Sub
 {
     public class MyClass
@@ -14,7 +14,7 @@ namespace ConsoleApp3.Sub
         </code>
         <code>
             <![CDATA[
-using YS.Knife;
+using FlyTiger;
 namespace ConsoleApp2
 {
     partial class Class1

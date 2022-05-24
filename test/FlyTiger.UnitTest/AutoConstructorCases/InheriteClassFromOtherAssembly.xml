@@ -3,11 +3,11 @@
     <input>
         <code>
             <![CDATA[
-using YS.Knife;
+using FlyTiger;
 namespace ConsoleApp2
 {
     [AutoConstructor()]
-    partial class Class1: YS.Knife.Generator.UnitTest.AutoConstructorGeneratorTest.BaseClassWithEmptyCtor
+    partial class Class1: FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.BaseClassWithEmptyCtor
     {
         private string value;
 
@@ -17,11 +17,11 @@ namespace ConsoleApp2
         </code>
         <code>
             <![CDATA[
-using YS.Knife;
+using FlyTiger;
 namespace ConsoleApp2
 {
     [AutoConstructor()]
-    partial class Class2: YS.Knife.Generator.UnitTest.AutoConstructorGeneratorTest.BaseClassWith2Ctors
+    partial class Class2: FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.BaseClassWith2Ctors
     {
         private string value;
 
@@ -31,11 +31,11 @@ namespace ConsoleApp2
         </code>
         <code>
             <![CDATA[
-using YS.Knife;
+using FlyTiger;
 namespace ConsoleApp2
 {
     [AutoConstructor()]
-    partial class Class3: YS.Knife.Generator.UnitTest.AutoConstructorGeneratorTest.BaseClassWithAttributeInCtor
+    partial class Class3: FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.BaseClassWithAttributeInCtor
     {
         private string value;
 
