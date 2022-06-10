@@ -11,7 +11,7 @@
         </AssemblyAttribute>
     </ItemGroup>
     <ItemGroup>
-      <None Remove="bin\Debug\netstandard2.0\\FlyTiger.Generator.dll" />
+      <None Remove="bin\Debug\netstandard2.0\FlyTiger.dll" />
     </ItemGroup>
     <ItemGroup>
         <!--Package the generator in the analyzer directory of the nuget package-->
