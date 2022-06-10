@@ -40,7 +40,7 @@ jobs:
         path: ./Cobertura.xml
     - name: 10 Upload coverage to Codecov
       if: env.TEST_PROJ_COUNT>0  
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         flags: unittests
