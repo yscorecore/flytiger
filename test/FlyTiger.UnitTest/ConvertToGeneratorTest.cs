@@ -51,11 +51,11 @@ namespace FlyTiger.Generator.UnitTest
         [InlineData("ConvertToCases/ArrayStructToIQueryableClass.xml")]
         [InlineData("ConvertToCases/ArrayStructToIListClass.xml")]
         [InlineData("ConvertToCases/ArrayStructToICollectionClass.xml")]
-        
+
         [InlineData("ConvertToCases/SourceParentClassProperty.xml")]
         [InlineData("ConvertToCases/TargetParentClassProperty.xml")]
         [InlineData("ConvertToCases/OverwriteParentClassProperty.xml")]
-        
+
         //[InlineData("ConvertToCases/AllInOne.xml")]
 
         public void ShouldGenerateConverterClass(string testCaseFileName)
@@ -71,7 +71,7 @@ namespace FlyTiger.Generator.UnitTest
             base.ShouldGenerateExpectCodeFile(new ConvertToGenerator(), testCaseFileName, assemblies);
         }
     }
-   
+
 }
 
 

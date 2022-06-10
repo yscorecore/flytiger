@@ -354,13 +354,13 @@ namespace FlyTiger
                  .OfType<IPropertySymbol>()
                  .Where(p => !p.IsReadOnly && p.CanBeReferencedByName && !p.IsStatic && !p.IsIndexer)
                  .Select(p => new { p.Name, Type = p.Type })
-                 .ToLookup(p=>p.Name)
+                 .ToLookup(p => p.Name)
                  .ToDictionary(p => p.Key, p => p.First().Type);
             var sourceProps = mappingInfo.SourceType.GetAllMembers()
                 .OfType<IPropertySymbol>()
                 .Where(p => p.CanBeReferencedByName && !p.IsStatic && !p.IsIndexer && !p.IsWriteOnly)
                 .Select(p => new { p.Name, Type = p.Type })
-                .ToLookup(p=>p.Name)
+                .ToLookup(p => p.Name)
                 .ToDictionary(p => p.Key, p => p.First().Type);
             foreach (var prop in targetProps)
             {

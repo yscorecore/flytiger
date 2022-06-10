@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SourceGenerator.ConvertTo
+namespace Convert
 {
     public class From
     {
@@ -96,10 +93,5 @@ namespace SourceGenerator.ConvertTo
         public IQueryable<string> ArrayStringToIQueryable { get; set; }
     }
 
-    [YS.Knife.ConvertTo(typeof(From), typeof(To))]
-    [YS.Knife.ConvertTo(typeof(To), typeof(From))]
-    public partial class Converts
-    {
 
-    }
 }
