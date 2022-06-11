@@ -101,7 +101,7 @@ jobs:
       with:
         dotnet-version: | 
           5.0.100
-          6.0.100
+          6.0.203
     - name: 03 Set Git Tag Name
       run: echo GIT_TAG=${GITHUB_REF:10} >> $GITHUB_ENV
     - name: 04 Set Pack Version
