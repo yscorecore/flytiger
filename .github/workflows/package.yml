@@ -49,11 +49,17 @@ jobs:
         java-version: 1.11
     - name: 04 Install SonarScanner
       run:  dotnet tool restore
-    - name: 05 Begin Scan With SonarCloud
-      run:  dotnet sonarscanner begin /k:"yscorecore_flytiger" /o:"yscorecore" /d:sonar.login="${{secrets.SONAR_TOKEN}}" /d:sonar.host.url="https://sonarcloud.io"
-    - name: 06 Build with dotnet
+    - name: 05 Set Sonar Environments
+      run: |
+        SONAR_OWNER=$(echo ${GITHUB_REPOSITORY_OWNER} | tr 'A-Z' 'a-z')
+        SONAR_PROJECT=$(echo ${GITHUB_REPOSITORY} | tr 'A-Z' 'a-z' | tr '/' '_')
+        echo SONAR_OWNER=${SONAR_OWNER} >> $GITHUB_ENV
+        echo SONAR_PROJECT=${SONAR_PROJECT} >> $GITHUB_ENV
+    - name: 06 Begin Scan With SonarCloud
+      run:  dotnet sonarscanner begin /k:${SONAR_PROJECT} /o:${SONAR_OWNER} /d:sonar.login="${{secrets.SONAR_TOKEN}}" /d:sonar.host.url="https://sonarcloud.io"
+    - name: 07 Build with dotnet
       run: dotnet build
-    - name: 07 End Scan With SonarCloud
+    - name: 08 End Scan With SonarCloud
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run:  dotnet sonarscanner end /d:sonar.login="${{secrets.SONAR_TOKEN}}"
@@ -70,9 +76,9 @@ jobs:
     - name: 03 Restore Dotnet Tool
       run: dotnet tool restore
     - name: 04 Run Unit test
-      run: dotnet test --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[*Test]*"
+      run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[*Test]*"
     - name: 05 Combin All Test Report
-      run: dotnet reportgenerator -reports:test-coverages/**/coverage.cobertura.xml -reporttype:cobertura -targetdir:.
+      run: dotnet reportgenerator -reports:test/**/coverage.cobertura.xml -reporttype:cobertura -targetdir:.
     - name: 06 Save Artifact
       uses: actions/upload-artifact@v3
       with:
