@@ -12,7 +12,7 @@ namespace FlyTiger
         {
             public static Diagnostic AlreadyExistsConstructor(INamedTypeSymbol classType)
             {
-                DiagnosticDescriptor desc = new DiagnosticDescriptor("KF0001", typeof(SingletonPatternAttribute).FullName, $"The type '{classType.ToDisplayString()}' has already exists constructor, can not use '{typeof(SingletonPatternAttribute).FullName}'.", "Error", DiagnosticSeverity.Error, true);
+                DiagnosticDescriptor desc = new DiagnosticDescriptor("KF0001", SingletonPatternGenerator.AttributeFullName, $"The type '{classType.ToDisplayString()}' has already exists constructor, can not use '{SingletonPatternGenerator.AttributeFullName}'.", "Error", DiagnosticSeverity.Error, true);
                 return Diagnostic.Create(desc, null);
             }
         }
@@ -20,12 +20,12 @@ namespace FlyTiger
         {
             public static Diagnostic InvalidPropertyName(string propName)
             {
-                DiagnosticDescriptor desc = new DiagnosticDescriptor("KF1001", typeof(AutoNotifyAttribute).FullName, $"Invalid property name '{propName}'.", "Error", DiagnosticSeverity.Error, true);
+                DiagnosticDescriptor desc = new DiagnosticDescriptor("KF1001", AutoNotifyGenerator.AttributeFullName, $"Invalid property name '{propName}'.", "Error", DiagnosticSeverity.Error, true);
                 return Diagnostic.Create(desc, null);
             }
             public static Diagnostic PropertyNameEqualFieldName(string propName)
             {
-                DiagnosticDescriptor desc = new DiagnosticDescriptor("KF1002", typeof(AutoNotifyAttribute).FullName, $"The property name '{propName}' and field name are equal.", "Error", DiagnosticSeverity.Error, true);
+                DiagnosticDescriptor desc = new DiagnosticDescriptor("KF1002", AutoNotifyGenerator.AttributeFullName, $"The property name '{propName}' and field name are equal.", "Error", DiagnosticSeverity.Error, true);
                 return Diagnostic.Create(desc, null);
             }
         }

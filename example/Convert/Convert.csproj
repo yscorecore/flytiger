@@ -6,6 +6,6 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\src\FlyTiger\FlyTiger.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+        <ProjectReference Include="..\..\src\FlyTiger\FlyTiger.csproj" OutputItemType="Analyzer" />
     </ItemGroup>
 </Project>

@@ -10,8 +10,29 @@ namespace FlyTiger
     [Generator]
     public class SingletonPatternGenerator : ISourceGenerator
     {
+        const string NameSpaceName = nameof(FlyTiger);
+        const string AttributeName = "SingletonPatternAttribute";
+        const string PropertyName = "InstancePropertyName";
+        internal static string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
+        const string AttributeCode = @"using System;
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    sealed class SingletonPatternAttribute : Attribute
+    {
+        internal const string DefaultInstanceName = ""Instance"";
+
+        public string InstancePropertyName { get; set; } = DefaultInstanceName;
+    }
+}
+";
+
         public void Initialize(GeneratorInitializationContext context)
         {
+            context.RegisterForPostInitialization((i) =>
+            {
+                i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
+            });
             context.RegisterForSyntaxNotifications(() => new SingletonPatternSyntaxReceiver());
         }
 
@@ -27,7 +48,7 @@ namespace FlyTiger
 
         private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter)
         {
-            if (!classSymbol.HasAttribute(typeof(SingletonPatternAttribute)))
+            if (!classSymbol.HasAttribute(AttributeFullName))
             {
                 return null;
             }
@@ -73,10 +94,10 @@ namespace FlyTiger
 
         void AppendSingletonBody(INamedTypeSymbol classSymbol, CsharpCodeBuilder codeBuilder)
         {
-            var instanceName = classSymbol.GetAttributes().Where(p => p.AttributeClass.SafeEquals(typeof(SingletonPatternAttribute)))
-                .Select(p => p.NamedArguments.Where(t => t.Key == nameof(SingletonPatternAttribute.InstancePropertyName)).Where(t => !t.Value.IsNull).Select(t => (string)t.Value.Value).FirstOrDefault())
+            var instanceName = classSymbol.GetAttributes().Where(p => p.AttributeClass.Is(AttributeFullName))
+                .Select(p => p.NamedArguments.Where(t => t.Key == PropertyName).Where(t => !t.Value.IsNull).Select(t => (string)t.Value.Value).FirstOrDefault())
                 .FirstOrDefault();
-            instanceName = string.IsNullOrEmpty(instanceName) ? SingletonPatternAttribute.DefaultInstanceName : instanceName;
+            instanceName = string.IsNullOrEmpty(instanceName) ? "Instance" : instanceName;
 
             var content = $@"private static readonly Lazy<{classSymbol.GetClassSymbolDisplayText()}> LazyInstance = new Lazy<{classSymbol.GetClassSymbolDisplayText()}>(() => new {classSymbol.GetClassSymbolDisplayText()}(), true);
 

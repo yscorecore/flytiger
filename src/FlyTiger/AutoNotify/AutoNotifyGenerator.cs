@@ -1,20 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
-// ReSharper disable once CheckNamespace
 namespace FlyTiger
 {
     [Generator]
     public class AutoNotifyGenerator : ISourceGenerator
     {
+        const string NameSpaceName = nameof(FlyTiger);
+        const string AttributeName = "AutoNotifyAttribute";
+        const string PropertyName = "PropertyName";
+        internal static string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
+        const string AttributeCode = @"using System;
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    sealed class AutoNotifyAttribute : Attribute
+    {
+        public string PropertyName { get; set; }
+    }
+}
+";
         public void Initialize(GeneratorInitializationContext context)
         {
+            context.RegisterForPostInitialization((i) =>
+            {
+                i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
+            });
             context.RegisterForSyntaxNotifications(() => new AutoNotifySyntaxReceiver());
         }
 
@@ -27,7 +41,7 @@ namespace FlyTiger
 
             foreach (var clazzSymbol in codeWriter.GetAllClassSymbolsIgnoreRepeated(receiver.CandidateClasses))
             {
-                var fieldList = clazzSymbol.GetAllInstanceFieldsByAttribute(typeof(AutoNotifyAttribute)).ToList();
+                var fieldList = clazzSymbol.GetAllInstanceFieldsByAttribute(AttributeFullName).ToList();
                 if (fieldList.Any())
                 {
                     var codeFile = ProcessClass(clazzSymbol, fieldList, codeWriter);
@@ -110,11 +124,11 @@ namespace FlyTiger
             ITypeSymbol fieldType = fieldSymbol.Type;
 
             AttributeData attributeData = fieldSymbol.GetAttributes()
-                .Single(p => p.AttributeClass.SafeEquals(typeof(AutoNotifyAttribute)));
+                .Single(p => p.AttributeClass.Is(AttributeFullName));
             // get the AutoNotify attribute from the field, and any associated data
 
             TypedConstant overridenNameOpt =
-                attributeData.NamedArguments.SingleOrDefault(kvp => kvp.Key == nameof(AutoNotifyAttribute.PropertyName)).Value;
+                attributeData.NamedArguments.SingleOrDefault(kvp => kvp.Key == PropertyName).Value;
 
             string propertyName = chooseName(fieldName, overridenNameOpt);
             if (!System.Text.RegularExpressions.Regex.IsMatch(propertyName, "^[_a-zA-Z][_a-zA-Z0-9]*$"))

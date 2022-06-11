@@ -11,8 +11,43 @@ namespace FlyTiger
     [Generator]
     class ConvertToGenerator : ISourceGenerator
     {
+        const string NameSpaceName = nameof(FlyTiger);
+        const string AttributeName = "ConvertToAttribute";
+        const string SourceTypePropertyName = "SourceType";
+        const string TargetTypePropertyName = "TargetType";
+        const string IgnoreTargetPropertiesPropertyName = "IgnoreTargetProperties";
+        const string CustomMappingsPropertyName = "CustomMappings";
+        internal static string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
+        const string AttributeCode = @"using System;
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+    sealed class ConvertToAttribute : Attribute
+    {
+        public ConvertToAttribute(Type sourceType, Type targetType)
+        {
+
+            SourceType = sourceType ?? throw new ArgumentNullException(nameof(sourceType));
+            TargetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
+        }
+
+        public Type SourceType { get; }
+        public Type TargetType { get; }
+
+        public string[] IgnoreTargetProperties { get; set; }
+
+        public string[] CustomMappings { get; set; }
+
+    }
+}
+";
+
         public void Initialize(GeneratorInitializationContext context)
         {
+            context.RegisterForPostInitialization((i) =>
+            {
+                i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
+            });
             context.RegisterForSyntaxNotifications(() => new ConvertToSyntaxReceiver());
         }
 
@@ -27,7 +62,7 @@ namespace FlyTiger
 
         private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter)
         {
-            if (!classSymbol.HasAttribute(typeof(ConvertToAttribute)))
+            if (!classSymbol.HasAttribute(AttributeFullName))
             {
                 return null;
             }
@@ -38,7 +73,7 @@ namespace FlyTiger
 
             foreach (var convertToAttr in classSymbol.GetAttributes())
             {
-                if (!convertToAttr.AttributeClass.SafeEquals(typeof(ConvertToAttribute)))
+                if (!convertToAttr.AttributeClass.Is(AttributeFullName))
                 {
                     continue;
                 }
@@ -461,12 +496,12 @@ namespace FlyTiger
                 var fromType = arguments.First().Value as INamedTypeSymbol;
                 var toType = arguments.Last().Value as INamedTypeSymbol;
                 var ignoreProperties = attributeData.NamedArguments
-                    .Where(p => p.Key == nameof(ConvertToAttribute.IgnoreTargetProperties))
+                    .Where(p => p.Key == IgnoreTargetPropertiesPropertyName)
                     .Where(p => p.Value.IsNull == false)
                     .SelectMany(p => p.Value.Values.Select(t => (string)t.Value))
                     .Where(p => !string.IsNullOrWhiteSpace(p));
                 var customMappings = attributeData.NamedArguments
-                    .Where(p => p.Key == nameof(ConvertToAttribute.CustomMappings))
+                    .Where(p => p.Key == CustomMappingsPropertyName)
                     .Where(p => p.Value.IsNull == false)
                     .SelectMany(p => p.Value.Values.Select(t => (string)t.Value))
                     .Select(ParseCustomMapping)
@@ -488,7 +523,7 @@ namespace FlyTiger
             {
 
                 var attributeData = hostClasses.GetAttributes().Reverse()
-                     .Where(p => p.AttributeClass.SafeEquals(typeof(ConvertToAttribute)))
+                     .Where(p => p.AttributeClass.Is(AttributeFullName))
                      .Where(p => (p.ConstructorArguments.First().Value as INamedTypeSymbol).Equals(source, SymbolEqualityComparer.Default))
                      .Where(p => (p.ConstructorArguments.Last().Value as INamedTypeSymbol).Equals(source, SymbolEqualityComparer.Default))
                      .FirstOrDefault();

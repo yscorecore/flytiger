@@ -28,7 +28,6 @@ namespace FlyTiger.Generator.UnitTest
             {
                 typeof(Binder).GetTypeInfo().Assembly,
                 typeof(INotifyPropertyChanged).GetTypeInfo().Assembly,
-                typeof(AutoNotifyAttribute).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };
             base.ShouldGenerateExpectCodeFile(new AutoNotifyGenerator(), testCaseFileName, assemblies);
@@ -44,7 +43,6 @@ namespace FlyTiger.Generator.UnitTest
             {
                 typeof(Binder).GetTypeInfo().Assembly,
                 typeof(INotifyPropertyChanged).GetTypeInfo().Assembly,
-                typeof(AutoNotifyAttribute).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };
             base.ShouldReportDiagnostic(new AutoNotifyGenerator(), testCaseFileName, assemblies);

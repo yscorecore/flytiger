@@ -32,7 +32,6 @@ namespace FlyTiger.Generator.UnitTest
             var assemblies = new[]
             {
                 typeof(Binder).GetTypeInfo().Assembly,
-                typeof(AutoConstructorAttribute).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };
             base.ShouldGenerateExpectCodeFile(new AutoConstructorGenerator(), testCaseFileName, assemblies);
@@ -46,7 +45,6 @@ namespace FlyTiger.Generator.UnitTest
             var assemblies = new[]
             {
                 typeof(Binder).GetTypeInfo().Assembly,
-                typeof(AutoConstructorAttribute).GetTypeInfo().Assembly,
                 typeof(ActivatorUtilitiesConstructorAttribute).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };

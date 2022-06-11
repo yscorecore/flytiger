@@ -25,6 +25,11 @@ namespace FlyTiger
             return symbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == globalTypeMetaName;
         }
 
+        public static bool Is(this INamedTypeSymbol symbol, string typeMetaName)
+        {
+            return symbol?.ToDisplayString() == typeMetaName;
+        }
+
         private static string TypeNameCombinGlobal(this string typeName) => $"global::{typeName}";
         private static string GetGlobalTypeName(Type type)
         {
@@ -53,22 +58,12 @@ namespace FlyTiger
             return SafeEquals(symbol, GetGlobalTypeName(type));
         }
 
-        public static bool HasAttribute(this ISymbol symbol, INamedTypeSymbol attributeSymbol)
-        {
-            return symbol.GetAttributes().Any(ad =>
-                ad.AttributeClass.SafeEquals(attributeSymbol));
-        }
-
         public static bool HasAttribute(this ISymbol symbol, string attributeMetaType)
         {
             return symbol.GetAttributes().Any(ad =>
-                ad.AttributeClass.SafeEquals(attributeMetaType.TypeNameCombinGlobal()));
+                ad.AttributeClass.ToDisplayString() == attributeMetaType);
         }
 
-        public static bool HasAttribute(this ISymbol symbol, Type attributeType)
-        {
-            return HasAttribute(symbol, attributeType.FullName);
-        }
 
         public static string GetClassSymbolDisplayText(this INamedTypeSymbol classSymbol)
         {
@@ -108,10 +103,10 @@ namespace FlyTiger
         }
 
         public static IEnumerable<IFieldSymbol> GetAllInstanceFieldsByAttribute(this INamedTypeSymbol clazzSymbol,
-            Type attributeType)
+            string attributeMetaType)
         {
             return clazzSymbol.GetMembers().OfType<IFieldSymbol>()
-                .Where(p => p.CanBeReferencedByName && !p.IsStatic && p.HasAttribute(attributeType));
+                .Where(p => p.CanBeReferencedByName && !p.IsStatic && p.HasAttribute(attributeMetaType));
         }
 
         public static IEnumerable<INamedTypeSymbol> GetAllClassSymbolsIgnoreRepeated(this CodeWriter codeWriter,

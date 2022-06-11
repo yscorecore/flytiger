@@ -64,7 +64,6 @@ namespace FlyTiger.Generator.UnitTest
             var assemblies = new[]
             {
                 typeof(Binder).GetTypeInfo().Assembly,
-                typeof(ConvertToAttribute).GetTypeInfo().Assembly,
                 typeof(IQueryable<>).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };

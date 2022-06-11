@@ -11,8 +11,40 @@ namespace FlyTiger
     [Generator]
     public class AutoConstructorGenerator : ISourceGenerator
     {
+        const string NameSpaceName = nameof(FlyTiger);
+        const string AttributeName = "AutoConstructorAttribute";
+        const string IgnoreAttributeName = "AutoConstructorIgnoreAttribute";
+        const string NullCheckPropertyName = "NullCheck";
+        static string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
+        static string IgnoreAttributeFullName = $"{NameSpaceName}.{IgnoreAttributeName}";
+        const string AttributeCode = @"using System;
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorAttribute : Attribute
+    {
+        public bool NullCheck { get; set; } = false;
+    }
+}
+";
+
+        const string IgnoreAttributeCode = @"using System;
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorIgnoreAttribute : Attribute
+    {
+    }
+}
+";
+
         public void Initialize(GeneratorInitializationContext context)
         {
+            context.RegisterForPostInitialization((i) =>
+            {
+                i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
+                i.AddSource($"{IgnoreAttributeFullName}.g.cs", IgnoreAttributeCode);
+            });
             context.RegisterForSyntaxNotifications(() => new AutoConstructorSyntaxReceiver());
         }
         public void Execute(GeneratorExecutionContext context)
@@ -28,7 +60,7 @@ namespace FlyTiger
 
         private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter)
         {
-            if (!classSymbol.HasAttribute(typeof(AutoConstructorAttribute)))
+            if (!classSymbol.HasAttribute(AttributeFullName))
             {
                 return null;
             }
@@ -62,11 +94,11 @@ namespace FlyTiger
         bool GetNullCheckValue(INamedTypeSymbol classSymbol)
         {
             var attr = classSymbol.GetAttributes()
-                .Where(p => p.AttributeClass.SafeEquals(typeof(AutoConstructorAttribute)))
+                .Where(p => p.AttributeClass.Is(AttributeFullName))
                 .FirstOrDefault();
             if (attr != null)
             {
-                var val = attr.NamedArguments.Where(p => p.Key == nameof(AutoConstructorAttribute.NullCheck))
+                var val = attr.NamedArguments.Where(p => p.Key == NullCheckPropertyName)
                      .Select(p => p.Value.Value).FirstOrDefault();
                 if (val != null)
                 {
@@ -125,12 +157,12 @@ namespace FlyTiger
             IEnumerable<IFieldSymbol> GetInstanceFields()
             {
                 return classSymbol.GetMembers().OfType<IFieldSymbol>()
-                    .Where(p => !p.IsStatic && !p.IsConst && p.CanBeReferencedByName && !p.HasAttribute(typeof(AutoConstructorIgnoreAttribute)));
+                    .Where(p => !p.IsStatic && !p.IsConst && p.CanBeReferencedByName && !p.HasAttribute(IgnoreAttributeFullName));
             }
             IEnumerable<IPropertySymbol> GetInstanceProperties()
             {
                 return classSymbol.GetMembers().OfType<IPropertySymbol>()
-                    .Where(p => !p.IsStatic && !p.IsIndexer && p.CanBeReferencedByName && p.IsAutoProperty() && !p.HasAttribute(typeof(AutoConstructorIgnoreAttribute)));
+                    .Where(p => !p.IsStatic && !p.IsIndexer && p.CanBeReferencedByName && p.IsAutoProperty() && !p.HasAttribute(IgnoreAttributeFullName));
             }
 
             ImmutableArray<IParameterSymbol> GetBaseTypeParameters()

@@ -17,7 +17,6 @@ namespace FlyTiger.Generator.UnitTest
             var assemblies = new[]
             {
                 typeof(Binder).GetTypeInfo().Assembly,
-                typeof(SingletonPatternAttribute).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };
             base.ShouldGenerateExpectCodeFile(new SingletonPatternGenerator(), testCaseFileName, assemblies);
@@ -30,7 +29,6 @@ namespace FlyTiger.Generator.UnitTest
             var assemblies = new[]
             {
                 typeof(Binder).GetTypeInfo().Assembly,
-                typeof(SingletonPatternAttribute).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };
             base.ShouldReportDiagnostic(new SingletonPatternGenerator(), testCaseFileName, assemblies);

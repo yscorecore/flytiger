@@ -11,7 +11,6 @@ namespace FlyTiger
 {
     class CodeWriter
     {
-        public static CSharpParseOptions CSharpOptions = new CSharpParseOptions(LanguageVersion.CSharp9);
         public CodeWriter(GeneratorExecutionContext context)
         {
             Context = context;
@@ -34,7 +33,7 @@ namespace FlyTiger
             this.Context.AddSource($"{name}.{CodeFileSuffix}", codeFile.Content);
 
             this.Compilation = this.Compilation.AddSyntaxTrees(
-               CSharpSyntaxTree.ParseText(SourceText.From(codeFile.Content, Encoding.UTF8)));
+               CSharpSyntaxTree.ParseText(SourceText.From(codeFile.Content, Encoding.UTF8), (CSharpParseOptions)this.Context.ParseOptions));
         }
     }
     static class CodeWriterExtensions
@@ -77,7 +76,6 @@ namespace FlyTiger
 
             foreach (var classCachedInfo in dic.Values)
             {
-
                 Visit(classCachedInfo);
             }
             void Visit(ClassSyntaxCachedInfo value)
