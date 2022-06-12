@@ -107,7 +107,7 @@ jobs:
     - name: 04 Set Pack Version
       run: echo PACK_VERSION=${GIT_TAG#v} >> $GITHUB_ENV
     - name: 05 Create Package
-      run: dotnet pack -p:PackageVersion=${PACK_VERSION} -p:RepositoryUrl=${{github.event.repository.url}} -p:PackageProjectUrl=${{github.event.repository.url}} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o .publish --configuration Release
+      run: dotnet pack -p:PackageVersion=${PACK_VERSION} -p:RepositoryUrl=${{github.event.repository.url}} -p:PackageProjectUrl=${{github.event.repository.url}} -o .publish --configuration Release
     - name: 06 Push Package
       run: bash ./.github/scripts/pushpack.sh .publish ${{secrets.NUGET_APIKEY}}
     - name: 07 Set Image Tag
