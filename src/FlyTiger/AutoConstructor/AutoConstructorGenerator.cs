@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace FlyTiger
 {
     [Generator]
-    public class AutoConstructorGenerator : ISourceGenerator
+    class AutoConstructorGenerator : ISourceGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
         const string AttributeName = "AutoConstructorAttribute";

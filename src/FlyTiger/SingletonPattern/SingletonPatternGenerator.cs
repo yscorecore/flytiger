@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace FlyTiger
 {
     [Generator]
-    public class SingletonPatternGenerator : ISourceGenerator
+    class SingletonPatternGenerator : ISourceGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
         const string AttributeName = "SingletonPatternAttribute";

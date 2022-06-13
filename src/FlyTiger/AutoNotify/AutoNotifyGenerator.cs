@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace FlyTiger
 {
     [Generator]
-    public class AutoNotifyGenerator : ISourceGenerator
+    class AutoNotifyGenerator : ISourceGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
         const string AttributeName = "AutoNotifyAttribute";
