@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
       <RootNamespace>FlyTiger</RootNamespace>
-      <LangVersion>8.0</LangVersion>
       <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
@@ -15,11 +13,6 @@
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>$(AssemblyName).UnitTest</_Parameter1>
         </AssemblyAttribute>
-    </ItemGroup>
-    <ItemGroup>
-      <Content Include="README.md">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.0.0" PrivateAssets="all" />
