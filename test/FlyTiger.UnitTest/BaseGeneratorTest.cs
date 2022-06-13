@@ -15,7 +15,7 @@ namespace FlyTiger.Generator.UnitTest
     {
         protected void ShouldGenerateExpectCodeFile(ISourceGenerator generator, string testCaseFileName, params Assembly[] assemblies)
         {
-            XDocument xmlFile = XDocument.Load(testCaseFileName);
+            XDocument xmlFile = XDocument.Load(Path.Combine("TestCases", testCaseFileName));
             var codes = xmlFile.XPathSelectElements("case/input/code")
                 .Select(prop => prop.Value).ToArray();
             var newComp = RunGenerators(CreateCompilation(codes, assemblies), out var warningAndErrors,
@@ -37,7 +37,7 @@ namespace FlyTiger.Generator.UnitTest
 
         protected void ShouldReportDiagnostic(ISourceGenerator generator, string testCaseFileName, params Assembly[] assemblies)
         {
-            XDocument xmlFile = XDocument.Load(testCaseFileName);
+            XDocument xmlFile = XDocument.Load(Path.Combine("TestCases", testCaseFileName));
             var codes = xmlFile.XPathSelectElements("case/input/code")
                 .Select(prop => prop.Value).ToArray();
             var newComp = RunGenerators(CreateCompilation(codes, assemblies), out var warningAndErrors,

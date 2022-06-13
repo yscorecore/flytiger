@@ -6,12 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="**\*.xml" />
+      <None Remove="TestCases\**\*.xml" />
 
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="**\*.xml" Condition="">
+      <Content Include="TestCases\**\*.xml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
  

@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<case>
+    <input>
+        <code>
+            <![CDATA[
+using FlyTiger;
+namespace ConsoleApp2
+{
+    particl class BaseClass
+    {
+        [AutoConstructor()]
+        partial class SecondClass
+        {
+            
+            private int value;
+    
+            [AutoConstructor()]
+            partial class ThirdClass
+            {
+                private int value;
+            }
+        }
+    }
+    
+}
+        ]]>
+        </code>
+    </input>
+    <output>
+        <code file="FlyTiger.BaseClass.SecondClass.g.cs">
+            <![CDATA[
+namespace ConsoleApp2
+{
+    partial class BaseClass
+    {
+        partial class SecondClass
+        {
+            public SecondClass(int value)
+            {
+                this.value = value;
+            }
+        }
+    }
+}
+            ]]>
+        </code>
+        <code file="FlyTiger.BaseClass.SecondClass.ThirdClass.g.cs">
+            <![CDATA[
+namespace ConsoleApp2
+{
+    partial class BaseClass
+    {
+        partial class SecondClass
+        {
+            partial class ThirdClass
+            {
+                public ThirdClass(int value)
+                {
+                    this.value = value;
+                }
+            }
+        }
+    }
+}
+            ]]>
+        </code>
+    </output>
+</case>

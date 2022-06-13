@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<case>
+    <input>
+        <code>
+            <![CDATA[
+using FlyTiger;
+namespace ConsoleApp2
+{
+    [AutoConstructor()]
+    partial class Class1: FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.BaseClassWithEmptyCtor
+    {
+        private string value;
+
+    }
+}
+        ]]>
+        </code>
+        <code>
+            <![CDATA[
+using FlyTiger;
+namespace ConsoleApp2
+{
+    [AutoConstructor()]
+    partial class Class2: FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.BaseClassWith2Ctors
+    {
+        private string value;
+
+    }
+}
+        ]]>
+        </code>
+        <code>
+            <![CDATA[
+using FlyTiger;
+namespace ConsoleApp2
+{
+    [AutoConstructor()]
+    partial class Class3: FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.BaseClassWithAttributeInCtor
+    {
+        private string value;
+
+    }
+}
+        ]]>
+        </code>
+    </input>
+    <output>
+
+        <code file="FlyTiger.Class1.g.cs">
+            <![CDATA[
+namespace ConsoleApp2
+{
+    partial class Class1
+    {
+        public Class1(string value)
+        {
+            this.value = value;
+        }
+    }
+}
+            ]]>
+        </code>
+        <code file="FlyTiger.Class2.g.cs">
+            <![CDATA[
+namespace ConsoleApp2
+{
+    partial class Class2
+    {
+        public Class2(string value, string value1)
+            : base(value: value)
+        {
+            this.value = value1;
+        }
+    }
+}
+            ]]>
+        </code>
+        <code file="FlyTiger.Class3.g.cs">
+            <![CDATA[
+namespace ConsoleApp2
+{
+    partial class Class3
+    {
+        public Class3(string strValue, int intValue, string value)
+            : base(strValue: strValue, intValue: intValue)
+        {
+            this.value = value;
+        }
+    }
+}
+            ]]>
+        </code>
+    </output>
+</case>
