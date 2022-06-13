@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
       <RootNamespace>FlyTiger</RootNamespace>
-      <LangVersion>8.0</LangVersion>
       <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
