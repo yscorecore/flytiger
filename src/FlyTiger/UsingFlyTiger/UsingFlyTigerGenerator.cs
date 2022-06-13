@@ -12,7 +12,7 @@ namespace FlyTiger
         public void Execute(GeneratorExecutionContext context)
         {
             var csharpOptions = context.ParseOptions as CSharpParseOptions;
-            
+
             if (csharpOptions != null && (int)csharpOptions.LanguageVersion > 900)
             {
                 //csharp 10 support global using
@@ -26,7 +26,7 @@ namespace FlyTiger
         }
 
         public void Initialize(GeneratorInitializationContext context)
-        { 
+        {
         }
     }
 }
