@@ -56,7 +56,7 @@ namespace FlyTiger.Generator.UnitTest
         [InlineData("ConvertToCases/TargetParentClassProperty.xml")]
         [InlineData("ConvertToCases/OverwriteParentClassProperty.xml")]
 
-        //[InlineData("ConvertToCases/AllInOne.xml")]
+        [InlineData("ConvertToCases/AllInOne.xml")]
 
         public void ShouldGenerateConverterClass(string testCaseFileName)
         {

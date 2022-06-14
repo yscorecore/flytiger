@@ -70,7 +70,17 @@ namespace FlyTiger
             AppendUsingLines(classSymbol, codeBuilder);
             AppendNamespace(classSymbol, codeBuilder);
             AppendClassDefinition(classSymbol, codeBuilder);
-
+            AppendAllConvertFunctions(classSymbol, codeWriter, codeBuilder);
+            AppendAllGenericFunctions(classSymbol, codeWriter, codeBuilder);
+            codeBuilder.EndAllSegments();
+            return new CodeFile
+            {
+                BasicName = classSymbol.GetCodeFileBasicName(),
+                Content = codeBuilder.ToString(),
+            };
+        }
+        private void AppendAllConvertFunctions(INamedTypeSymbol classSymbol, CodeWriter codeWriter, CsharpCodeBuilder codeBuilder)
+        {
             foreach (var convertToAttr in classSymbol.GetAttributes())
             {
                 if (!convertToAttr.AttributeClass.Is(AttributeFullName))
@@ -87,23 +97,102 @@ namespace FlyTiger
                 }
                 else
                 {
-
                     // TOTO report error
                 }
-
             }
-
-            codeBuilder.EndAllSegments();
-            return new CodeFile
+        }
+        private void AppendAllGenericFunctions(INamedTypeSymbol classSymbol, CodeWriter codeWriter, CsharpCodeBuilder codeBuilder)
+        {
+            var allSources = classSymbol.GetAttributes().Where(p=>p.AttributeClass.Is(AttributeFullName))
+                .Select(p=> ConvertMappingInfo.FromAttributeData(p))
+                .ToLookup(p=>p.SourceType);
+            foreach (var item in allSources)
             {
-                BasicName = classSymbol.GetCodeFileBasicName(),
-                Content = codeBuilder.ToString(),
-            };
+                AppendGenericFunctions(item.Key, item.ToList(), codeBuilder);
+            }
+        }
+        private void AppendGenericFunctions(ITypeSymbol fromType, List<ConvertMappingInfo> mappingInfos, CsharpCodeBuilder codeBuilder)
+        {
+            var methodName = "To";
+            var fromTypeDisplay = fromType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            AddToMethodForSingle();
+            AddCopyToMethodForSingle();
+            AddToMethodForEnumable();
+            AddToMethodForQueryable();
+            void AddToMethodForSingle()
+            {
+                codeBuilder.AppendCodeLines($"public static T {methodName}<T>(this {fromTypeDisplay} source) where T:new()");
+                codeBuilder.BeginSegment();
+                if (!fromType.IsValueType)
+                {
+                    codeBuilder.AppendCodeLines("if (source == null) return default;");
+                }
 
-
+                foreach (var mapping in mappingInfos)
+                {
+                    var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines($"return (T)(object){mapping.ConvertToMethodName}(source);");
+                    codeBuilder.EndSegment();
+                }
+                codeBuilder.AppendCodeLines($"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
+                codeBuilder.EndSegment();
+            }
+            void AddCopyToMethodForSingle()
+            {
+                codeBuilder.AppendCodeLines($"public static void {methodName}<T>(this {fromTypeDisplay} source, T target) where T:class");
+                codeBuilder.BeginSegment();
+                if (!fromType.IsValueType)
+                {
+                    codeBuilder.AppendCodeLines("if (source == null) return;");
+                }
+                foreach (var mapping in mappingInfos)
+                {
+                    var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, ({toTypeDisplay})(object)target);");
+                    codeBuilder.AppendCodeLines($"return;");
+                    codeBuilder.EndSegment();
+                }
+                codeBuilder.AppendCodeLines($"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
+                codeBuilder.EndSegment();
+            }
+            void AddToMethodForEnumable()
+            {
+                codeBuilder.AppendCodeLines($"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromTypeDisplay}> source) where T:new()");
+                codeBuilder.BeginSegment();
+                foreach (var mapping in mappingInfos)
+                {
+                    var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines($"return (IEnumerable<T>){mapping.ConvertToMethodName}(source);");
+                    codeBuilder.EndSegment();
+                }
+                codeBuilder.AppendCodeLines($"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
+                codeBuilder.EndSegment();
+            }
+            void AddToMethodForQueryable()
+            {
+                codeBuilder.AppendCodeLines($"public static IQueryable<T> {methodName}<T>(this IQueryable<{fromTypeDisplay}> source) where T:new()");
+                codeBuilder.BeginSegment();
+                foreach (var mapping in mappingInfos)
+                {
+                    var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines($"return (IQueryable<T>){mapping.ConvertToMethodName}(source);");
+                    codeBuilder.EndSegment();
+                }
+                codeBuilder.AppendCodeLines($"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
+                codeBuilder.EndSegment();
+            }
         }
         private void AppendUsingLines(INamedTypeSymbol _, CsharpCodeBuilder codeBuilder)
         {
+            codeBuilder.AppendCodeLines("using System;");
             codeBuilder.AppendCodeLines("using System.Collections.Generic;");
             codeBuilder.AppendCodeLines("using System.Linq;");
         }

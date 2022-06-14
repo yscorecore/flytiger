@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace FlyTiger
 {
-    [Generator]
+    //[Generator]
     class UsingFlyTigerGenerator : ISourceGenerator
     {
         public void Execute(GeneratorExecutionContext context)
