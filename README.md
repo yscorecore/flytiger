@@ -83,10 +83,10 @@ dotnet add package FlyTiger
             set
             {
                 if(this._value != value)
-                {{
+                {
                     this._value = value;
                     this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
-                }}
+                }
             }
         }
     }
@@ -107,7 +107,6 @@ dotnet add package FlyTiger
 
 - No Use FlyTiger
     ```csharp
-    [SingletonPattern]
     public class Service1
     {
         private static readonly Lazy<Service1> LazyInstance = new Lazy<Service1>(() => new Service1(), true);
