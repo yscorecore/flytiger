@@ -6,6 +6,7 @@ FlyTiger is a dotnet source generator class library. It provide several useful f
 [![codecov](https://codecov.io/gh/yscorecore/FlyTiger/branch/master/graph/badge.svg)](https://codecov.io/gh/yscorecore/FlyTiger) 
 [![Nuget](https://img.shields.io/nuget/v/FlyTiger)](https://nuget.org/packages/FlyTiger/) 
 [![GitHub](https://img.shields.io/github/license/yscorecore/FlyTiger)](https://github.com/yscorecore/FlyTiger/blob/master/LICENSE)
+[![Sonar](https://sonarcloud.io/api/project_badges/measure?project=yscorecore_changedb&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=yscorecore_flytiger)
 
 ## How to use
 Add `FlyTiger` package in your csharp project.
