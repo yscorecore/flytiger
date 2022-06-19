@@ -103,9 +103,9 @@ namespace FlyTiger
         }
         private void AppendAllGenericFunctions(INamedTypeSymbol classSymbol, CodeWriter codeWriter, CsharpCodeBuilder codeBuilder)
         {
-            var allSources = classSymbol.GetAttributes().Where(p=>p.AttributeClass.Is(AttributeFullName))
-                .Select(p=> ConvertMappingInfo.FromAttributeData(p))
-                .ToLookup(p=>p.SourceType);
+            var allSources = classSymbol.GetAttributes().Where(p => p.AttributeClass.Is(AttributeFullName))
+                .Select(p => ConvertMappingInfo.FromAttributeData(p))
+                .ToLookup(p => p.SourceType);
             foreach (var item in allSources)
             {
                 AppendGenericFunctions(item.Key, item.ToList(), codeBuilder);
@@ -235,7 +235,7 @@ namespace FlyTiger
             AddToMethodForQueryable();
             void AddToMethodForSingle()
             {
-                codeBuilder.AppendCodeLines($"public static {toTypeDisplay} {mappingInfo.ConvertToMethodName}(this {fromTypeDisplay} source)");
+                codeBuilder.AppendCodeLines($"private static {toTypeDisplay} {mappingInfo.ConvertToMethodName}(this {fromTypeDisplay} source)");
                 codeBuilder.BeginSegment();
                 if (!fromType.IsValueType)
                 {
@@ -249,7 +249,7 @@ namespace FlyTiger
             }
             void AddCopyToMethodForSingle()
             {
-                codeBuilder.AppendCodeLines($"public static void {mappingInfo.ConvertToMethodName}(this {fromTypeDisplay} source, {toTypeDisplay} target)");
+                codeBuilder.AppendCodeLines($"private static void {mappingInfo.ConvertToMethodName}(this {fromTypeDisplay} source, {toTypeDisplay} target)");
                 codeBuilder.BeginSegment();
                 if (!fromType.IsValueType)
                 {
@@ -264,7 +264,7 @@ namespace FlyTiger
             }
             void AddToMethodForEnumable()
             {
-                codeBuilder.AppendCodeLines($"public static IEnumerable<{toTypeDisplay}> {mappingInfo.ConvertToMethodName}(this IEnumerable<{fromTypeDisplay}> source)");
+                codeBuilder.AppendCodeLines($"private static IEnumerable<{toTypeDisplay}> {mappingInfo.ConvertToMethodName}(this IEnumerable<{fromTypeDisplay}> source)");
                 codeBuilder.BeginSegment();
                 codeBuilder.AppendCodeLines($"return source?.Select(p => new {toTypeDisplay}");
                 codeBuilder.BeginSegment();
@@ -274,7 +274,7 @@ namespace FlyTiger
             }
             void AddToMethodForQueryable()
             {
-                codeBuilder.AppendCodeLines($"public static IQueryable<{toTypeDisplay}> {mappingInfo.ConvertToMethodName}(this IQueryable<{fromTypeDisplay}> source)");
+                codeBuilder.AppendCodeLines($"private static IQueryable<{toTypeDisplay}> {mappingInfo.ConvertToMethodName}(this IQueryable<{fromTypeDisplay}> source)");
                 codeBuilder.BeginSegment();
                 codeBuilder.AppendCodeLines($"return source?.Select(p => new {toTypeDisplay}");
                 codeBuilder.BeginSegment();
@@ -598,13 +598,14 @@ namespace FlyTiger
                     .Select(item => item.Value)
                     .ToLookup(item => item.Key, item => item.Value)
                     .ToDictionary(p => p.Key, p => p.Last());
+                var methodName = new string(toType.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat).Where(ch => char.IsLetterOrDigit(ch)).ToArray());
                 return new ConvertMappingInfo
                 {
                     SourceType = fromType,
                     TargetType = toType,
                     IgnoreTargetProperties = new HashSet<string>(ignoreProperties),
                     CustomerMappings = customMappings,
-                    ConvertToMethodName = $"To{toType.Name}",
+                    ConvertToMethodName = $"To{methodName}",
                 };
             }
 

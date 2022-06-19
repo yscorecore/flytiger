@@ -111,13 +111,14 @@ namespace SourceGenerator.ConvertTo
     <output>
         <code file="FlyTiger.Convertors.g.cs">
             <![CDATA[
+using System;
 using System.Collections.Generic;
 using System.Linq;
 namespace SourceGenerator.ConvertTo
 {
     static partial class Convertors
     {
-        public static global::SourceGenerator.ConvertTo.To ToTo(this global::SourceGenerator.ConvertTo.From source)
+        private static global::SourceGenerator.ConvertTo.To ToSourceGeneratorConvertToTo(this global::SourceGenerator.ConvertTo.From source)
         {
             if (source == null) return default;
             return new global::SourceGenerator.ConvertTo.To
@@ -150,7 +151,7 @@ namespace SourceGenerator.ConvertTo
                 ArrayStringToIQueryable = source.ArrayStringToIQueryable == null ? null : source.ArrayStringToIQueryable.AsQueryable(),
             };
         }
-        public static void ToTo(this global::SourceGenerator.ConvertTo.From source, global::SourceGenerator.ConvertTo.To target)
+        private static void ToSourceGeneratorConvertToTo(this global::SourceGenerator.ConvertTo.From source, global::SourceGenerator.ConvertTo.To target)
         {
             if (source == null) return;
             if (target == null) return;
@@ -181,7 +182,7 @@ namespace SourceGenerator.ConvertTo
             target.ArrayStringToIEnumerable = source.ArrayStringToIEnumerable;
             target.ArrayStringToIQueryable = source.ArrayStringToIQueryable == null ? null : source.ArrayStringToIQueryable.AsQueryable();
         }
-        public static IEnumerable<global::SourceGenerator.ConvertTo.To> ToTo(this IEnumerable<global::SourceGenerator.ConvertTo.From> source)
+        private static IEnumerable<global::SourceGenerator.ConvertTo.To> ToSourceGeneratorConvertToTo(this IEnumerable<global::SourceGenerator.ConvertTo.From> source)
         {
             return source?.Select(p => new global::SourceGenerator.ConvertTo.To
             {
@@ -213,7 +214,7 @@ namespace SourceGenerator.ConvertTo
                 ArrayStringToIQueryable = p.ArrayStringToIQueryable == null ? null : p.ArrayStringToIQueryable.AsQueryable(),
             });
         }
-        public static IQueryable<global::SourceGenerator.ConvertTo.To> ToTo(this IQueryable<global::SourceGenerator.ConvertTo.From> source)
+        private static IQueryable<global::SourceGenerator.ConvertTo.To> ToSourceGeneratorConvertToTo(this IQueryable<global::SourceGenerator.ConvertTo.From> source)
         {
             return source?.Select(p => new global::SourceGenerator.ConvertTo.To
             {
@@ -245,7 +246,7 @@ namespace SourceGenerator.ConvertTo
                 ArrayStringToIQueryable = p.ArrayStringToIQueryable == null ? null : p.ArrayStringToIQueryable.AsQueryable(),
             });
         }
-        public static global::SourceGenerator.ConvertTo.From ToFrom(this global::SourceGenerator.ConvertTo.To source)
+        private static global::SourceGenerator.ConvertTo.From ToSourceGeneratorConvertToFrom(this global::SourceGenerator.ConvertTo.To source)
         {
             if (source == null) return default;
             return new global::SourceGenerator.ConvertTo.From
@@ -278,7 +279,7 @@ namespace SourceGenerator.ConvertTo
                 ArrayStringToIQueryable = source.ArrayStringToIQueryable == null ? null : source.ArrayStringToIQueryable.ToArray(),
             };
         }
-        public static void ToFrom(this global::SourceGenerator.ConvertTo.To source, global::SourceGenerator.ConvertTo.From target)
+        private static void ToSourceGeneratorConvertToFrom(this global::SourceGenerator.ConvertTo.To source, global::SourceGenerator.ConvertTo.From target)
         {
             if (source == null) return;
             if (target == null) return;
@@ -309,7 +310,7 @@ namespace SourceGenerator.ConvertTo
             target.ArrayStringToIEnumerable = source.ArrayStringToIEnumerable == null ? null : source.ArrayStringToIEnumerable.ToArray();
             target.ArrayStringToIQueryable = source.ArrayStringToIQueryable == null ? null : source.ArrayStringToIQueryable.ToArray();
         }
-        public static IEnumerable<global::SourceGenerator.ConvertTo.From> ToFrom(this IEnumerable<global::SourceGenerator.ConvertTo.To> source)
+        private static IEnumerable<global::SourceGenerator.ConvertTo.From> ToSourceGeneratorConvertToFrom(this IEnumerable<global::SourceGenerator.ConvertTo.To> source)
         {
             return source?.Select(p => new global::SourceGenerator.ConvertTo.From
             {
@@ -341,7 +342,7 @@ namespace SourceGenerator.ConvertTo
                 ArrayStringToIQueryable = p.ArrayStringToIQueryable == null ? null : p.ArrayStringToIQueryable.ToArray(),
             });
         }
-        public static IQueryable<global::SourceGenerator.ConvertTo.From> ToFrom(this IQueryable<global::SourceGenerator.ConvertTo.To> source)
+        private static IQueryable<global::SourceGenerator.ConvertTo.From> ToSourceGeneratorConvertToFrom(this IQueryable<global::SourceGenerator.ConvertTo.To> source)
         {
             return source?.Select(p => new global::SourceGenerator.ConvertTo.From
             {
@@ -372,6 +373,76 @@ namespace SourceGenerator.ConvertTo
                 ArrayStringToIEnumerable = p.ArrayStringToIEnumerable == null ? null : p.ArrayStringToIEnumerable.ToArray(),
                 ArrayStringToIQueryable = p.ArrayStringToIQueryable == null ? null : p.ArrayStringToIQueryable.ToArray(),
             });
+        }
+        public static T To<T>(this global::SourceGenerator.ConvertTo.From source) where T:new()
+        {
+            if (source == null) return default;
+            if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.To))
+            {
+                return (T)(object)ToSourceGeneratorConvertToTo(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.From)}' to '{typeof(T)}'.");
+        }
+        public static void To<T>(this global::SourceGenerator.ConvertTo.From source, T target) where T:class
+        {
+            if (source == null) return;
+            if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.To))
+            {
+                ToSourceGeneratorConvertToTo(source, (global::SourceGenerator.ConvertTo.To)(object)target);
+                return;
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.From)}' to '{typeof(T)}'.");
+        }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::SourceGenerator.ConvertTo.From> source) where T:new()
+        {
+            if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.To))
+            {
+                return (IEnumerable<T>)ToSourceGeneratorConvertToTo(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.From)}' to '{typeof(T)}'.");
+        }
+        public static IQueryable<T> To<T>(this IQueryable<global::SourceGenerator.ConvertTo.From> source) where T:new()
+        {
+            if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.To))
+            {
+                return (IQueryable<T>)ToSourceGeneratorConvertToTo(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.From)}' to '{typeof(T)}'.");
+        }
+        public static T To<T>(this global::SourceGenerator.ConvertTo.To source) where T:new()
+        {
+            if (source == null) return default;
+            if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.From))
+            {
+                return (T)(object)ToSourceGeneratorConvertToFrom(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.To)}' to '{typeof(T)}'.");
+        }
+        public static void To<T>(this global::SourceGenerator.ConvertTo.To source, T target) where T:class
+        {
+            if (source == null) return;
+            if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.From))
+            {
+                ToSourceGeneratorConvertToFrom(source, (global::SourceGenerator.ConvertTo.From)(object)target);
+                return;
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.To)}' to '{typeof(T)}'.");
+        }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::SourceGenerator.ConvertTo.To> source) where T:new()
+        {
+            if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.From))
+            {
+                return (IEnumerable<T>)ToSourceGeneratorConvertToFrom(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.To)}' to '{typeof(T)}'.");
+        }
+        public static IQueryable<T> To<T>(this IQueryable<global::SourceGenerator.ConvertTo.To> source) where T:new()
+        {
+            if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.From))
+            {
+                return (IQueryable<T>)ToSourceGeneratorConvertToFrom(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.To)}' to '{typeof(T)}'.");
         }
     }
 }
