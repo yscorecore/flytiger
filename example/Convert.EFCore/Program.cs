@@ -17,5 +17,5 @@ context.Users.Add(new User()
     Roles = new List<Role> { new Role() { Name = "admin", Id = Guid.NewGuid() } }
 });
 await context.SaveChangesAsync();
-var userdtos = context.Users.ToUserDto().ToList();
+var userdtos = context.Users.To<UserDto>().ToList();
 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(userdtos));

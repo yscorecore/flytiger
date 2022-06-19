@@ -6,5 +6,5 @@ using System.Threading.Channels;
 using Convert;
 
 var from = new From { StrProp = "hello", IntProp = 2 };
-var to = from.ToTo();
+var to = from.To<To>();
 Console.WriteLine(JsonSerializer.Serialize(to));
