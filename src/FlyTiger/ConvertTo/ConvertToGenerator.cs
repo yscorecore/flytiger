@@ -71,7 +71,7 @@ namespace FlyTiger
             AppendNamespace(classSymbol, codeBuilder);
             AppendClassDefinition(classSymbol, codeBuilder);
             AppendAllConvertFunctions(classSymbol, codeWriter, codeBuilder);
-            AppendAllGenericFunctions(classSymbol, codeWriter, codeBuilder);
+            AppendAllGenericFunctions(classSymbol, codeBuilder);
             codeBuilder.EndAllSegments();
             return new CodeFile
             {
@@ -101,7 +101,7 @@ namespace FlyTiger
                 }
             }
         }
-        private void AppendAllGenericFunctions(INamedTypeSymbol classSymbol, CodeWriter codeWriter, CsharpCodeBuilder codeBuilder)
+        private void AppendAllGenericFunctions(INamedTypeSymbol classSymbol, CsharpCodeBuilder codeBuilder)
         {
             var allSources = classSymbol.GetAttributes().Where(p => p.AttributeClass.Is(AttributeFullName))
                 .Select(p => ConvertMappingInfo.FromAttributeData(p))
