@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AutoMapper;
 using BenchmarkDotNet.Attributes;
 using FlyTiger;
+using System.Text.Json;
 namespace ConvertToPerformance
 {
     public class ConvertToCompare
@@ -17,6 +18,10 @@ namespace ConvertToPerformance
                 cfg.CreateMap<AddressInfo, AddressDto>();
             });
             _mapper = config.CreateMapper();
+
+            userInfo10 =JsonSerializer.Deserialize<UserInfo[]>(JsonSerializer.Serialize(Enumerable.Repeat(userInfo,10)));
+            userInfo100 =JsonSerializer.Deserialize<UserInfo[]>(JsonSerializer.Serialize(Enumerable.Repeat(userInfo,100)));
+            userInfo1000 =JsonSerializer.Deserialize<UserInfo[]>(JsonSerializer.Serialize(Enumerable.Repeat(userInfo,1000)));
         }
         UserInfo userInfo = new UserInfo
         {
@@ -32,150 +37,11 @@ namespace ConvertToPerformance
                  }
              }
         };
-        UserInfo userInfos = new UserInfo[] {
-        new UserInfo
-        {
-            Name = "zhangsan",
-            Birthday = DateTime.Parse("2000-11-11"),
-            Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
-                     Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
-                     Tel = "13666666666"
-                 }
-             }
-        },
-        new UserInfo
-        {
-            Name = "zhangsan",
-            Birthday = DateTime.Parse("2000-11-11"),
-            Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
-                     Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
-                     Tel = "13666666666"
-                 }
-             }
-        },
-        new UserInfo
-        {
-            Name = "zhangsan",
-            Birthday = DateTime.Parse("2000-11-11"),
-            Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
-                     Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
-                     Tel = "13666666666"
-                 }
-             }
-        },
-        new UserInfo
-        {
-            Name = "zhangsan",
-            Birthday = DateTime.Parse("2000-11-11"),
-            Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
-                     Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
-                     Tel = "13666666666"
-                 }
-             }
-        },
-        new UserInfo
-        {
-            Name = "zhangsan",
-            Birthday = DateTime.Parse("2000-11-11"),
-            Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
-                     Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
-                     Tel = "13666666666"
-                 }
-             }
-        },
-        new UserInfo
-        {
-            Name = "zhangsan",
-            Birthday = DateTime.Parse("2000-11-11"),
-            Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
-                     Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
-                     Tel = "13666666666"
-                 }
-             }
-        },
-        new UserInfo
-        {
-            Name = "zhangsan",
-            Birthday = DateTime.Parse("2000-11-11"),
-            Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
-                     Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
-                     Tel = "13666666666"
-                 }
-             }
-        },
-        new UserInfo
-        {
-            Name = "zhangsan",
-            Birthday = DateTime.Parse("2000-11-11"),
-            Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
-                     Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
-                     Tel = "13666666666"
-                 }
-             }
-        },
-        new UserInfo
-        {
-            Name = "zhangsan",
-            Birthday = DateTime.Parse("2000-11-11"),
-            Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
-                     Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
-                     Tel = "13666666666"
-                 }
-             }
-        },
-        new UserInfo
-        {
-            Name = "zhangsan",
-            Birthday = DateTime.Parse("2000-11-11"),
-            Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
-                     Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
-                     Tel = "13666666666"
-                 }
-             }
-        }
-        };
-        
 
+        UserInfo[] userInfo10;
+        UserInfo[] userInfo100;
+
+        UserInfo[] userInfo1000;
         [Benchmark]
         public void MapSingleUseFlyTiger()
         {
@@ -189,14 +55,36 @@ namespace ConvertToPerformance
         }
 
         [Benchmark]
-        public void MapArrayUseFlyTiger()
+        public void Map10ObjectUseFlyTiger()
         {
-            _ = userInfos.To<UserDto>();
+            _ = userInfo10.To<UserDto>();
         }
         [Benchmark]
-        public void MapArrayUseAutoMapper()
+        public void Map10ObjectUseAutoMapper()
         {
-            _ = _mapper.Map<UserInfo[], UserDto[]>(userInfos);
+            _ = _mapper.Map<UserInfo[], UserDto[]>(userInfo10);
+        }
+
+        [Benchmark]
+        public void Map100ObjectUseFlyTiger()
+        {
+            _ = userInfo100.To<UserDto>();
+        }
+        [Benchmark]
+        public void Map100ObjectUseAutoMapper()
+        {
+            _ = _mapper.Map<UserInfo[], UserDto[]>(userInfo100);
+        }
+
+        [Benchmark]
+        public void Map1000ObjectUseFlyTiger()
+        {
+            _ = userInfo1000.To<UserDto>();
+        }
+        [Benchmark]
+        public void Map1000ObjectUseAutoMapper()
+        {
+            _ = _mapper.Map<UserInfo[], UserDto[]>(userInfo1000);
         }
     }
 }
