@@ -179,7 +179,7 @@ dotnet add package FlyTiger
         private readonly UserDbContext userContext;
         public List<UserDtos> ListAllUsers()
         {
-            return userContexts.Users.ToUserDto().ToList();
+            return userContexts.Users.To<UserDto>().ToList();
         }
     }
 
