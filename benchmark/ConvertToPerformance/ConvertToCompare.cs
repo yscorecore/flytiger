@@ -57,34 +57,34 @@ namespace ConvertToPerformance
         [Benchmark]
         public void Map10ObjectUseFlyTiger()
         {
-            _ = userInfo10.To<UserDto>();
+            _ = userInfo10.To<UserDto>().ToArray();
         }
         [Benchmark]
         public void Map10ObjectUseAutoMapper()
         {
-            _ = _mapper.Map<UserInfo[], UserDto[]>(userInfo10);
+            _ = _mapper.Map<UserInfo[], IEnumerable<UserDto>>(userInfo10).ToArray();
         }
 
         [Benchmark]
         public void Map100ObjectUseFlyTiger()
         {
-            _ = userInfo100.To<UserDto>();
+            _ = userInfo100.To<UserDto>().ToArray();
         }
         [Benchmark]
         public void Map100ObjectUseAutoMapper()
         {
-            _ = _mapper.Map<UserInfo[], UserDto[]>(userInfo100);
+            _ = _mapper.Map<UserInfo[], IEnumerable<UserDto>>(userInfo100).ToArray();
         }
 
         [Benchmark]
         public void Map1000ObjectUseFlyTiger()
         {
-            _ = userInfo1000.To<UserDto>();
+            _ = userInfo1000.To<UserDto>().ToArray();
         }
         [Benchmark]
         public void Map1000ObjectUseAutoMapper()
         {
-            _ = _mapper.Map<UserInfo[], UserDto[]>(userInfo1000);
+            _ = _mapper.Map<UserInfo[], IEnumerable<UserDto>>(userInfo1000).ToArray();
         }
     }
 }
