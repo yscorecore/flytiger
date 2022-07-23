@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using AutoMapper;
 using BenchmarkDotNet.Attributes;
 using FlyTiger;
-using System.Text.Json;
 namespace ConvertToPerformance
 {
     public class ConvertToCompare
@@ -19,9 +19,9 @@ namespace ConvertToPerformance
             });
             _mapper = config.CreateMapper();
 
-            userInfo10 =JsonSerializer.Deserialize<UserInfo[]>(JsonSerializer.Serialize(Enumerable.Repeat(userInfo,10)));
-            userInfo100 =JsonSerializer.Deserialize<UserInfo[]>(JsonSerializer.Serialize(Enumerable.Repeat(userInfo,100)));
-            userInfo1000 =JsonSerializer.Deserialize<UserInfo[]>(JsonSerializer.Serialize(Enumerable.Repeat(userInfo,1000)));
+            userInfo10 = JsonSerializer.Deserialize<UserInfo[]>(JsonSerializer.Serialize(Enumerable.Repeat(userInfo, 10)));
+            userInfo100 = JsonSerializer.Deserialize<UserInfo[]>(JsonSerializer.Serialize(Enumerable.Repeat(userInfo, 100)));
+            userInfo1000 = JsonSerializer.Deserialize<UserInfo[]>(JsonSerializer.Serialize(Enumerable.Repeat(userInfo, 1000)));
         }
         UserInfo userInfo = new UserInfo
         {
