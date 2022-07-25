@@ -8,29 +8,37 @@
 [![GitHub](https://img.shields.io/github/license/yscorecore/FlyTiger)](https://github.com/yscorecore/FlyTiger/blob/master/LICENSE)
 [![Sonar](https://sonarcloud.io/api/project_badges/measure?project=yscorecore_changedb&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=yscorecore_flytiger)
 
-## Features
-|Name|Descriptor|Details|
---|--|--
-**AutoConstructor**|AutoConstructor|[Usage](https://yscorecore.github.io/flytiger/features/AutoConstructor.html)|
-**ConvertTo**|ConvertTo|[Usage](https://yscorecore.github.io/flytiger/features/ConvertTo.html)|
-**SingletonPattern**|SingletonPattern|[Usage](https://yscorecore.github.io/flytiger/features/SingletonPattern.html)|
-**AutoNotify**|AutoNotify|[Usage](https://yscorecore.github.io/flytiger/features/AutoNotify.html)|
 
 ## How it works
 
-FlyTiger use [Source Generator](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview) to emit C# source code during compilation.  
+FlyTiger use [Source Generator](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview) to emit C# source code during compilation. It will generate both feature code and attribute class code to your output assembly, so the target assembly won't depend on the `FlyTiger` assembly in runtime anymore.  
+<img src="res/architecture.png">
 
+## Features
+- [AutoConstructor](https://yscorecore.github.io/flytiger/features/AutoConstructor.html)
+- [ConvertTo](https://yscorecore.github.io/flytiger/features/ConvertTo.html)
+- [SingletonPattern](https://yscorecore.github.io/flytiger/features/SingletonPattern.html)
+- [AutoNotify](https://yscorecore.github.io/flytiger/features/AutoNotify.html)
 ## How to use
-Add `FlyTiger` package in your csharp project.
-```bash
-dotnet add package FlyTiger 
-```
+1. Add `FlyTiger` package in your csharp project.
+    ```bash
+    dotnet add package FlyTiger 
+    ```
 
-Using the namespace
-```csharp
-using FlyTiger;
-```
-
+1. Use attribute class
+    ```csharp
+    using FlyTiger;
+    namespace ClassLibrary1
+    {
+        [AutoConstructor]
+        public partial class User
+        {
+            private readonly string name;
+            private readonly string age;
+        }
+    }
+    ```
+    More details usage please goto the [document](https://yscorecore.github.io/flytiger/).
 
 
 ## Maintainers

@@ -5,6 +5,7 @@
         <Authors>Pengbo Yang</Authors>
         <Product>FlyTiger</Product>
         <RepositoryType>git</RepositoryType>
+        <Description>FlyTiger is a dotnet source generator class library. It provide several useful features to make coding on c# more easier.</Description>
     </PropertyGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
