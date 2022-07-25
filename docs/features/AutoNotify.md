@@ -2,7 +2,6 @@
 layout: default
 title: AutoNotify
 nav_order: 5
-permalink: /auto-notify
 parent: FEATURES
 ---
 

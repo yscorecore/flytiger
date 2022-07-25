@@ -2,7 +2,6 @@
 layout: default
 title: ConvertTo
 nav_order: 3
-permalink: /convert-to
 parent: FEATURES
 ---
 

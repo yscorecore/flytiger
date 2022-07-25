@@ -2,7 +2,6 @@
 layout: default
 title: AutoConstructor
 nav_order: 2
-permalink: /auto-constructor
 parent: FEATURES
 ---
 
