@@ -11,14 +11,14 @@
 
 ## How it works
 
-FlyTiger use [Source Generator](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview) to emit C# source code during compilation. It will generate both feature code and attribute class code to your output assembly, so the target assembly won't depend on the `FlyTiger` assembly in runtime anymore.  
+FlyTiger use [Source Generator](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview) to emit C# source code during compilation. It generate both feature code and attribute class code to output assembly, so the target assembly doesn't depend on the `FlyTiger` assembly in runtime.  
 <img src="res/architecture.png">
 
 ## Features
-- [AutoConstructor](https://yscorecore.github.io/flytiger/features/AutoConstructor.html)
-- [ConvertTo](https://yscorecore.github.io/flytiger/features/ConvertTo.html)
-- [SingletonPattern](https://yscorecore.github.io/flytiger/features/SingletonPattern.html)
-- [AutoNotify](https://yscorecore.github.io/flytiger/features/AutoNotify.html)
+- [AutoConstructor](https://yscorecore.github.io/flytiger/features/AutoConstructor.html) (通过一个特性，自动生成构造函数)
+- [ConvertTo](https://yscorecore.github.io/flytiger/features/ConvertTo.html) (最高效的模型类相互转化方案，支持EFCore)
+- [SingletonPattern](https://yscorecore.github.io/flytiger/features/SingletonPattern.html) (定义单例模式的最简单的方式)
+- [AutoNotify](https://yscorecore.github.io/flytiger/features/AutoNotify.html) (自动生成PropertyChanged事件)
 ## How to use
 1. Add `FlyTiger` package in your csharp project.
     ```bash
@@ -38,7 +38,7 @@ FlyTiger use [Source Generator](https://docs.microsoft.com/en-us/dotnet/csharp/r
         }
     }
     ```
-    More details usage please goto the [document](https://yscorecore.github.io/flytiger/).
+    More usage please goto the [document](https://yscorecore.github.io/flytiger/).
 
 
 ## Maintainers
@@ -54,6 +54,7 @@ Standard Readme follows the [Contributor Covenant](http://contributor-covenant.o
 ### Contributors
 
 This project exists thanks to all the people who contribute. 
+
 <a href="https://github.com/yscorecore/flytiger/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yscorecore/flytiger" />
 </a>
