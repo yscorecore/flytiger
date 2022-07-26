@@ -15,14 +15,20 @@ FlyTiger use [Source Generator](https://docs.microsoft.com/en-us/dotnet/csharp/r
 <img src="res/architecture.png">
 
 ## Features
-- [AutoConstructor](https://yscorecore.github.io/flytiger/features/AutoConstructor.html) (通过一个特性，自动生成构造函数)
-- [ConvertTo](https://yscorecore.github.io/flytiger/features/ConvertTo.html) (最高效的模型类相互转化方案，支持EFCore)
-- [SingletonPattern](https://yscorecore.github.io/flytiger/features/SingletonPattern.html) (定义单例模式的最简单的方式)
-- [AutoNotify](https://yscorecore.github.io/flytiger/features/AutoNotify.html) (自动生成PropertyChanged事件)
+- [AutoConstructor](https://yscorecore.github.io/flytiger/features/AutoConstructor.html) (Automatically generate constructor for class)
+- [ConvertTo](https://yscorecore.github.io/flytiger/features/ConvertTo.html) (The highest performance model-class conversion solution, supporting EFCore)
+- [SingletonPattern](https://yscorecore.github.io/flytiger/features/SingletonPattern.html) (The easiest way to define the singleton pattern)
+- [AutoNotify](https://yscorecore.github.io/flytiger/features/AutoNotify.html) (Automatically generate `PropertyChanged` events)
 ## How to use
 1. Add `FlyTiger` package in your csharp project.
     ```bash
     dotnet add package FlyTiger 
+    ```
+    Or you can edit the csproj, add FlyTiger to your project.
+    ```xml
+    <ItemGroup>
+        <PackageReference Include="FlyTiger" Version="0.0.4" />
+    </ItemGroup>
     ```
 
 1. Use attribute class
@@ -38,7 +44,7 @@ FlyTiger use [Source Generator](https://docs.microsoft.com/en-us/dotnet/csharp/r
         }
     }
     ```
-    More usage please goto the [document](https://yscorecore.github.io/flytiger/).
+    More usage please goto the [FlyTiger Documentation](https://yscorecore.github.io/flytiger/).
 
 
 ## Maintainers

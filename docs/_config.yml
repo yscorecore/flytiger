@@ -1,6 +1,6 @@
 title: FlyTiger
 # Set a path/url to a logo that will be displayed instead of the title
-logo: "https://raw.githubusercontent.com/yscorecore/ys.knife/master/res/icon.png"
+logo: "https://raw.githubusercontent.com/yscorecore/flytiger/master/res/icon.png"
 remote_theme: pmarsceill/just-the-docs
 plugins:
   - jekyll-remote-theme
@@ -19,7 +19,7 @@ back_to_top: true
 back_to_top_text: "Back to top"
 
 # appears at the bottom of every page's main content
-footer_content: "Copyright &copy; 2021-2022 Pengbo Yang. Distributed by an <a href=\"https://github.com/yscorecore/flytiger/tree/master/LICENSE.txt\">MIT license.</a>"
+footer_content: "Copyright &copy; 2022-2022 Pengbo Yang. Distributed by an <a href=\"https://github.com/yscorecore/flytiger/tree/master/LICENSE\">MIT license.</a>"
 
 # Footer last edited timestamp
 last_edit_timestamp: true # show or hide edit time - page must have `last_modified_date` defined in the frontmatter
@@ -30,5 +30,6 @@ gh_edit_link: true # show or hide edit this page link
 gh_edit_link_text: "Edit this page on GitHub."
 gh_edit_repository: "https://github.com/yscorecore/flytiger" # the github URL for your repo
 gh_edit_branch: "master" # the branch that your docs is served from
+gh_edit_source: "docs"
 gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
 theme: jekyll-theme-slate
