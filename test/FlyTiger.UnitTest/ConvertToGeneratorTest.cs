@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xunit;
-using System.Collections.Generic;
 namespace FlyTiger.Generator.UnitTest
 {
     public class ConvertToGeneratorTest : BaseGeneratorTest
     {
         [Theory]
-        
+
         [InlineData("ConvertToCases/HappyCase.xml")]
         [InlineData("ConvertToCases/ClassifyConversion.xml")]
         [InlineData("ConvertToCases/ClassToStruct.xml")]
@@ -37,26 +37,26 @@ namespace FlyTiger.Generator.UnitTest
         [InlineData("ConvertToCases/ArrayToIQueryable.xml")]
         [InlineData("ConvertToCases/ArrayToIList.xml")]
         [InlineData("ConvertToCases/ArrayToICollection.xml")]
-        
+
         [InlineData("ConvertToCases/ArrayClassToListStruct.xml")]
         [InlineData("ConvertToCases/ArrayClassToArrayStruct.xml")]
         [InlineData("ConvertToCases/ArrayClassToIEnumerableStruct.xml")]
         [InlineData("ConvertToCases/ArrayClassToIQueryableStruct.xml")]
         [InlineData("ConvertToCases/ArrayClassToIListStruct.xml")]
         [InlineData("ConvertToCases/ArrayClassToICollectionStruct.xml")]
-        
-        
+
+
         [InlineData("ConvertToCases/ArrayStructToListClass.xml")]
         [InlineData("ConvertToCases/ArrayStructToArrayClass.xml")]
         [InlineData("ConvertToCases/ArrayStructToIEnumerableClass.xml")]
         [InlineData("ConvertToCases/ArrayStructToIQueryableClass.xml")]
         [InlineData("ConvertToCases/ArrayStructToIListClass.xml")]
         [InlineData("ConvertToCases/ArrayStructToICollectionClass.xml")]
-        
+
         [InlineData("ConvertToCases/SourceParentClassProperty.xml")]
         [InlineData("ConvertToCases/TargetParentClassProperty.xml")]
         [InlineData("ConvertToCases/OverwriteParentClassProperty.xml")]
-        
+
         [InlineData("ConvertToCases/AllInOne.xml")]
 
         public void ShouldGenerateConverterClass(string testCaseFileName)
