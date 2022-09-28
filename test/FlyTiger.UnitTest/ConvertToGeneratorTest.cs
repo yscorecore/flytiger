@@ -20,6 +20,8 @@ namespace FlyTiger.Generator.UnitTest
         [InlineData("ConvertToCases/IgnoreNotExistingTargetProperty.xml")]
         [InlineData("ConvertToCases/CustomerMappings.xml")]
         [InlineData("ConvertToCases/CustomerMappingsInSubObject.xml")]
+        [InlineData("ConvertToCases/NavigateProperty.xml")]
+        [InlineData("ConvertToCases/NavigateComplexObject.xml")]
         [InlineData("ConvertToCases/SubClassToClass.xml")]
         [InlineData("ConvertToCases/SubStructToStruct.xml")]
         [InlineData("ConvertToCases/SubStructToClass.xml")]
