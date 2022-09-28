@@ -615,7 +615,7 @@ namespace FlyTiger
                 var attributeData = hostClasses.GetAttributes().Reverse()
                      .Where(p => p.AttributeClass.Is(AttributeFullName))
                      .Where(p => (p.ConstructorArguments.First().Value as INamedTypeSymbol).Equals(source, SymbolEqualityComparer.Default))
-                     .Where(p => (p.ConstructorArguments.Last().Value as INamedTypeSymbol).Equals(source, SymbolEqualityComparer.Default))
+                     .Where(p => (p.ConstructorArguments.Last().Value as INamedTypeSymbol).Equals(target, SymbolEqualityComparer.Default))
                      .FirstOrDefault();
                 if (attributeData != null)
                 {
