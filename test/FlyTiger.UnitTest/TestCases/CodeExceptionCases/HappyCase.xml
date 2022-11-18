@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<case>
+    <input>
+        <code>
+            <![CDATA[
+using FlyTiger;
+namespace ConsoleApp2
+{
+    [CodeExceptions]
+    partial class Class1
+    {
+        [CodeException("1001", "user not found.")
+        public static Exception UserNotFound(string name);
+    }
+}
+        ]]>
+        </code>
+    </input>
+    <output>
+        <code file="FlyTiger.Class1.g.cs">
+            <![CDATA[
+using System;
+using System.Resources;
+using FlyTiger.CodeException;
+namespace ConsoleApp2
+{
+    partial class Class1
+    {
+        static readonly Lazy<ResourceManager> __resourceManager = new Lazy<ResourceManager>(() =>
+        {
+            var assembly = typeof(Class1).Assembly;
+            var baseName = default(string);
+            baseName = string.IsNullOrEmpty(baseName) ? typeof(Class1).FullName : baseName;
+            var res = assembly.GetManifestResourceInfo($"{baseName}.resources");
+            return res == null ? null : new ResourceManager(baseName, assembly);
+        }, true);
+
+        private static string __GetErrorMessage(string name, string defaultMessage, object[] args, Dictionary<string, object> kwArgs)
+        {
+            var resMan = __resourceManager.Value;
+            var template = resMan?.GetString(name) ?? defaultMessage ?? string.Empty;
+            if (args == null || args.Length == 0)
+            {
+                return template;
+            }
+            else
+            {
+                var valueFormatter = TextValuesFormatter.FromText(template);
+                return valueFormatter.Format(args, kwArgs);
+            }
+        }
+
+        private static string __GetErrorCode(string code)
+        {
+            return "" + code;
+        }
+
+        public static partial Exception UserNotFound(string name)
+        {
+            var __args = new object[] { name };
+            var __kwargs = new Dictionary<string, object>
+            {
+                [nameof(name)] = name,
+            };
+            var __innerException = default(Exception);
+            var __code = __GetErrorCode("1001");
+            var __message = __GetErrorMessage(nameof(UserNotFound), "user not found.", __args, __kwargs);
+            var __exception = new CodeException(__code, __message, __innerException);
+            __kwargs.Where(p => !(p.Value is Exception)).ToList().ForEach(p => __exception.Data[p.Key] = p.Value);
+            return __exception;
+        }
+    }
+}    ]]>
+        </code>
+    </output>
+</case>

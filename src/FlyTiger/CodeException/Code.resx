@@ -1,0 +1,367 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CodeException" xml:space="preserve">
+    <value>using System;
+namespace FlyTiger.CodeException
+{
+    [Serializable]
+    class CodeException : Exception
+    {
+        public CodeException(string code) : base()
+        {
+            this.Code = code;
+        }
+        public CodeException(string code, string message) : base(message)
+        {
+            this.Code = code;
+        }
+        public CodeException(string code, string message, Exception inner) : base(message, inner)
+        {
+            this.Code = code;
+        }
+        public string Code { get; set; }
+        protected CodeException(
+            System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+    }
+}</value>
+  </data>
+  <data name="CodeExceptionAttribute" xml:space="preserve">
+    <value>using System;
+
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    class CodeExceptionAttribute : Attribute
+    {
+        public CodeExceptionAttribute(string code, string message)
+        {
+            this.Code = code;
+            this.Message = message;
+        }
+        public string Code { get; private set; }
+        public string Message { get; private set; }
+    }
+}</value>
+  </data>
+  <data name="CodeExceptionsAttribute" xml:space="preserve">
+    <value>using System;
+
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    class CodeExceptionsAttribute : Attribute
+    {
+        public string CustomTemplate { get; set; }
+        public string CodePrefix { get; set; }
+        public string ResourceBaseName { get; set; }
+        public bool IncludeExceptionData { get; set; } = true;
+    }
+}</value>
+  </data>
+  <data name="TextValuesFormatter" xml:space="preserve">
+    <value>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+
+namespace FlyTiger.CodeException
+{
+    class TextValuesFormatter
+    {
+        private const string NullValue = "[null]";
+        private static readonly char[] FormatDelimiters = { ',', ':' };
+        private readonly string _format;
+        private readonly List&lt;string&gt; _valueNames = new List&lt;string&gt;();
+
+        public TextValuesFormatter(string format)
+        {
+            OriginalFormat = format ?? throw new ArgumentNullException(nameof(format));
+
+            var sb = new StringBuilder();
+            int scanIndex = 0;
+            int endIndex = format.Length;
+
+            while (scanIndex &lt; endIndex)
+            {
+                int openBraceIndex = FindBraceIndex(format, '{', scanIndex, endIndex);
+                int closeBraceIndex = FindBraceIndex(format, '}', openBraceIndex, endIndex);
+
+                if (closeBraceIndex == endIndex)
+                {
+                    sb.Append(format, scanIndex, endIndex - scanIndex);
+                    scanIndex = endIndex;
+                }
+                else
+                {
+                    // Format item syntax : { index[,alignment][ :formatString] }.
+                    int formatDelimiterIndex =
+                        FindIndexOfAny(format, FormatDelimiters, openBraceIndex, closeBraceIndex);
+
+                    sb.Append(format, scanIndex, openBraceIndex - scanIndex + 1);
+                    sb.Append(_valueNames.Count.ToString(CultureInfo.InvariantCulture));
+                    _valueNames.Add(format.Substring(openBraceIndex + 1, formatDelimiterIndex - openBraceIndex - 1));
+                    sb.Append(format, formatDelimiterIndex, closeBraceIndex - formatDelimiterIndex + 1);
+
+                    scanIndex = closeBraceIndex + 1;
+                }
+            }
+
+            _format = sb.ToString();
+        }
+
+        public string OriginalFormat { get; private set; }
+        public List&lt;string&gt; ValueNames =&gt; _valueNames;
+
+        private static int FindBraceIndex(string format, char brace, int startIndex, int endIndex)
+        {
+            // Example: {{prefix{{{Argument}}}suffix}}.
+            int braceIndex = endIndex;
+            int scanIndex = startIndex;
+            int braceOccurrenceCount = 0;
+
+            while (scanIndex &lt; endIndex)
+            {
+                if (braceOccurrenceCount &gt; 0 &amp;&amp; format[scanIndex] != brace)
+                {
+                    if (braceOccurrenceCount % 2 == 0)
+                    {
+                        // Even number of '{' or '}' found. Proceed search with next occurrence of '{' or '}'.
+                        braceOccurrenceCount = 0;
+                        braceIndex = endIndex;
+                    }
+                    else
+                    {
+                        // An unescaped '{' or '}' found.
+                        break;
+                    }
+                }
+                else if (format[scanIndex] == brace)
+                {
+                    if (brace == '}')
+                    {
+                        if (braceOccurrenceCount == 0)
+                        {
+                            // For '}' pick the first occurrence.
+                            braceIndex = scanIndex;
+                        }
+                    }
+                    else
+                    {
+                        // For '{' pick the last occurrence.
+                        braceIndex = scanIndex;
+                    }
+
+                    braceOccurrenceCount++;
+                }
+
+                scanIndex++;
+            }
+
+            return braceIndex;
+        }
+
+        private static int FindIndexOfAny(string format, char[] chars, int startIndex, int endIndex)
+        {
+            int findIndex = format.IndexOfAny(chars, startIndex, endIndex - startIndex);
+            return findIndex == -1 ? endIndex : findIndex;
+        }
+
+
+
+        public string Format(object[] args, IDictionary&lt;string, object&gt; kwargs)
+        {
+            if (args == null || args.Length == 0)
+            {
+                return Format(kwargs);
+            }
+
+            var dic = kwargs != null ? new Dictionary&lt;string, object&gt;(kwargs) : new Dictionary&lt;string, object&gt;();
+            for (int i = 0; i &lt; args.Length; i++)
+            {
+                dic[i.ToString()] = args[i];
+            }
+
+            return Format(dic);
+        }
+
+        private string Format(IDictionary&lt;string, object&gt; kwargs)
+        {
+            var values = this.ValueNames.Select(p =&gt;
+            {
+                if (kwargs != null &amp;&amp; kwargs.TryGetValue(p, out var value))
+                {
+                    return value;
+                }
+
+                return null;
+            }).ToArray();
+            return Format(values);
+        }
+
+        private string Format(object[] values)
+        {
+            object[] formatedValues = new object[values == null ? 0 : values.Length];
+            if (values != null)
+            {
+                for (int i = 0; i &lt; values.Length; i++)
+                {
+                    formatedValues[i] = FormatArgument(values[i]);
+                }
+            }
+
+            return string.Format(CultureInfo.InvariantCulture, _format, formatedValues ?? Array.Empty&lt;object&gt;());
+        }
+
+        private object FormatArgument(object value)
+        {
+            if (value == null)
+            {
+                return NullValue;
+            }
+
+            // since 'string' implements IEnumerable, special case it
+            if (value is string)
+            {
+                return value;
+            }
+
+            // if the value implements IEnumerable, build a comma separated string.
+            if (value is IEnumerable enumerable)
+            {
+                return string.Join(", ", enumerable.Cast&lt;object&gt;().Select(o =&gt; o ?? NullValue));
+            }
+
+            return value;
+        }
+
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary&lt;string, TextValuesFormatter&gt; _localCache =
+            new System.Collections.Concurrent.ConcurrentDictionary&lt;string, TextValuesFormatter&gt;();
+
+        public static TextValuesFormatter FromText(string text)
+        {
+            return _localCache.GetOrAdd(text, t =&gt; new TextValuesFormatter(t));
+        }
+    }
+}</value>
+  </data>
+</root>

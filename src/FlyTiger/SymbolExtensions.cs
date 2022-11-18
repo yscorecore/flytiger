@@ -25,7 +25,7 @@ namespace FlyTiger
             return symbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == globalTypeMetaName;
         }
 
-        public static bool Is(this INamedTypeSymbol symbol, string typeMetaName)
+        public static bool Is(this ITypeSymbol symbol, string typeMetaName)
         {
             return symbol?.ToDisplayString() == typeMetaName;
         }
@@ -108,7 +108,18 @@ namespace FlyTiger
             return clazzSymbol.GetMembers().OfType<IFieldSymbol>()
                 .Where(p => p.CanBeReferencedByName && !p.IsStatic && p.HasAttribute(attributeMetaType));
         }
-
+        public static IEnumerable<IMethodSymbol> GetAllMethodsByAttribute(this INamedTypeSymbol clazzSymbol,
+    string attributeMetaType)
+        {
+            return clazzSymbol.GetMembers().OfType<IMethodSymbol>()
+                .Where(p => p.CanBeReferencedByName && p.HasAttribute(attributeMetaType));
+        }
+        public static IEnumerable<IPropertySymbol> GetAllPropertiesByAttribute(this INamedTypeSymbol clazzSymbol,
+   string attributeMetaType)
+        {
+            return clazzSymbol.GetMembers().OfType<IPropertySymbol>()
+                .Where(p => p.CanBeReferencedByName && p.HasAttribute(attributeMetaType));
+        }
         public static IEnumerable<INamedTypeSymbol> GetAllClassSymbolsIgnoreRepeated(this CodeWriter codeWriter,
             IEnumerable<ClassDeclarationSyntax> classDeclarationSyntax)
         {
@@ -179,6 +190,25 @@ namespace FlyTiger
                 current = current.BaseType;
             }
 
+        }
+
+        public static string GetAccessibilityText(this ISymbol symbol)
+        {
+            switch (symbol.DeclaredAccessibility)
+            {
+                case Accessibility.Public:
+                    return "public";
+                case Accessibility.Protected:
+                    return "protected";
+                case Accessibility.Internal:
+                    return "internal";
+                case Accessibility.Private:
+                    return "private";
+                case Accessibility.ProtectedOrInternal:
+                    return "protected internal";
+                default:
+                    return string.Empty;
+            }
         }
         public static bool IsPrimitive(this ITypeSymbol type)
         {

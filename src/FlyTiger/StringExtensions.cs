@@ -11,5 +11,10 @@
             }
             return name.Substring(0, 1).ToLowerInvariant() + name.Substring(1);
         }
+        public static string Repr(this string str)
+        {
+            if (str is null) return "default(string)";
+            return $"\"{str.Replace("\"", "\\\"")}\"";
+        }
     }
 }
