@@ -9,6 +9,7 @@ namespace FlyTiger.Generator.UnitTest
         [Theory]
 
         [InlineData("ConvertToCases/HappyCase.xml")]
+        [InlineData("ConvertToCases/GlobalNamespace.xml")]
         [InlineData("ConvertToCases/ClassifyConversion.xml")]
         [InlineData("ConvertToCases/ClassToStruct.xml")]
         [InlineData("ConvertToCases/StructToClass.xml")]
