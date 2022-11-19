@@ -7,7 +7,6 @@ namespace FlyTiger.Generator.UnitTest
     public class ConvertToGeneratorTest : BaseGeneratorTest
     {
         [Theory]
-
         [InlineData("ConvertToCases/HappyCase.xml")]
         [InlineData("ConvertToCases/GlobalNamespace.xml")]
         [InlineData("ConvertToCases/ClassifyConversion.xml")]

@@ -48,11 +48,11 @@ using FlyTiger;
 using FlyTiger.Generator.UnitTest;
 namespace ConsoleApp2
 {
-    [ConvertToAttribute(typeof(MealV2), typeof(MealDto), 
+    [MapperAttribute(typeof(MealV2), typeof(MealDto), 
             CustomMappings = new string[] {
             
             })]
-    [ConvertToAttribute(typeof(MealMaterialV2), typeof(MealMaterialDto), 
+    [MapperAttribute(typeof(MealMaterialV2), typeof(MealMaterialDto), 
             CustomMappings = new string[] {
                 "MaterialName=$.Material.Name"
             })]
@@ -65,13 +65,13 @@ namespace ConsoleApp2
         </code>
     </input>
     <output>
-        <code file="FlyTiger.Convertors.g.cs">
+        <code file="FlyTiger.MapperExtensions.g.cs">
             <![CDATA[using System;
 using System.Collections.Generic;
 using System.Linq;
-namespace ConsoleApp2
+namespace FlyTiger
 {
-    static partial class Convertors
+    static class MapperExtensions
     {
         private static global::ConsoleApp2.MealDto ToConsoleApp2MealDto(this global::ConsoleApp2.MealV2 source)
         {

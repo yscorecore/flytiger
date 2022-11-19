@@ -27,7 +27,7 @@ using FlyTiger;
 using FlyTiger.Generator.UnitTest;
 namespace ConsoleApp2
 {
-    [ConvertToAttribute(typeof(TUser), typeof(UserInfo), 
+    [MapperAttribute(typeof(TUser), typeof(UserInfo), 
             CustomMappings = new string[] {"NameLength = $.Name.Length"})]
     partial class Convertors
     {
@@ -38,13 +38,13 @@ namespace ConsoleApp2
         </code>
     </input>
     <output>
-        <code file="FlyTiger.Convertors.g.cs">
+        <code file="FlyTiger.MapperExtensions.g.cs">
             <![CDATA[using System;
 using System.Collections.Generic;
 using System.Linq;
-namespace ConsoleApp2
+namespace FlyTiger
 {
-    static partial class Convertors
+    static class MapperExtensions
     {
         private static global::ConsoleApp2.UserInfo ToConsoleApp2UserInfo(this global::ConsoleApp2.TUser source)
         {
