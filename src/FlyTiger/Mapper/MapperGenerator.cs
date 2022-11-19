@@ -62,7 +62,7 @@ namespace FlyTiger
             {
                 var codeFile = new CodeFile
                 {
-                    BasicName = "FlyTigerMapperExtensions",
+                    BasicName = "MapperExtensions",
                     Content = BuildMapperContent(codeWriter, attributes),
                 };
                 codeWriter.WriteCodeFile(codeFile);
@@ -230,13 +230,13 @@ namespace FlyTiger
 
         private void AppendNamespace(CsharpCodeBuilder codeBuilder)
         {
-            codeBuilder.AppendCodeLines($"namespace FlyTiger.Mappers");
+            codeBuilder.AppendCodeLines($"namespace FlyTiger");
             codeBuilder.BeginSegment();
         }
 
         private void AppendClassDefinition(CsharpCodeBuilder codeBuilder)
         {
-            codeBuilder.AppendCodeLines($@"static class FlyTigerMapperExtensions");
+            codeBuilder.AppendCodeLines($@"static class MapperExtensions");
             codeBuilder.BeginSegment();
         }
 

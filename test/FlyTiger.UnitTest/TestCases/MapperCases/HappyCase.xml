@@ -34,14 +34,14 @@ namespace ConsoleApp2
         </code>
     </input>
     <output>
-        <code file="FlyTiger.FlyTigerMapperExtensions.g.cs">
+        <code file="FlyTiger.MapperExtensions.g.cs">
             <![CDATA[
 using System;
 using System.Collections.Generic;
 using System.Linq;
-namespace FlyTiger.Mappers
+namespace FlyTiger
 {
-    static class FlyTigerMapperExtensions
+    static class MapperExtensions
     {
         private static global::ConsoleApp2.UserInfo ToConsoleApp2UserInfo(this global::ConsoleApp2.TUser source)
         {
