@@ -6,6 +6,7 @@ using BenchmarkDotNet.Attributes;
 using FlyTiger;
 namespace ConvertToPerformance
 {
+    [Mapper(typeof(UserInfo), typeof(UserDto))]
     public class ConvertToCompare
     {
         private readonly IMapper _mapper;

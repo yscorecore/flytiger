@@ -56,7 +56,7 @@ namespace FlyTiger
             if (!(context.SyntaxReceiver is MapperSyntaxReceiver receiver))
                 return;
             var codeWriter = new CodeWriter(context);
-           
+
             var attributes = FindAllAttributes(codeWriter, receiver.CandidateClasses);
             if (attributes.Count > 0)
             {
