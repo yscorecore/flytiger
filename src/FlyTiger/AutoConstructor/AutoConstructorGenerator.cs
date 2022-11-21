@@ -14,9 +14,11 @@ namespace FlyTiger
         const string NameSpaceName = nameof(FlyTiger);
         const string AttributeName = "AutoConstructorAttribute";
         const string IgnoreAttributeName = "AutoConstructorIgnoreAttribute";
+        const string InitializeAttributeName = "AutoConstructorInitializeAttribute";
         const string NullCheckPropertyName = "NullCheck";
         static string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
         static string IgnoreAttributeFullName = $"{NameSpaceName}.{IgnoreAttributeName}";
+        static string InitializeAttributeFullName = $"{NameSpaceName}.{InitializeAttributeName}";
         const string AttributeCode = @"using System;
 namespace FlyTiger
 {
@@ -25,25 +27,23 @@ namespace FlyTiger
     {
         public bool NullCheck { get; set; } = false;
     }
-}
-";
-
-        const string IgnoreAttributeCode = @"using System;
-namespace FlyTiger
-{
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     sealed class AutoConstructorIgnoreAttribute : Attribute
     {
     }
+    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorInitializeAttribute : Attribute
+    {
+    }
 }
 ";
+
 
         public void Initialize(GeneratorInitializationContext context)
         {
             context.RegisterForPostInitialization((i) =>
             {
                 i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
-                i.AddSource($"{IgnoreAttributeFullName}.g.cs", IgnoreAttributeCode);
             });
             context.RegisterForSyntaxNotifications(() => new AutoConstructorSyntaxReceiver());
         }
@@ -252,6 +252,11 @@ namespace FlyTiger
             {
                 codeBuilder.AppendCodeLines(BuildCtorAssignLine(member));
             }
+            // init methods
+            foreach (var method in GetAllInitializeMethods())
+            {
+                codeBuilder.AppendCodeLines(BuildInitializeMethod(method));
+            }
 
             codeBuilder.EndSegment();
 
@@ -266,8 +271,27 @@ namespace FlyTiger
                     return $"this.{argumentInfo.MemberName} = {argumentInfo.ArgName};";
                 }
             }
+            string BuildInitializeMethod(IMethodSymbol method)
+            {
+                if (method.IsStatic)
+                {
+                    return $"{method.Name}();";
+                }
+                else
+                {
+                    return $"this.{method.Name}();";
+                }
+            }
+            IEnumerable<IMethodSymbol> GetAllInitializeMethods()
+            {
+                return classSymbol.GetAllMethodsByAttribute(InitializeAttributeFullName)
+                      .Where(p => p.Parameters.Count() == 0);
+            }
 
         }
+
+       
+
         private class ArgumentInfo
         {
             public string ArgName { get; set; }
