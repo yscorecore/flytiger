@@ -10,7 +10,7 @@ namespace ConsoleApp2
     partial class Class1
     {
         [CodeException("1001", "user not found.")
-        public Exception UserNotFound();
+        public static Exception UserNotFound();
     }
 }
         ]]>
@@ -56,7 +56,7 @@ namespace ConsoleApp2
             return "" + code;
         }
 
-        public partial Exception UserNotFound()
+        public static partial Exception UserNotFound()
         {
             var __args = Array.Empty<object>();
             var __kwargs = new Dictionary<string, object>

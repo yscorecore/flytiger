@@ -68,6 +68,7 @@ namespace FlyTiger.CodeException
         {
             codeBuilder.AppendCodeLines("using System;");
             codeBuilder.AppendCodeLines("using System.Resources;");
+            codeBuilder.AppendCodeLines("using System.Collections.Generic;");
             codeBuilder.AppendCodeLines("using FlyTiger.CodeException;");
         }
 

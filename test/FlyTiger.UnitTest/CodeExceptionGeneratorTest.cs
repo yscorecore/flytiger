@@ -13,6 +13,7 @@ namespace FlyTiger.Generator.UnitTest
     {
         [Theory]
         [InlineData("CodeExceptionCases/HappyCase.xml")]
+        [InlineData("CodeExceptionCases/StaticMethod.xml")]
         public void ShouldGenerateExpectSingletonPaitalClass(string testCaseFileName)
         {
             var assemblies = new[]
