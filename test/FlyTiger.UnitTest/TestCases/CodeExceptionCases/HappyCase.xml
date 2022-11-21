@@ -20,6 +20,7 @@ namespace ConsoleApp2
         <code file="FlyTiger.Class1.g.cs">
             <![CDATA[
 using System;
+using System.Linq;
 using System.Resources;
 using System.Collections.Generic;
 using FlyTiger.CodeException;

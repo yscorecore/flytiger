@@ -67,6 +67,7 @@ namespace FlyTiger.CodeException
         void AppendUsingLines(INamedTypeSymbol _, CsharpCodeBuilder codeBuilder)
         {
             codeBuilder.AppendCodeLines("using System;");
+            codeBuilder.AppendCodeLines("using System.Linq;");
             codeBuilder.AppendCodeLines("using System.Resources;");
             codeBuilder.AppendCodeLines("using System.Collections.Generic;");
             codeBuilder.AppendCodeLines("using FlyTiger.CodeException;");

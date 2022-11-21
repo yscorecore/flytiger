@@ -31,9 +31,6 @@
       <Content Update="TestCases\AutoConstructorCases\InitializeMethod.xml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <Content Update="TestCases\CodeExceptionCases\Property.xml">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
     </ItemGroup>
 
 
