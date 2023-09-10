@@ -128,6 +128,7 @@ namespace FlyTiger
             var methodName = "To";
             var fromTypeDisplay = fromType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             AddToMethodForSingle();
+            AddToMethodForSingleWithPostAction();
             AddCopyToMethodForSingle();
             AddToMethodForEnumable();
             AddToMethodForQueryable();
@@ -153,6 +154,19 @@ namespace FlyTiger
 
                 codeBuilder.AppendCodeLines(
                     $"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
+                codeBuilder.EndSegment();
+            }
+            void AddToMethodForSingleWithPostAction()
+            {
+                codeBuilder.AppendCodeLines(
+                   $"public static T {methodName}<T>(this {fromTypeDisplay} source, Action<T> postHandler) where T:new()");
+                codeBuilder.BeginSegment();
+                codeBuilder.AppendCodeLines($"var result = source.{methodName}<T>();");
+                codeBuilder.AppendCodeLines("if (postHandler != null)");
+                codeBuilder.BeginSegment();
+                codeBuilder.AppendCodeLines("postHandler(result);");
+                codeBuilder.EndSegment();
+                codeBuilder.AppendCodeLines("return result;");
                 codeBuilder.EndSegment();
             }
 

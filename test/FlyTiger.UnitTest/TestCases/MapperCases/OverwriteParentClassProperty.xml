@@ -90,6 +90,15 @@ namespace FlyTiger
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
         }
+        public static T To<T>(this global::ConsoleApp2.TUser source, Action<T> postHandler) where T:new()
+        {
+            var result = source.To<T>();
+            if (postHandler != null)
+            {
+                postHandler(result);
+            }
+            return result;
+        }
         public static void To<T>(this global::ConsoleApp2.TUser source, T target) where T:class
         {
             if (source == null) return;
