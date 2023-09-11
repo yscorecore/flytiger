@@ -118,6 +118,14 @@ namespace FlyTiger
 {
     static class MapperExtensions
     {
+        private static IEnumerable<T> EachItem<T>(this IEnumerable<T> source, Action<T> handler)
+        {
+            foreach (var item in source)
+            {
+                handler(item);
+                yield return item;
+            }
+        }
         private static global::SourceGenerator.ConvertTo.To ToSourceGeneratorConvertToTo(this global::SourceGenerator.ConvertTo.From source)
         {
             if (source == null) return default;
@@ -410,6 +418,10 @@ namespace FlyTiger
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.From)}' to '{typeof(T)}'.");
         }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::SourceGenerator.ConvertTo.From> source, Action<T> postHandler) where T : new()
+        {
+            return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);
+        }
         public static IQueryable<T> To<T>(this IQueryable<global::SourceGenerator.ConvertTo.From> source) where T:new()
         {
             if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.To))
@@ -453,6 +465,10 @@ namespace FlyTiger
                 return (IEnumerable<T>)ToSourceGeneratorConvertToFrom(source);
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.To)}' to '{typeof(T)}'.");
+        }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::SourceGenerator.ConvertTo.To> source, Action<T> postHandler) where T : new()
+        {
+            return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);
         }
         public static IQueryable<T> To<T>(this IQueryable<global::SourceGenerator.ConvertTo.To> source) where T:new()
         {

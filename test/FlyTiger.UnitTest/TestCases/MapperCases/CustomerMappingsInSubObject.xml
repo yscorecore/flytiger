@@ -73,6 +73,14 @@ namespace FlyTiger
 {
     static class MapperExtensions
     {
+        private static IEnumerable<T> EachItem<T>(this IEnumerable<T> source, Action<T> handler)
+        {
+            foreach (var item in source)
+            {
+                handler(item);
+                yield return item;
+            }
+        }
         private static global::ConsoleApp2.MealDto ToConsoleApp2MealDto(this global::ConsoleApp2.MealV2 source)
         {
             if (source == null) return default;
@@ -177,6 +185,10 @@ namespace FlyTiger
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.MealV2)}' to '{typeof(T)}'.");
         }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::ConsoleApp2.MealV2> source, Action<T> postHandler) where T : new()
+        {
+            return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);
+        }
         public static IQueryable<T> To<T>(this IQueryable<global::ConsoleApp2.MealV2> source) where T:new()
         {
             if (typeof(T) == typeof(global::ConsoleApp2.MealDto))
@@ -220,6 +232,10 @@ namespace FlyTiger
                 return (IEnumerable<T>)ToConsoleApp2MealMaterialDto(source);
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.MealMaterialV2)}' to '{typeof(T)}'.");
+        }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::ConsoleApp2.MealMaterialV2> source, Action<T> postHandler) where T : new()
+        {
+            return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);
         }
         public static IQueryable<T> To<T>(this IQueryable<global::ConsoleApp2.MealMaterialV2> source) where T:new()
         {

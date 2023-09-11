@@ -76,6 +76,7 @@ namespace FlyTiger
             this.AppendUsingLines(codeBuilder);
             this.AppendNamespace(codeBuilder);
             this.AppendClassDefinition(codeBuilder);
+            this.AppendCommonFunctions(codeBuilder);
             this.AppendAllConvertFunctions(codeWriter, codeBuilder, attributeDatas);
             this.AppendAllGenericFunctions(codeWriter, codeBuilder, attributeDatas);
             codeBuilder.EndAllSegments();
@@ -121,6 +122,17 @@ namespace FlyTiger
                 AppendGenericFunctions(item.Key, item.ToList(), codeBuilder);
             }
         }
+        private void AppendCommonFunctions(CsharpCodeBuilder codeBuilder)
+        {
+            codeBuilder.AppendCodeLines(@"private static IEnumerable<T> EachItem<T>(this IEnumerable<T> source, Action<T> handler)
+{
+    foreach (var item in source)
+    {
+        handler(item);
+        yield return item;
+    }
+}");
+        }
 
         private void AppendGenericFunctions(ITypeSymbol fromType, List<ConvertMappingInfo> mappingInfos,
             CsharpCodeBuilder codeBuilder)
@@ -131,6 +143,7 @@ namespace FlyTiger
             AddToMethodForSingleWithPostAction();
             AddCopyToMethodForSingle();
             AddToMethodForEnumable();
+            AddToMethodForEnumableWithPostAction();
             AddToMethodForQueryable();
 
             void AddToMethodForSingle()
@@ -212,6 +225,14 @@ namespace FlyTiger
 
                 codeBuilder.AppendCodeLines(
                     $"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
+                codeBuilder.EndSegment();
+            }
+            void AddToMethodForEnumableWithPostAction()
+            {
+
+                codeBuilder.AppendCodeLines($"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromTypeDisplay}> source, Action<T> postHandler) where T : new()");
+                codeBuilder.BeginSegment();
+                codeBuilder.AppendCodeLines("return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);");
                 codeBuilder.EndSegment();
             }
 

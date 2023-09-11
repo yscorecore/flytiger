@@ -53,6 +53,14 @@ namespace FlyTiger
 {
     static class MapperExtensions
     {
+        private static IEnumerable<T> EachItem<T>(this IEnumerable<T> source, Action<T> handler)
+        {
+            foreach (var item in source)
+            {
+                handler(item);
+                yield return item;
+            }
+        }
         private static global::ConsoleApp2.UserInfo ToConsoleApp2UserInfo(this global::ConsoleApp2.TUser source)
         {
             if (source == null) return default;
@@ -132,6 +140,10 @@ namespace FlyTiger
                 return (IEnumerable<T>)ToConsoleApp2UserInfo(source);
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
+        }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::ConsoleApp2.TUser> source, Action<T> postHandler) where T : new()
+        {
+            return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);
         }
         public static IQueryable<T> To<T>(this IQueryable<global::ConsoleApp2.TUser> source) where T:new()
         {
