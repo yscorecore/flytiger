@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<case>
+    <input>
+        <code>
+            <![CDATA[
+namespace ConsoleApp2
+{
+    public class UserInfo
+    {
+        public string Name { get; set; }
+    }
+
+    public class ObjectInfo
+    {
+        public UserInfo User1 { get; set; }
+        public UserInfo User2 { get; set; }
+    }
+    
+    
+    public  class TUser
+    {
+        public string Name { get; set; }
+    }
+    
+    public class TUser2
+    {
+        public string Name { get; set;}
+        
+    }
+    
+    public class TObject
+    {
+        public TUser User1 { get; set; }
+        public TUser2 User2 { get; set; } 
+    }
+    
+}
+            
+            ]]>
+        </code>
+        <code>
+            <![CDATA[
+using FlyTiger;
+using FlyTiger.Generator.UnitTest;
+namespace ConsoleApp2
+{
+    [Mapper(typeof(TObject), typeof(ObjectInfo))]
+    partial class Convertors
+    {
+
+    }
+}
+        ]]>
+        </code>
+    </input>
+    <output>
+        <code file="FlyTiger.MapperExtensions.g.cs">
+            <![CDATA[
+using System;
+using System.Collections.Generic;
+using System.Linq;
+namespace FlyTiger
+{
+    static class MapperExtensions
+    {
+        private static IEnumerable<T> EachItem<T>(this IEnumerable<T> source, Action<T> handler)
+        {
+            foreach (var item in source)
+            {
+                handler(item);
+                yield return item;
+            }
+        }
+        private static global::ConsoleApp2.ObjectInfo ToConsoleApp2ObjectInfo(this global::ConsoleApp2.TObject source)
+        {
+            if (source == null) return default;
+            return new global::ConsoleApp2.ObjectInfo
+            {
+                User1 = source.User1 == null ? default(global::ConsoleApp2.UserInfo): new global::ConsoleApp2.UserInfo
+                {
+                    Name = source.User1.Name,
+                },
+                User2 = source.User2 == null ? default(global::ConsoleApp2.UserInfo): new global::ConsoleApp2.UserInfo
+                {
+                    Name = source.User2.Name,
+                },
+            };
+        }
+        private static void ToConsoleApp2ObjectInfo(this global::ConsoleApp2.TObject source, global::ConsoleApp2.ObjectInfo target)
+        {
+            if (source == null) return;
+            if (target == null) return;
+            target.User1 = source.User1 == null ? default(global::ConsoleApp2.UserInfo): new global::ConsoleApp2.UserInfo
+            {
+                Name = source.User1.Name,
+            };
+            target.User2 = source.User2 == null ? default(global::ConsoleApp2.UserInfo): new global::ConsoleApp2.UserInfo
+            {
+                Name = source.User2.Name,
+            };
+        }
+        private static IEnumerable<global::ConsoleApp2.ObjectInfo> ToConsoleApp2ObjectInfo(this IEnumerable<global::ConsoleApp2.TObject> source)
+        {
+            return source?.Select(p => new global::ConsoleApp2.ObjectInfo
+            {
+                User1 = p.User1 == null ? default(global::ConsoleApp2.UserInfo): new global::ConsoleApp2.UserInfo
+                {
+                    Name = p.User1.Name,
+                },
+                User2 = p.User2 == null ? default(global::ConsoleApp2.UserInfo): new global::ConsoleApp2.UserInfo
+                {
+                    Name = p.User2.Name,
+                },
+            });
+        }
+        private static IQueryable<global::ConsoleApp2.ObjectInfo> ToConsoleApp2ObjectInfo(this IQueryable<global::ConsoleApp2.TObject> source)
+        {
+            return source?.Select(p => new global::ConsoleApp2.ObjectInfo
+            {
+                User1 = p.User1 == null ? default(global::ConsoleApp2.UserInfo): new global::ConsoleApp2.UserInfo
+                {
+                    Name = p.User1.Name,
+                },
+                User2 = p.User2 == null ? default(global::ConsoleApp2.UserInfo): new global::ConsoleApp2.UserInfo
+                {
+                    Name = p.User2.Name,
+                },
+            });
+        }
+        public static T To<T>(this global::ConsoleApp2.TObject source) where T:new()
+        {
+            if (source == null) return default;
+            if (typeof(T) == typeof(global::ConsoleApp2.ObjectInfo))
+            {
+                return (T)(object)ToConsoleApp2ObjectInfo(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TObject)}' to '{typeof(T)}'.");
+        }
+        public static T To<T>(this global::ConsoleApp2.TObject source, Action<T> postHandler) where T:new()
+        {
+            var result = source.To<T>();
+            postHandler?.Invoke(result);
+            return result;
+        }
+        public static void To<T>(this global::ConsoleApp2.TObject source, T target) where T:class
+        {
+            if (source == null) return;
+            if (typeof(T) == typeof(global::ConsoleApp2.ObjectInfo))
+            {
+                ToConsoleApp2ObjectInfo(source, (global::ConsoleApp2.ObjectInfo)(object)target);
+                return;
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TObject)}' to '{typeof(T)}'.");
+        }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::ConsoleApp2.TObject> source) where T:new()
+        {
+            if (typeof(T) == typeof(global::ConsoleApp2.ObjectInfo))
+            {
+                return (IEnumerable<T>)ToConsoleApp2ObjectInfo(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TObject)}' to '{typeof(T)}'.");
+        }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::ConsoleApp2.TObject> source, Action<T> postHandler) where T : new()
+        {
+            return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);
+        }
+        public static IQueryable<T> To<T>(this IQueryable<global::ConsoleApp2.TObject> source) where T:new()
+        {
+            if (typeof(T) == typeof(global::ConsoleApp2.ObjectInfo))
+            {
+                return (IQueryable<T>)ToConsoleApp2ObjectInfo(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TObject)}' to '{typeof(T)}'.");
+        }
+    }
+}
+]]>
+        </code>
+    </output>
+</case>
