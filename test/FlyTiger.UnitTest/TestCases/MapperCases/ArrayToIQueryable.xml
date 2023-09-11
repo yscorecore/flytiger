@@ -119,10 +119,7 @@ namespace FlyTiger
         public static T To<T>(this global::ConsoleApp2.TUser source, Action<T> postHandler) where T:new()
         {
             var result = source.To<T>();
-            if (postHandler != null)
-            {
-                postHandler(result);
-            }
+            postHandler?.Invoke(result);
             return result;
         }
         public static void To<T>(this global::ConsoleApp2.TUser source, T target) where T:class

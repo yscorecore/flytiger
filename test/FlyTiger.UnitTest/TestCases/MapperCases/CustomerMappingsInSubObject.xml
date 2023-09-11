@@ -161,10 +161,7 @@ namespace FlyTiger
         public static T To<T>(this global::ConsoleApp2.MealV2 source, Action<T> postHandler) where T:new()
         {
             var result = source.To<T>();
-            if (postHandler != null)
-            {
-                postHandler(result);
-            }
+            postHandler?.Invoke(result);
             return result;
         }
         public static void To<T>(this global::ConsoleApp2.MealV2 source, T target) where T:class
@@ -209,10 +206,7 @@ namespace FlyTiger
         public static T To<T>(this global::ConsoleApp2.MealMaterialV2 source, Action<T> postHandler) where T:new()
         {
             var result = source.To<T>();
-            if (postHandler != null)
-            {
-                postHandler(result);
-            }
+            postHandler?.Invoke(result);
             return result;
         }
         public static void To<T>(this global::ConsoleApp2.MealMaterialV2 source, T target) where T:class

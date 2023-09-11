@@ -175,10 +175,7 @@ namespace FlyTiger
                    $"public static T {methodName}<T>(this {fromTypeDisplay} source, Action<T> postHandler) where T:new()");
                 codeBuilder.BeginSegment();
                 codeBuilder.AppendCodeLines($"var result = source.{methodName}<T>();");
-                codeBuilder.AppendCodeLines("if (postHandler != null)");
-                codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines("postHandler(result);");
-                codeBuilder.EndSegment();
+                codeBuilder.AppendCodeLines("postHandler?.Invoke(result);");
                 codeBuilder.AppendCodeLines("return result;");
                 codeBuilder.EndSegment();
             }
