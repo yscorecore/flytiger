@@ -101,16 +101,6 @@ namespace FlyTiger
                 MaterialName = p.Material.Name,
             }).ToList();
         }
-        private static IEnumerable<global::ConsoleApp2.MealDto> ToConsoleApp2MealDto(this IEnumerable<global::ConsoleApp2.MealV2> source)
-        {
-            return source?.Select(p => new global::ConsoleApp2.MealDto
-            {
-                MealMaterials = p.MealMaterials == null ? null : p.MealMaterials.Select(p => p == null ? default(global::ConsoleApp2.MealMaterialDto) : new global::ConsoleApp2.MealMaterialDto
-                {
-                    MaterialName = p.Material.Name,
-                }).ToList(),
-            });
-        }
         private static IQueryable<global::ConsoleApp2.MealDto> ToConsoleApp2MealDto(this IQueryable<global::ConsoleApp2.MealV2> source)
         {
             return source?.Select(p => new global::ConsoleApp2.MealDto
@@ -134,13 +124,6 @@ namespace FlyTiger
             if (source == null) return;
             if (target == null) return;
             target.MaterialName = source.Material.Name;
-        }
-        private static IEnumerable<global::ConsoleApp2.MealMaterialDto> ToConsoleApp2MealMaterialDto(this IEnumerable<global::ConsoleApp2.MealMaterialV2> source)
-        {
-            return source?.Select(p => new global::ConsoleApp2.MealMaterialDto
-            {
-                MaterialName = p.Material.Name,
-            });
         }
         private static IQueryable<global::ConsoleApp2.MealMaterialDto> ToConsoleApp2MealMaterialDto(this IQueryable<global::ConsoleApp2.MealMaterialV2> source)
         {
@@ -178,7 +161,7 @@ namespace FlyTiger
         {
             if (typeof(T) == typeof(global::ConsoleApp2.MealDto))
             {
-                return (IEnumerable<T>)ToConsoleApp2MealDto(source);
+                return (IEnumerable<T>)source?.Select(p => p.ToConsoleApp2MealDto());
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.MealV2)}' to '{typeof(T)}'.");
         }
@@ -223,7 +206,7 @@ namespace FlyTiger
         {
             if (typeof(T) == typeof(global::ConsoleApp2.MealMaterialDto))
             {
-                return (IEnumerable<T>)ToConsoleApp2MealMaterialDto(source);
+                return (IEnumerable<T>)source?.Select(p => p.ToConsoleApp2MealMaterialDto());
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.MealMaterialV2)}' to '{typeof(T)}'.");
         }

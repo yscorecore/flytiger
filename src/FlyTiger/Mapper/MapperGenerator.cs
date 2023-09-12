@@ -216,7 +216,7 @@ namespace FlyTiger
                     var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                     codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
                     codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"return (IEnumerable<T>){mapping.ConvertToMethodName}(source);");
+                    codeBuilder.AppendCodeLines($"return (IEnumerable<T>)source?.Select(p => p.{mapping.ConvertToMethodName}());");
                     codeBuilder.EndSegment();
                 }
 
@@ -282,7 +282,6 @@ namespace FlyTiger
             var fromTypeDisplay = mappingInfo.SourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             AddToMethodForSingle();
             AddCopyToMethodForSingle();
-            AddToMethodForEnumable();
             AddToMethodForQueryable();
 
             void AddToMethodForSingle()
@@ -318,18 +317,6 @@ namespace FlyTiger
                 }
 
                 AppendPropertyAssign("source", "target", ";", context);
-                codeBuilder.EndSegment();
-            }
-
-            void AddToMethodForEnumable()
-            {
-                codeBuilder.AppendCodeLines(
-                    $"private static IEnumerable<{toTypeDisplay}> {mappingInfo.ConvertToMethodName}(this IEnumerable<{fromTypeDisplay}> source)");
-                codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines($"return source?.Select(p => new {toTypeDisplay}");
-                codeBuilder.BeginSegment();
-                AppendPropertyAssign("p", null, ",", context);
-                codeBuilder.EndSegment("});");
                 codeBuilder.EndSegment();
             }
 

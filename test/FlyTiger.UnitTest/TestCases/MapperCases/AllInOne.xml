@@ -190,38 +190,6 @@ namespace FlyTiger
             target.ArrayStringToIEnumerable = source.ArrayStringToIEnumerable;
             target.ArrayStringToIQueryable = source.ArrayStringToIQueryable == null ? null : source.ArrayStringToIQueryable.AsQueryable();
         }
-        private static IEnumerable<global::SourceGenerator.ConvertTo.To> ToSourceGeneratorConvertToTo(this IEnumerable<global::SourceGenerator.ConvertTo.From> source)
-        {
-            return source?.Select(p => new global::SourceGenerator.ConvertTo.To
-            {
-                StrProp = p.StrProp,
-                IntProp = p.IntProp,
-                NullableIntProp = p.NullableIntProp,
-                NullableIntProp2 = p.NullableIntProp2,
-                OneEnumProp = p.OneEnumProp,
-                NullableOneEnumProp = p.NullableOneEnumProp,
-                NullableOneEnumProp2 = p.NullableOneEnumProp2,
-                OneStructProp = p.OneStructProp,
-                NullableOneStructProp = p.NullableOneStructProp,
-                NullableOneStructProp2 = p.NullableOneStructProp2,
-                OneClassProp = p.OneClassProp,
-                OneClassProp2 = new global::SourceGenerator.ConvertTo.OtherClass
-                {
-                    StrProp = p.OneClassProp2.StrProp,
-                },
-                ClassList = p.ClassList == null ? null : p.ClassList.ToList(),
-                ClassList2 = p.ClassList2 == null ? null : p.ClassList2.Select(p => new global::SourceGenerator.ConvertTo.OtherClass
-                {
-                    StrProp = p.StrProp,
-                }).ToList(),
-                ArrayStringToArray = p.ArrayStringToArray,
-                ArrayStringToList = p.ArrayStringToList == null ? null : p.ArrayStringToList.ToList(),
-                ArrayStringToIList = p.ArrayStringToIList,
-                ArrayStringToICollection = p.ArrayStringToICollection,
-                ArrayStringToIEnumerable = p.ArrayStringToIEnumerable,
-                ArrayStringToIQueryable = p.ArrayStringToIQueryable == null ? null : p.ArrayStringToIQueryable.AsQueryable(),
-            });
-        }
         private static IQueryable<global::SourceGenerator.ConvertTo.To> ToSourceGeneratorConvertToTo(this IQueryable<global::SourceGenerator.ConvertTo.From> source)
         {
             return source?.Select(p => new global::SourceGenerator.ConvertTo.To
@@ -318,38 +286,6 @@ namespace FlyTiger
             target.ArrayStringToIEnumerable = source.ArrayStringToIEnumerable == null ? null : source.ArrayStringToIEnumerable.ToArray();
             target.ArrayStringToIQueryable = source.ArrayStringToIQueryable == null ? null : source.ArrayStringToIQueryable.ToArray();
         }
-        private static IEnumerable<global::SourceGenerator.ConvertTo.From> ToSourceGeneratorConvertToFrom(this IEnumerable<global::SourceGenerator.ConvertTo.To> source)
-        {
-            return source?.Select(p => new global::SourceGenerator.ConvertTo.From
-            {
-                StrProp = p.StrProp,
-                IntProp = p.IntProp,
-                NullableIntProp = p.NullableIntProp,
-                OneEnumProp = p.OneEnumProp,
-                NullableOneEnumProp = p.NullableOneEnumProp,
-                OneStructProp = p.OneStructProp,
-                NullableOneStructProp = p.NullableOneStructProp,
-                NullableOneStructProp2 = new global::SourceGenerator.ConvertTo.OneStruct
-                {
-                },
-                OneClassProp = p.OneClassProp,
-                OneClassProp2 = new global::SourceGenerator.ConvertTo.OneClass
-                {
-                    StrProp = p.OneClassProp2.StrProp,
-                },
-                ClassList = p.ClassList,
-                ClassList2 = p.ClassList2 == null ? null : p.ClassList2.Select(p => new global::SourceGenerator.ConvertTo.OneClass
-                {
-                    StrProp = p.StrProp,
-                }).ToList(),
-                ArrayStringToArray = p.ArrayStringToArray,
-                ArrayStringToList = p.ArrayStringToList == null ? null : p.ArrayStringToList.ToArray(),
-                ArrayStringToIList = p.ArrayStringToIList == null ? null : p.ArrayStringToIList.ToArray(),
-                ArrayStringToICollection = p.ArrayStringToICollection == null ? null : p.ArrayStringToICollection.ToArray(),
-                ArrayStringToIEnumerable = p.ArrayStringToIEnumerable == null ? null : p.ArrayStringToIEnumerable.ToArray(),
-                ArrayStringToIQueryable = p.ArrayStringToIQueryable == null ? null : p.ArrayStringToIQueryable.ToArray(),
-            });
-        }
         private static IQueryable<global::SourceGenerator.ConvertTo.From> ToSourceGeneratorConvertToFrom(this IQueryable<global::SourceGenerator.ConvertTo.To> source)
         {
             return source?.Select(p => new global::SourceGenerator.ConvertTo.From
@@ -411,7 +347,7 @@ namespace FlyTiger
         {
             if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.To))
             {
-                return (IEnumerable<T>)ToSourceGeneratorConvertToTo(source);
+                return (IEnumerable<T>)source?.Select(p => p.ToSourceGeneratorConvertToTo());
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.From)}' to '{typeof(T)}'.");
         }
@@ -456,7 +392,7 @@ namespace FlyTiger
         {
             if (typeof(T) == typeof(global::SourceGenerator.ConvertTo.From))
             {
-                return (IEnumerable<T>)ToSourceGeneratorConvertToFrom(source);
+                return (IEnumerable<T>)source?.Select(p => p.ToSourceGeneratorConvertToFrom());
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::SourceGenerator.ConvertTo.To)}' to '{typeof(T)}'.");
         }

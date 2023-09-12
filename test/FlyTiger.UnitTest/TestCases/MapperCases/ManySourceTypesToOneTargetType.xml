@@ -99,20 +99,6 @@ namespace FlyTiger
                 Name = source.User2.Name,
             };
         }
-        private static IEnumerable<global::ConsoleApp2.ObjectInfo> ToConsoleApp2ObjectInfo(this IEnumerable<global::ConsoleApp2.TObject> source)
-        {
-            return source?.Select(p => new global::ConsoleApp2.ObjectInfo
-            {
-                User1 = p.User1 == null ? default(global::ConsoleApp2.UserInfo): new global::ConsoleApp2.UserInfo
-                {
-                    Name = p.User1.Name,
-                },
-                User2 = p.User2 == null ? default(global::ConsoleApp2.UserInfo): new global::ConsoleApp2.UserInfo
-                {
-                    Name = p.User2.Name,
-                },
-            });
-        }
         private static IQueryable<global::ConsoleApp2.ObjectInfo> ToConsoleApp2ObjectInfo(this IQueryable<global::ConsoleApp2.TObject> source)
         {
             return source?.Select(p => new global::ConsoleApp2.ObjectInfo
@@ -156,7 +142,7 @@ namespace FlyTiger
         {
             if (typeof(T) == typeof(global::ConsoleApp2.ObjectInfo))
             {
-                return (IEnumerable<T>)ToConsoleApp2ObjectInfo(source);
+                return (IEnumerable<T>)source?.Select(p => p.ToConsoleApp2ObjectInfo());
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TObject)}' to '{typeof(T)}'.");
         }

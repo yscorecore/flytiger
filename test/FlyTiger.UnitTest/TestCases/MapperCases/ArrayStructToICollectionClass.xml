@@ -84,17 +84,6 @@ namespace FlyTiger
                 City = p.City,
             }).ToList();
         }
-        private static IEnumerable<global::ConsoleApp2.UserInfo> ToConsoleApp2UserInfo(this IEnumerable<global::ConsoleApp2.TUser> source)
-        {
-            return source?.Select(p => new global::ConsoleApp2.UserInfo
-            {
-                Name = p.Name,
-                Addresses = p.Addresses == null ? null : p.Addresses.Select(p => new global::ConsoleApp2.AddressInfo
-                {
-                    City = p.City,
-                }).ToList(),
-            });
-        }
         private static IQueryable<global::ConsoleApp2.UserInfo> ToConsoleApp2UserInfo(this IQueryable<global::ConsoleApp2.TUser> source)
         {
             return source?.Select(p => new global::ConsoleApp2.UserInfo
@@ -135,7 +124,7 @@ namespace FlyTiger
         {
             if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
             {
-                return (IEnumerable<T>)ToConsoleApp2UserInfo(source);
+                return (IEnumerable<T>)source?.Select(p => p.ToConsoleApp2UserInfo());
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
         }
