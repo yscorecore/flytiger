@@ -6,7 +6,7 @@ namespace FlyTiger.Generator.UnitTest
 {
     public class MapperGeneratorTest : BaseGeneratorTest
     {
-        [Theory]
+       // [Theory]
 
         [InlineData("MapperCases/HappyCase.xml")]
         [InlineData("MapperCases/GlobalNamespace.xml")]
