@@ -388,7 +388,7 @@ foreach (var updateKey in sourceKeys.Intersect(targetKeys))
 }}");
             codeBuilder.AppendCodeLines($@"// remove
 var removeKeys = targetKeys.Except(sourceKeys).ToHashSet();
-var removeItems = target.Where(p => removeKeys.Contains(p.Id)).ToList();
+var removeItems = target.Where(p => removeKeys.Contains(p.{targetIdName})).ToList();
 removeItems.ForEach(p =>
 {{
     target.Remove(p);

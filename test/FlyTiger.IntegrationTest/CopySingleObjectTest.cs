@@ -206,7 +206,6 @@ namespace FlyTiger.IntegrationTest
         public class TargetAddress6
         {
             public int Id { get; set; }
-            [Key]
             public string City { get; set; }
         }
 
