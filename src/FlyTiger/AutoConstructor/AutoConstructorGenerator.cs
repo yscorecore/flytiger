@@ -67,7 +67,8 @@ namespace FlyTiger
 
 
             var nameMapper = GetSymbolNameMapper(codeWriter.Compilation, classSymbol);
-            if (!nameMapper.Any())
+
+            if (!nameMapper.Any() && !HasDefineValidAutoConstructorInitializeAttribute(classSymbol))
             {
                 return null;
             }
@@ -108,6 +109,11 @@ namespace FlyTiger
             return false;
         }
 
+        bool HasDefineValidAutoConstructorInitializeAttribute(INamedTypeSymbol classSymbol)
+        {
+            return classSymbol.GetMembers().OfType<IMethodSymbol>()
+                  .Any(p => p.IsStatic == false && p.Parameters.Length == 0 && p.HasAttribute(InitializeAttributeFullName));
+        }
         IDictionary<string, ArgumentInfo> GetSymbolNameMapper(Compilation compilation, INamedTypeSymbol classSymbol)
         {
             var nameMapper = new Dictionary<string, ArgumentInfo>();
