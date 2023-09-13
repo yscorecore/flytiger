@@ -30,17 +30,17 @@ namespace FlyTiger.IntegrationTest
         [Fact]
         public void ShouldInvokeInitializeMethod()
         {
-            var c4  = new Class4();
+            var c4 = new Class4();
             c4.Field.Should().Be("frominit");
         }
 
 
         [AutoConstructor]
         partial class Class1
-        { 
-        
+        {
+
         }
-        
+
         [AutoConstructor]
         partial class Class2
         {
