@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentAssertions;
 
 namespace FlyTiger.IntegrationTest
 {
@@ -7,6 +8,8 @@ namespace FlyTiger.IntegrationTest
         CustomMappings = new[] { $"{nameof(TargetUser2.FullName)} = $.{nameof(User2.FirstName)} + $.{nameof(User2.LastName)}" })]
     [Mapper(typeof(User3), typeof(TargetUser3), IgnoreTargetProperties = new[] { nameof(TargetUser3.Age) })]
     [Mapper(typeof(User4), typeof(TargetUser4))]
+    [Mapper(typeof(User5), typeof(TargetUser5))]
+    [Mapper(typeof(User6), typeof(TargetUser6))]
     public class CopySingleObjectTest
     {
         [Fact]
@@ -62,6 +65,63 @@ namespace FlyTiger.IntegrationTest
             target.Address.Should().Be(targetAddress);
             target.Address.City.Should().Be("beijing");
         }
+        [Fact]
+        public void ShouldCopyNativePropertyValue()
+        {
+            var user = new User5()
+            {
+                Address = new Address5 { City = "beijing" }
+            };
+
+            var target = new TargetUser5() { };
+            user.To(target);
+            target.AddressCity.Should().Be("beijing");
+        }
+        [Fact]
+        public void ShouldAddNewItemsWhenTargetItemsIsNull()
+        {
+            var user = new User6()
+            {
+                Address = new Address6[] {
+                    new Address6{ Id=2, City="beijing"}
+                }
+            };
+            var target = new TargetUser6();
+            user.To(target);
+            target.Address.Should().HaveCount(1);
+            target.Address.First().Should().BeEquivalentTo(new TargetAddress6 { Id = 2, City = "beijing" });
+        }
+        [Fact]
+        public void ShouldBatchUpdateItems()
+        {
+            var user = new User6()
+            {
+                Address = new Address6[] {
+                    new Address6{ Id=2, City="beijing"}  ,
+                    new Address6{ Id=3, City="nanjing"}  ,
+                    new Address6{ Id=4, City="wuhan"}
+                }
+            };
+            int addCount = 0;
+            var addAction = (object item) => { addCount++; };
+            var removeCount = 0;
+            var removeActon = (object item) => { removeCount++; };
+            var xianAddress = new TargetAddress6 { Id = 2, City = "xi'an" };
+            var target = new TargetUser6() { Address = new List<TargetAddress6>() { xianAddress, new TargetAddress6 { Id = 1, City = "shanghai" } } };
+            user.To(target, removeActon, addAction);
+            target.Address.Should().HaveCount(3)
+                .And.BeEquivalentTo(new List<TargetAddress6>
+                {
+                    new TargetAddress6 { Id=2, City ="beijing"},
+                    new TargetAddress6 { Id=3, City ="nanjing"} ,
+                    new TargetAddress6 { Id=4, City ="wuhan"} ,
+                });
+            //在原有对象上更新
+            target.Address.First().Should().Be(xianAddress);
+            addCount.Should().Be(2);
+            removeCount.Should().Be(1);
+
+        }
 
         public class User1
         {
@@ -114,5 +174,41 @@ namespace FlyTiger.IntegrationTest
         {
             public string City { get; set; }
         }
+        public class User5
+        {
+            public Address5 Address { get; set; }
+        }
+        public class Address5
+        {
+            public string City { get; set; }
+        }
+        public class TargetUser5
+        {
+            public string AddressCity { get; set; }
+
+        }
+
+        public class User6
+        {
+            public Address6[] Address { get; set; }
+        }
+        public class Address6
+        {
+            public int Id { get; set; }
+            public string City { get; set; }
+        }
+        public class TargetUser6
+        {
+            public List<TargetAddress6> Address { get; set; }
+
+        }
+
+        public class TargetAddress6
+        {
+            public int Id { get; set; }
+            [Key]
+            public string City { get; set; }
+        }
+
     }
 }
