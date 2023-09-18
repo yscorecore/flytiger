@@ -97,7 +97,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: | 
-          6.0.203
+          7.0.100
     - name: 03 Set Git Tag Name
       run: echo GIT_TAG=${GITHUB_REF:10} >> $GITHUB_ENV
     - name: 04 Set Pack Version
