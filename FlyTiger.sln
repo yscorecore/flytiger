@@ -32,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mapper", "example\Mapper\Ma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mapper.EFCore", "example\Mapper.EFCore\Mapper.EFCore.csproj", "{F1926833-266F-4EB5-BE0F-432443D708A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlyTiger.IntegrationTest", "test\FlyTiger.IntegrationTest\FlyTiger.IntegrationTest.csproj", "{7559FE1B-1A0F-40AD-A473-88598D6C0E81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyTiger.IntegrationTest", "test\FlyTiger.IntegrationTest\FlyTiger.IntegrationTest.csproj", "{7559FE1B-1A0F-40AD-A473-88598D6C0E81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
