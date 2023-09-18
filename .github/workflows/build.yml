@@ -79,16 +79,16 @@ jobs:
       run: dotnet tool restore
     - name: 04 Run Unit test
       run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[*Test]*"
-    - name: 05 Combin All Test Report
-      run: dotnet reportgenerator -reports:test/**/coverage.cobertura.xml -reporttype:cobertura -targetdir:.
-    - name: 06 Save Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: cobertura_report
-        path: ./Cobertura.xml
-    - name: 07 Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        flags: unittests
-        fail_ci_if_error: true
+    # - name: 05 Combin All Test Report
+    #   run: dotnet reportgenerator -reports:test/**/coverage.cobertura.xml -reporttype:cobertura -targetdir:.
+    # - name: 06 Save Artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: cobertura_report
+    #     path: ./Cobertura.xml
+    # - name: 07 Upload coverage to Codecov
+    #   uses: codecov/codecov-action@v2
+    #   with:
+    #     token: ${{ secrets.CODECOV_TOKEN }}
+    #     flags: unittests
+    #     fail_ci_if_error: true
