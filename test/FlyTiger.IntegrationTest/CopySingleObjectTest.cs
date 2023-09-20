@@ -10,6 +10,8 @@ namespace FlyTiger.IntegrationTest
     [Mapper(typeof(User4), typeof(TargetUser4))]
     [Mapper(typeof(User5), typeof(TargetUser5))]
     [Mapper(typeof(User6), typeof(TargetUser6))]
+    [Mapper(typeof(User7), typeof(TargetUser7))]
+    [Mapper(typeof(User8), typeof(TargetUser8))]
     public class CopySingleObjectTest
     {
         [Fact]
@@ -122,6 +124,57 @@ namespace FlyTiger.IntegrationTest
             removeCount.Should().Be(1);
 
         }
+        [Fact]
+        public void ShouldUpdateTargetById()
+        {
+            var user = new User7()
+            {
+                Address = new Address7[] {
+                    new Address7{ Id = 1,  Key1="1",  City="beijing"}  ,
+                    new Address7{ Id =2, Key1="2", City="nanjing"}  ,
+                    new Address7{ Id=3, Key1="3", City="wuhan"}
+                }
+            };
+            var targetAddress1 = new TargetAddress7 { Id = 3, Key1 = "1", City = "xi'an" };
+            var targetAddress2 = new TargetAddress7 { Id = 2, Key1 = "3", City = "shanghai" };
+            var target = new TargetUser7()
+            {
+                Address = new List<TargetAddress7>()
+                {
+                    targetAddress1,
+                    targetAddress2
+                }
+            };
+            user.To(target);
+            targetAddress1.Should().BeEquivalentTo(new TargetAddress7 { Id = 3, Key1 = "3", City = "wuhan" });
+            targetAddress2.Should().BeEquivalentTo(new TargetAddress7 { Id = 2, Key1 = "2", City = "nanjing" });
+        }
+        [Fact]
+        public void ShouldUpdateTargetBySourceKey()
+        {
+            var user = new User8()
+            {
+                Address = new Address8[] {
+                    new Address8{ Id = 1,  Key1="1",  City="beijing"}  ,
+                    new Address8{ Id =2, Key1="2", City="nanjing"}  ,
+                    new Address8{ Id=3, Key1="3", City="wuhan"}
+                }
+            };
+            var targetAddress1 = new TargetAddress8 { Id = 3, Key1 = "1", City = "xi'an" };
+            var targetAddress2 = new TargetAddress8 { Id = 2, Key1 = "3", City = "shanghai" };
+            var target = new TargetUser8()
+            {
+                Address = new List<TargetAddress8>()
+                {
+                    targetAddress1,
+                    targetAddress2
+                }
+            };
+            user.To(target);
+            targetAddress1.Should().BeEquivalentTo(new TargetAddress8 { Id = 1, Key1 = "1", City = "beijing" });
+            targetAddress2.Should().BeEquivalentTo(new TargetAddress8 { Id = 3, Key1 = "3", City = "wuhan" });
+        }
+
 
         public class User1
         {
@@ -206,6 +259,53 @@ namespace FlyTiger.IntegrationTest
         public class TargetAddress6
         {
             public int Id { get; set; }
+            public string City { get; set; }
+        }
+
+        public class User7
+        {
+            public Address7[] Address { get; set; }
+        }
+        public class Address7
+        {
+            public int Id { get; set; }
+            public string Key1 { get; set; }
+            public string City { get; set; }
+        }
+        public class TargetUser7
+        {
+            public List<TargetAddress7> Address { get; set; }
+
+        }
+
+        public class TargetAddress7
+        {
+            public int Id { get; set; }
+            public string Key1 { get; set; }
+            public string City { get; set; }
+        }
+
+        public class User8
+        {
+            public Address8[] Address { get; set; }
+        }
+        public class Address8
+        {
+            public int Id { get; set; }
+            [Key]
+            public string Key1 { get; set; }
+            public string City { get; set; }
+        }
+        public class TargetUser8
+        {
+            public List<TargetAddress8> Address { get; set; }
+
+        }
+
+        public class TargetAddress8
+        {
+            public int Id { get; set; }
+            public string Key1 { get; set; }
             public string City { get; set; }
         }
 

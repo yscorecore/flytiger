@@ -12,25 +12,39 @@ namespace FlyTiger.Mapper
 
         public static KeyMap GetEntityKeyMaps(ITypeSymbol source, ITypeSymbol target)
         {
-            var targetKey = FindKeyProperty(target);
-            if (targetKey == null)
+            var sourceAttributeKey = FindKeyPropertyByAttribute(source);
+            if (sourceAttributeKey != null)
             {
-                return null;
-            }
-            else
-            {
-                foreach (var prop in source.GetAllMembers().OfType<IPropertySymbol>())
+                var targetKey = FindPropertyByInfo(target, sourceAttributeKey);
+                if (targetKey != null)
                 {
-                    if (prop.Name == targetKey.Name && prop.Type.Equals(targetKey.Type, SymbolEqualityComparer.Default))
-                    {
-                        return new KeyMap { SourceKey = prop.Name, TargetKey = targetKey.Name };
-                    }
+                    // 优先使用source指定的key
+                    return new KeyMap { SourceKey = sourceAttributeKey.Name, TargetKey = targetKey.Name };
                 }
-                return null;
             }
-
+            var targetAttributeKey = FindKeyPropertyByAttribute(target) ?? FindKeyPropertyByName(target);
+            if (targetAttributeKey != null)
+            {
+                var sourceKey = FindPropertyByInfo(source, targetAttributeKey);
+                if (sourceKey != null)
+                {
+                    return new KeyMap { SourceKey = sourceKey.Name, TargetKey = targetAttributeKey.Name };
+                }
+            }
+            return null;
         }
-        public static IPropertySymbol FindKeyProperty(ITypeSymbol symbol)
+        private static IPropertySymbol FindPropertyByInfo(ITypeSymbol symbol, IPropertySymbol propInfo)
+        {
+            foreach (var prop in symbol.GetAllMembers().OfType<IPropertySymbol>())
+            {
+                if (prop.Name == propInfo.Name && prop.Type.Equals(propInfo.Type, SymbolEqualityComparer.Default))
+                {
+                    return prop;
+                }
+            }
+            return null;
+        }
+        private static IPropertySymbol FindKeyPropertyByAttribute(ITypeSymbol symbol)
         {
             foreach (var prop in symbol.GetAllMembers().OfType<IPropertySymbol>())
             {
@@ -39,6 +53,10 @@ namespace FlyTiger.Mapper
                     return prop;
                 }
             }
+            return null;
+        }
+        private static IPropertySymbol FindKeyPropertyByName(ITypeSymbol symbol)
+        {
             foreach (var prop in symbol.GetAllMembers().OfType<IPropertySymbol>())
             {
                 if (prop.Name.Equals("Id", StringComparison.InvariantCultureIgnoreCase))
