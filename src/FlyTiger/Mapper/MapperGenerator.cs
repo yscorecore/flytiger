@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using FlyTiger.Mapper;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -360,6 +362,7 @@ namespace FlyTiger
             AddToMethodForSingle();
             AddToMethodForSingleWithPostAction();
             AddCopyToMethodForSingle();
+            AddCopyToMethodForCollection();
             AddToMethodForEnumable();
             AddToMethodForEnumableWithPostAction();
             AddToMethodForQueryable();
@@ -415,6 +418,24 @@ namespace FlyTiger
                     codeBuilder.BeginSegment();
                     codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, ({toTypeDisplay})(object)target, onRemoveItem, onAddItem);");
                     codeBuilder.AppendCodeLines($"return;");
+                    codeBuilder.EndSegment();
+                }
+
+                codeBuilder.AppendCodeLines(
+                    $"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
+                codeBuilder.EndSegment();
+            }
+            void AddCopyToMethodForCollection()
+            {
+                codeBuilder.AppendCodeLines(
+               $"public static void {methodName}<T>(this IEnumerable<{fromTypeDisplay}> source, ICollection<T> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T:new()");
+                codeBuilder.BeginSegment();
+                foreach (var mapping in mappingInfos)
+                {
+                    var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, (ICollection<{toTypeDisplay}>)target, onRemoveItem, onAddItem);");
                     codeBuilder.EndSegment();
                 }
 
@@ -496,9 +517,12 @@ namespace FlyTiger
             var fromType = mappingInfo.SourceType;
             var toTypeDisplay = mappingInfo.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var fromTypeDisplay = mappingInfo.SourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            AddToMethodForSingle();
-            AddCopyToMethodForSingle();
-            AddToMethodForQueryable();
+            AddToMethodForSingle(); //dto2entity    ,all dto readable properties should be use
+            AddCopyToMethodForSingle(); //dto2entity, all  dto readable properties should be use
+            AddCopyToMethodForCollection(); //dto2entity, all dto readable properties should be use
+
+
+            AddToMethodForQueryable(); //entity2dto, all dto writeable properties should be mapped 
 
             void AddToMethodForSingle()
             {
@@ -536,6 +560,59 @@ namespace FlyTiger
                         AddCopyObjectMethodInternal(queue, method);
                     }
                 }
+                codeBuilder.EndSegment();
+            }
+            void AddCopyToMethodForCollection()
+            {
+                codeBuilder.AppendCodeLines(
+                    $"private static void {mappingInfo.ConvertToMethodName}(this IEnumerable<{fromTypeDisplay}> source, ICollection<{toTypeDisplay}> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
+                codeBuilder.BeginSegment();
+
+                var keyMap = EntityKeyFinder.GetEntityKeyMaps(mappingInfo.SourceType, mappingInfo.TargetType);
+                if (keyMap == null)
+                {
+                    codeBuilder.AppendCodeLines(@"throw new InvalidOperationException(""can not infer the key property in source type or target type. If you want update collection by item key, you should define [System.ComponentModel.DataAnnotations.KeyAttribute] in source property or target property."");");
+                }
+                else
+                {
+                    var sourceIdName = keyMap.SourceKey;
+                    var targetIdName = keyMap.TargetKey;
+                    codeBuilder.AppendCodeLines($@"var sourceKeys = source.Select(p => p.{sourceIdName}).ToHashSet();
+var targetKeys = target.Select(p => p.{targetIdName}).ToHashSet();");
+
+                    codeBuilder.AppendCodeLines($@"// update
+foreach (var updateKey in sourceKeys.Intersect(targetKeys))
+{{
+    var sourceItem = source.Where(p => p.{sourceIdName} == updateKey).First();
+    var targetItem = target.Where(p => p.{targetIdName} == updateKey).First();
+    {mappingInfo.ConvertToMethodName}(sourceItem, targetItem, onRemoveItem, onAddItem);
+}}");
+                    codeBuilder.AppendCodeLines($@"// remove
+var removeKeys = targetKeys.Except(sourceKeys).ToHashSet();
+var removeItems = target.Where(p => removeKeys.Contains(p.{targetIdName})).ToList();
+removeItems.ForEach(p =>
+{{
+    target.Remove(p);
+    onRemoveItem?.Invoke(p);
+}});");
+                    codeBuilder.AppendCodeLines($@"// add
+var newKeys = sourceKeys.Except(targetKeys).ToHashSet();");
+
+                    codeBuilder.AppendCodeLines($"var newItems = source.Where(p => newKeys.Contains(p.{sourceIdName})).Select(p => p.{mappingInfo.ConvertToMethodName}()).ToList();");
+                    codeBuilder.AppendCodeLines($@"newItems.ForEach(p =>
+{{
+    target.Add(p);
+    onAddItem?.Invoke(p);
+}});");
+
+
+
+                }
+
+
+
+
+
                 codeBuilder.EndSegment();
             }
 
