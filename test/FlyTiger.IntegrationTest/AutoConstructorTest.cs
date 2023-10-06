@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 
 namespace FlyTiger.IntegrationTest
 {
@@ -30,10 +25,16 @@ namespace FlyTiger.IntegrationTest
         [Fact]
         public void ShouldInvokeInitializeMethod()
         {
-            var c4 = new Class4();
+            var c4 = new Class4("field2value");
             c4.Field.Should().Be("frominit");
+            c4.Field2.Should().Be("field2value");
         }
-
+        [Fact]
+        public void ShouldInvokeInitializeMethodWhenEmptyCtorGenerated()
+        {
+            var c5 = new Class5();
+            Class5.count.Should().Be(1);
+        }
 
         [AutoConstructor]
         partial class Class1
@@ -61,11 +62,22 @@ namespace FlyTiger.IntegrationTest
         {
             [AutoConstructorIgnore]
             private string field;
+            public string Field2 { get; set; }
             public string Field { get => field; set => field = value; }
             [AutoConstructorInitialize]
             public void Init()
             {
                 this.field = "frominit";
+            }
+        }
+        [AutoConstructor]
+        partial class Class5
+        {
+            public static int count;
+            [AutoConstructorInitialize]
+            public void Init()
+            {
+                count++;
             }
         }
     }
