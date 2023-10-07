@@ -9,6 +9,8 @@ namespace FlyTiger
     {
         public ITypeSymbol TargetType { get; internal set; }
         public ITypeSymbol SourceType { get; internal set; }
+        public string TargetTypeFullDisplay { get; internal set; }
+        public string SourceTypeFullDisplay { get; internal set; }
         public HashSet<string> IgnoreTargetProperties { get; internal set; }
         public Dictionary<string, string> CustomerMappings { get; internal set; }
         public string ConvertToMethodName { get; internal set; }
@@ -19,7 +21,7 @@ namespace FlyTiger
             var fromType = arguments.First().Value as INamedTypeSymbol;
             var toType = arguments.Last().Value as INamedTypeSymbol;
             var ignoreProperties = attributeData.NamedArguments
-                .Where(p => p.Key == MapperGenerator. IgnoreTargetPropertiesPropertyName)
+                .Where(p => p.Key == MapperGenerator.IgnoreTargetPropertiesPropertyName)
                 .Where(p => p.Value.IsNull == false)
                 .SelectMany(p => p.Value.Values.Select(t => (string)t.Value))
                 .Where(p => !string.IsNullOrWhiteSpace(p));
@@ -38,6 +40,8 @@ namespace FlyTiger
             {
                 SourceType = fromType,
                 TargetType = toType,
+                TargetTypeFullDisplay = toType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                SourceTypeFullDisplay = fromType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 IgnoreTargetProperties = new HashSet<string>(ignoreProperties),
                 CustomerMappings = customMappings,
                 ConvertToMethodName = $"To{methodName}",

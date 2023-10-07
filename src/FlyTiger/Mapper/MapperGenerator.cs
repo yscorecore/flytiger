@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FlyTiger.Mapper;
+using FlyTiger.Mapper.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,44 +13,13 @@ namespace FlyTiger
     partial class MapperGenerator : ISourceGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
-        const string AttributeName = "MapperAttribute";
-        const string SourceTypePropertyName = "SourceType";
-        const string TargetTypePropertyName = "TargetType";
-        internal const string IgnoreTargetPropertiesPropertyName = "IgnoreTargetProperties";
-        internal const string CustomMappingsPropertyName = "CustomMappings";
-        internal static string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
-
-        const string AttributeCode = @"using System;
-namespace FlyTiger
-{
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    sealed class MapperAttribute : Attribute
-    {
-        public MapperAttribute(Type sourceType, Type targetType)
-        {
-
-            SourceType = sourceType ?? throw new ArgumentNullException(nameof(sourceType));
-            TargetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
-        }
-
-        public Type SourceType { get; }
-        public Type TargetType { get; }
-
-        public string[] IgnoreTargetProperties { get; set; }
-
-        public string[] CustomMappings { get; set; }
-
-    }
-}
-";
-
-
+    
         public void Initialize(GeneratorInitializationContext context)
         {
             context.RegisterForPostInitialization((i) =>
             {
                 i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
-                i.AddSource($"{EFCoreQueryableExtensionsName}.g.cs", EFCoreExtensions);
+                i.AddSource($"{EFCoreQueryableExtensionsFullName}.g.cs", EFCoreExtensionsCode);
             });
             context.RegisterForSyntaxNotifications(() => new MapperSyntaxReceiver());
         }
@@ -69,19 +39,28 @@ namespace FlyTiger
                     Content = BuildMapperContent(codeWriter, attributes),
                 };
                 codeWriter.WriteCodeFile(codeFile);
-
             }
         }
 
         private string BuildMapperContent(CodeWriter codeWriter, IList<AttributeData> attributeDatas)
         {
             CsharpCodeBuilder codeBuilder = new CsharpCodeBuilder();
-            this.AppendUsingLines(codeBuilder);
-            this.AppendNamespace(codeBuilder);
-            this.AppendClassDefinition(codeBuilder);
-            this.AppendCommonFunctions(codeBuilder);
+            // using
+            codeBuilder.AppendCodeLines("using System;");
+            codeBuilder.AppendCodeLines("using System.Collections.Generic;");
+            codeBuilder.AppendCodeLines("using System.Linq;");
+            // namespace
+            codeBuilder.AppendCodeLines($"namespace {NameSpaceName}");
+            codeBuilder.BeginSegment();
+            // class
+            codeBuilder.AppendCodeLines($@"static class MapperExtensions");
+            codeBuilder.BeginSegment();
+            // 通用方法
+            new CommonFunctionGenerator().AppendFunctions(codeBuilder);
+            // 转换方法
             this.AppendAllConvertFunctions(codeWriter, codeBuilder, attributeDatas);
-            this.AppendAllGenericFunctions(codeWriter, codeBuilder, attributeDatas);
+            // 添加泛型方法
+            new GenericFunctionGenerator().AppendFunctions(codeWriter, codeBuilder, attributeDatas);
             codeBuilder.EndAllSegments();
             return codeBuilder.ToString();
         }
@@ -114,185 +93,7 @@ namespace FlyTiger
             }
         }
 
-        private void AppendAllGenericFunctions(CodeWriter codeWriter,
-            CsharpCodeBuilder codeBuilder, IList<AttributeData> attributeDatas)
-        {
-            var allSources = attributeDatas.Where(p => p.AttributeClass.Is(AttributeFullName))
-                .Select(p => ConvertMappingInfo.FromAttributeData(p))
-                .ToLookup(p => p.SourceType);
-            foreach (var item in allSources)
-            {
-                AppendGenericFunctions(item.Key, item.ToList(), codeBuilder);
-            }
-        }
-        private void AppendCommonFunctions(CsharpCodeBuilder codeBuilder)
-        {
-            codeBuilder.AppendCodeLines(@"private static IEnumerable<T> EachItem<T>(this IEnumerable<T> source, Action<T> handler)
-{
-    foreach (var item in source)
-    {
-        handler(item);
-        yield return item;
-    }
-}");
-        }
-
-        private void AppendGenericFunctions(ITypeSymbol fromType, List<ConvertMappingInfo> mappingInfos,
-            CsharpCodeBuilder codeBuilder)
-        {
-            var methodName = "To";
-            var fromTypeDisplay = fromType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            AddToMethodForSingle();
-            AddToMethodForSingleWithPostAction();
-            AddCopyToMethodForSingle();
-            AddCopyToMethodForCollection();
-            AddToMethodForEnumable();
-            AddToMethodForEnumableWithPostAction();
-            AddToMethodForQueryable();
-
-            void AddToMethodForSingle()
-            {
-                codeBuilder.AppendCodeLines(
-                    $"public static T {methodName}<T>(this {fromTypeDisplay} source) where T:new()");
-                codeBuilder.BeginSegment();
-                if (!fromType.IsValueType)
-                {
-                    codeBuilder.AppendCodeLines("if (source == null) return default;");
-                }
-
-                foreach (var mapping in mappingInfos)
-                {
-                    var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
-                    codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"return (T)(object){mapping.ConvertToMethodName}(source);");
-                    codeBuilder.EndSegment();
-                }
-
-                codeBuilder.AppendCodeLines(
-                    $"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
-                codeBuilder.EndSegment();
-            }
-            void AddToMethodForSingleWithPostAction()
-            {
-                codeBuilder.AppendCodeLines(
-                   $"public static T {methodName}<T>(this {fromTypeDisplay} source, Action<T> postHandler) where T:class, new()");
-                codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines($"var result = source.{methodName}<T>();");
-                codeBuilder.AppendCodeLines("postHandler?.Invoke(result);");
-                codeBuilder.AppendCodeLines("return result;");
-                codeBuilder.EndSegment();
-            }
-
-            void AddCopyToMethodForSingle()
-            {
-                codeBuilder.AppendCodeLines(
-                    $"public static void {methodName}<T>(this {fromTypeDisplay} source, T target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T:class");
-                codeBuilder.BeginSegment();
-                if (!fromType.IsValueType)
-                {
-                    codeBuilder.AppendCodeLines("if (source == null) return;");
-                }
-
-                foreach (var mapping in mappingInfos)
-                {
-                    var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
-                    codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, ({toTypeDisplay})(object)target, onRemoveItem, onAddItem);");
-                    codeBuilder.AppendCodeLines($"return;");
-                    codeBuilder.EndSegment();
-                }
-
-                codeBuilder.AppendCodeLines(
-                    $"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
-                codeBuilder.EndSegment();
-            }
-            void AddCopyToMethodForCollection()
-            {
-                codeBuilder.AppendCodeLines(
-               $"public static void {methodName}<T>(this IEnumerable<{fromTypeDisplay}> source, ICollection<T> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T:class, new()");
-                codeBuilder.BeginSegment();
-                foreach (var mapping in mappingInfos)
-                {
-                    var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
-                    codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, (ICollection<{toTypeDisplay}>)target, onRemoveItem, onAddItem);");
-                    codeBuilder.EndSegment();
-                }
-
-                codeBuilder.AppendCodeLines(
-                    $"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
-                codeBuilder.EndSegment();
-            }
-
-            void AddToMethodForEnumable()
-            {
-                codeBuilder.AppendCodeLines(
-                    $"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromTypeDisplay}> source) where T:new()");
-                codeBuilder.BeginSegment();
-                foreach (var mapping in mappingInfos)
-                {
-                    var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
-                    codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"return (IEnumerable<T>)source?.Select(p => p.{mapping.ConvertToMethodName}());");
-                    codeBuilder.EndSegment();
-                }
-
-                codeBuilder.AppendCodeLines(
-                    $"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
-                codeBuilder.EndSegment();
-            }
-            void AddToMethodForEnumableWithPostAction()
-            {
-
-                codeBuilder.AppendCodeLines($"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromTypeDisplay}> source, Action<T> postHandler) where T : class, new()");
-                codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines("return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);");
-                codeBuilder.EndSegment();
-            }
-
-            void AddToMethodForQueryable()
-            {
-                codeBuilder.AppendCodeLines(
-                    $"public static IQueryable<T> {methodName}<T>(this IQueryable<{fromTypeDisplay}> source) where T:new()");
-                codeBuilder.BeginSegment();
-                foreach (var mapping in mappingInfos)
-                {
-                    var toTypeDisplay = mapping.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({toTypeDisplay}))");
-                    codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"return (IQueryable<T>){mapping.ConvertToMethodName}(source);");
-                    codeBuilder.EndSegment();
-                }
-
-                codeBuilder.AppendCodeLines(
-                    $"throw new NotSupportedException($\"Can not convert '{{typeof({fromTypeDisplay})}}' to '{{typeof(T)}}'.\");");
-                codeBuilder.EndSegment();
-            }
-        }
-
-        private void AppendUsingLines(CsharpCodeBuilder codeBuilder)
-        {
-            codeBuilder.AppendCodeLines("using System;");
-            codeBuilder.AppendCodeLines("using System.Collections.Generic;");
-            codeBuilder.AppendCodeLines("using System.Linq;");
-        }
-
-        private void AppendNamespace(CsharpCodeBuilder codeBuilder)
-        {
-            codeBuilder.AppendCodeLines($"namespace FlyTiger");
-            codeBuilder.BeginSegment();
-        }
-
-        private void AppendClassDefinition(CsharpCodeBuilder codeBuilder)
-        {
-            codeBuilder.AppendCodeLines($@"static class MapperExtensions");
-            codeBuilder.BeginSegment();
-        }
-
+    
         private void AppendConvertToFunctions(MapperContext context)
         {
             var mappingInfo = context.MappingInfo;
@@ -1060,19 +861,6 @@ var newKeys = sourceKeys.Except(targetKeys).ToHashSet();");
             }
             paths = navPaths.Select(p => p.Key).ToList();
             return false;
-        }
-        private class MapperSyntaxReceiver : ISyntaxReceiver
-        {
-            public IList<ClassDeclarationSyntax> CandidateClasses { get; } = new List<ClassDeclarationSyntax>();
-
-            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
-            {
-                if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax &&
-                    classDeclarationSyntax.AttributeLists.Any())
-                {
-                    CandidateClasses.Add(classDeclarationSyntax);
-                }
-            }
         }
     }
 }

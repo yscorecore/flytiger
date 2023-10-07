@@ -69,6 +69,8 @@ namespace FlyTiger
                     {
                         SourceType = source,
                         TargetType = target,
+                        TargetTypeFullDisplay = target.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                        SourceTypeFullDisplay = source.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                         CustomerMappings = new Dictionary<string, string>(),
                         IgnoreTargetProperties = new HashSet<string>()
                     };

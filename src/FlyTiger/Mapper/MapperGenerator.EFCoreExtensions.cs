@@ -7,7 +7,10 @@ namespace FlyTiger
     partial class MapperGenerator
     {
         const string EFCoreQueryableExtensionsName = "EFCoreQueryableExtensions";
-        const string EFCoreExtensions = @"using System;
+
+        internal static string EFCoreQueryableExtensionsFullName = $"{NameSpaceName}.{EFCoreQueryableExtensionsName}";
+
+        const string EFCoreExtensionsCode = @"using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
