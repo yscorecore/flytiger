@@ -28,7 +28,7 @@ namespace FlyTiger.IntegrationTest
             target.Age.Should().Be(30);
         }
         [Fact]
-        public void ShouldCustomeProperty()
+        public void ShouldCopyCustomeProperty()
         {
             var user = new User2()
             {
@@ -42,7 +42,7 @@ namespace FlyTiger.IntegrationTest
             target.Age.Should().Be(30);
         }
         [Fact]
-        public void ShouldIgnoreProperty()
+        public void ShouldSkipThosePropertiesWhenDefineIgnoreTargetProperties()
         {
             var user = new User3()
             {

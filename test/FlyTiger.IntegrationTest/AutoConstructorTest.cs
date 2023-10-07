@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Diagnostics;
+using FluentAssertions;
 
 namespace FlyTiger.IntegrationTest
 {
@@ -34,6 +35,14 @@ namespace FlyTiger.IntegrationTest
         {
             var c5 = new Class5();
             Class5.count.Should().Be(1);
+        }
+
+        [Fact]
+        public void ShouldGenerateArgumentsFromBaseClass()
+        {
+            var c6 = new Class6(1, "prop", 2);
+            c6.AutoProp1.Should().Be("prop");
+            c6.Field2.Should().Be(2);
         }
 
         [AutoConstructor]
@@ -80,5 +89,20 @@ namespace FlyTiger.IntegrationTest
                 count++;
             }
         }
+        [AutoConstructor]
+        partial class Class6Base
+        {
+            public string AutoProp1 { get; set; }
+            private readonly int field1;
+        }
+        [AutoConstructor]
+        partial class Class6 : Class6Base
+        {
+            private readonly int field2;
+
+            public int Field2 => field2;
+        }
+
+
     }
 }

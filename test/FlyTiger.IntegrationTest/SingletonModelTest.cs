@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using FluentAssertions;
 
 namespace FlyTiger.IntegrationTest
@@ -19,6 +15,12 @@ namespace FlyTiger.IntegrationTest
         public void ShouldGenerateWithCustomName()
         {
             Class2.Default.Id.Should().Be(2);
+        }
+
+        [Fact]
+        public void ShouldGeneratePrivateCtor()
+        {
+            typeof(Class1).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).First().IsPublic.Should().BeFalse();
         }
 
         [SingletonPattern]
