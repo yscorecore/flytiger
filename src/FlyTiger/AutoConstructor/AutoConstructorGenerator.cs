@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using FlyTiger.AutoConstructor;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -16,9 +17,9 @@ namespace FlyTiger
         const string IgnoreAttributeName = "AutoConstructorIgnoreAttribute";
         const string InitializeAttributeName = "AutoConstructorInitializeAttribute";
         const string NullCheckPropertyName = "NullCheck";
-        static string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
-        static string IgnoreAttributeFullName = $"{NameSpaceName}.{IgnoreAttributeName}";
-        static string InitializeAttributeFullName = $"{NameSpaceName}.{InitializeAttributeName}";
+        static readonly string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
+        static readonly string IgnoreAttributeFullName = $"{NameSpaceName}.{IgnoreAttributeName}";
+        static readonly string InitializeAttributeFullName = $"{NameSpaceName}.{InitializeAttributeName}";
         const string AttributeCode = @"using System;
 namespace FlyTiger
 {
@@ -58,7 +59,7 @@ namespace FlyTiger
             codeWriter.ForeachClassSyntax(receiver.CandidateClasses, ProcessClass);
         }
 
-        private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter)
+        private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter, ClassDeclarationSyntax syntax)
         {
             if (!classSymbol.HasAttribute(AttributeFullName))
             {
@@ -82,7 +83,7 @@ namespace FlyTiger
             CsharpCodeBuilder builder = new CsharpCodeBuilder();
             AppendNamespace(classSymbol, builder);
             AppendClassDefinition(classSymbol, builder);
-            AppendPublicCtor(classSymbol, nameMapper, isDependencyInjection, nullChecked, builder);
+            AppendPublicCtor(classSymbol, nameMapper, isDependencyInjection, nullChecked, builder, codeWriter, syntax);
 
             builder.EndAllSegments();
             return new CodeFile
@@ -233,7 +234,14 @@ namespace FlyTiger
                 codeBuilder.BeginSegment();
             }
         }
-        void AppendPublicCtor(INamedTypeSymbol classSymbol, IDictionary<string, ArgumentInfo> nameMapper, bool isDependencyInjection, bool nullCheck, CsharpCodeBuilder codeBuilder)
+        Location FindMethodLocation(IMethodSymbol method)
+        {
+            SyntaxNode methodNode = method.DeclaringSyntaxReferences
+                    .Select(reference => reference.GetSyntax())
+                    .FirstOrDefault();
+            return methodNode?.GetLocation() ?? Location.None;
+        }
+        void AppendPublicCtor(INamedTypeSymbol classSymbol, IDictionary<string, ArgumentInfo> nameMapper, bool isDependencyInjection, bool nullCheck, CsharpCodeBuilder codeBuilder, CodeWriter writer, ClassDeclarationSyntax syntax)
         {
             if (isDependencyInjection)
             {
@@ -261,6 +269,17 @@ namespace FlyTiger
             // init methods
             foreach (var method in GetAllInitializeMethods())
             {
+                if (method.IsStatic)
+                {
+                    writer.Context.InitializeMethodShouldNotBeStatic(FindMethodLocation(method));
+                    continue;
+                }
+                if (!method.ReturnsVoid)
+                {
+                    writer.Context.InitializeMethodShouldReturnVoid(FindMethodLocation(method));
+                    continue;
+                }
+
                 codeBuilder.AppendCodeLines(BuildInitializeMethod(method));
             }
 
