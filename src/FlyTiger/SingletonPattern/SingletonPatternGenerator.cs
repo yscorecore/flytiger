@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FlyTiger
+namespace FlyTiger.SingletonPattern
 {
     [Generator]
     class SingletonPatternGenerator : ISourceGenerator
@@ -20,9 +20,7 @@ namespace FlyTiger
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     sealed class SingletonPatternAttribute : Attribute
     {
-        internal const string DefaultInstanceName = ""Instance"";
-
-        public string InstancePropertyName { get; set; } = DefaultInstanceName;
+        public string InstancePropertyName { get; set; } = ""Instance"";
     }
 }
 ";
@@ -54,13 +52,25 @@ namespace FlyTiger
             }
             if (classSymbol.Constructors.Any(p => p.DeclaringSyntaxReferences.Count() > 0))
             {
-                codeWriter.Context.ReportDiagnostic(KnifeDiagnostic.Singleton.AlreadyExistsConstructor(classSymbol));
+                codeWriter.Context.AlreadyExistsEmptyConstructor(classSymbol);
+                return null;
             }
+            var instanceName = classSymbol.GetAttributes().Where(p => p.AttributeClass.Is(AttributeFullName))
+               .Select(p => p.NamedArguments.Where(t => t.Key == PropertyName).Where(t => !t.Value.IsNull).Select(t => (string)t.Value.Value).FirstOrDefault())
+               .FirstOrDefault();
+            instanceName = string.IsNullOrEmpty(instanceName) ? "Instance" : instanceName;
+
+            if (!IsValidName(instanceName))
+            {
+                codeWriter.Context.InvalidInstancePropertyName(classSymbol, instanceName);
+                return null;
+            }
+
             CsharpCodeBuilder codeBuilder = new CsharpCodeBuilder();
             AppendUsingLines(classSymbol, codeBuilder);
             AppendNamespace(classSymbol, codeBuilder);
             AppendClassDefinition(classSymbol, codeBuilder);
-            AppendSingletonBody(classSymbol, codeBuilder);
+            AppendSingletonBody(classSymbol, instanceName, codeBuilder);
             codeBuilder.EndAllSegments();
             return new CodeFile
             {
@@ -68,7 +78,10 @@ namespace FlyTiger
                 Content = codeBuilder.ToString(),
             };
         }
-
+        bool IsValidName(string name)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(name, "^[_a-zA-Z][_a-zA-Z0-9]*$");
+        }
         void AppendUsingLines(INamedTypeSymbol _, CsharpCodeBuilder codeBuilder)
         {
             codeBuilder.AppendCodeLines("using System;");
@@ -92,12 +105,9 @@ namespace FlyTiger
             }
         }
 
-        void AppendSingletonBody(INamedTypeSymbol classSymbol, CsharpCodeBuilder codeBuilder)
+        void AppendSingletonBody(INamedTypeSymbol classSymbol,string instanceName, CsharpCodeBuilder codeBuilder)
         {
-            var instanceName = classSymbol.GetAttributes().Where(p => p.AttributeClass.Is(AttributeFullName))
-                .Select(p => p.NamedArguments.Where(t => t.Key == PropertyName).Where(t => !t.Value.IsNull).Select(t => (string)t.Value.Value).FirstOrDefault())
-                .FirstOrDefault();
-            instanceName = string.IsNullOrEmpty(instanceName) ? "Instance" : instanceName;
+           
 
             var content = $@"private static readonly Lazy<{classSymbol.GetClassSymbolDisplayText()}> LazyInstance = new Lazy<{classSymbol.GetClassSymbolDisplayText()}>(() => new {classSymbol.GetClassSymbolDisplayText()}(), true);
 

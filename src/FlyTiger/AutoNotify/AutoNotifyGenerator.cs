@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FlyTiger
+namespace FlyTiger.AutoNotify
 {
     [Generator]
     class AutoNotifyGenerator : ISourceGenerator
@@ -106,7 +106,7 @@ namespace FlyTiger
             // create properties for each field 
             foreach (IFieldSymbol fieldSymbol in fields)
             {
-                ProcessField(codeBuilder, fieldSymbol, codeWriter);
+                ProcessField(codeBuilder, classSymbol, fieldSymbol, codeWriter);
             }
 
             codeBuilder.EndAllSegments();
@@ -117,7 +117,7 @@ namespace FlyTiger
             };
         }
 
-        private static void ProcessField(CsharpCodeBuilder source, IFieldSymbol fieldSymbol, CodeWriter codeWriter)
+        private static void ProcessField(CsharpCodeBuilder source, INamedTypeSymbol classSymbol, IFieldSymbol fieldSymbol, CodeWriter codeWriter)
         {
             // get the name and type of the field
             string fieldName = fieldSymbol.Name;
@@ -130,14 +130,17 @@ namespace FlyTiger
             TypedConstant overridenNameOpt =
                 attributeData.NamedArguments.SingleOrDefault(kvp => kvp.Key == PropertyName).Value;
 
-            string propertyName = chooseName(fieldName, overridenNameOpt);
-            if (!System.Text.RegularExpressions.Regex.IsMatch(propertyName, "^[_a-zA-Z][_a-zA-Z0-9]*$"))
+            string propertyName = NormalName(fieldName, overridenNameOpt);
+            if (!IsValidName(propertyName))
             {
-                codeWriter.Context.ReportDiagnostic(KnifeDiagnostic.AutoNotify.InvalidPropertyName(propertyName));
+                codeWriter.Context.InvalidPropertyName(fieldSymbol, propertyName);
+                return;
             }
-            if (propertyName == fieldName)
+
+            if (classSymbol.GetAllMembers().Any(t => t.Name == propertyName))
             {
-                codeWriter.Context.ReportDiagnostic(KnifeDiagnostic.AutoNotify.PropertyNameEqualFieldName(propertyName));
+                codeWriter.Context.PropertyNameAlreadyExists(classSymbol, fieldSymbol, propertyName);
+                return;
             }
 
             source.AppendCodeLines($@"
@@ -159,7 +162,7 @@ public {fieldType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {pr
 
 ");
 
-            string chooseName(string field, TypedConstant overridenNameOption)
+            string NormalName(string field, TypedConstant overridenNameOption)
             {
                 if (!overridenNameOption.IsNull)
                 {
@@ -174,6 +177,10 @@ public {fieldType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {pr
                     return field.ToUpperInvariant();
 
                 return field.Substring(0, 1).ToUpperInvariant() + field.Substring(1);
+            }
+            bool IsValidName(string name)
+            {
+                return System.Text.RegularExpressions.Regex.IsMatch(name, "^[_a-zA-Z][_a-zA-Z0-9]*$");
             }
         }
 

@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using FlyTiger.AutoConstructor;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FlyTiger
+namespace FlyTiger.AutoConstructor
 {
     [Generator]
     class AutoConstructorGenerator : ISourceGenerator
@@ -59,7 +58,7 @@ namespace FlyTiger
             codeWriter.ForeachClassSyntax(receiver.CandidateClasses, ProcessClass);
         }
 
-        private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter, ClassDeclarationSyntax syntax)
+        private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter)
         {
             if (!classSymbol.HasAttribute(AttributeFullName))
             {
@@ -83,7 +82,7 @@ namespace FlyTiger
             CsharpCodeBuilder builder = new CsharpCodeBuilder();
             AppendNamespace(classSymbol, builder);
             AppendClassDefinition(classSymbol, builder);
-            AppendPublicCtor(classSymbol, nameMapper, isDependencyInjection, nullChecked, builder, codeWriter, syntax);
+            AppendPublicCtor(classSymbol, nameMapper, isDependencyInjection, nullChecked, builder, codeWriter);
 
             builder.EndAllSegments();
             return new CodeFile
@@ -234,23 +233,7 @@ namespace FlyTiger
                 codeBuilder.BeginSegment();
             }
         }
-        Location FindMethodInitializeAttributeLocation(IMethodSymbol method)
-        {
-            var attribute = method.GetAttributes()
-                .Where(p => p.AttributeClass.Is(InitializeAttributeFullName))
-                .FirstOrDefault();
-
-            if (attribute != null)
-            {
-                var syntaxReference = attribute.ApplicationSyntaxReference;
-                var syntaxNode = syntaxReference.GetSyntax();
-                var location = syntaxNode.GetLocation();
-                return location;
-            }
-
-            return Location.None;
-        }
-        void AppendPublicCtor(INamedTypeSymbol classSymbol, IDictionary<string, ArgumentInfo> nameMapper, bool isDependencyInjection, bool nullCheck, CsharpCodeBuilder codeBuilder, CodeWriter writer, ClassDeclarationSyntax syntax)
+        void AppendPublicCtor(INamedTypeSymbol classSymbol, IDictionary<string, ArgumentInfo> nameMapper, bool isDependencyInjection, bool nullCheck, CsharpCodeBuilder codeBuilder, CodeWriter writer)
         {
             if (isDependencyInjection)
             {
@@ -283,6 +266,13 @@ namespace FlyTiger
             }
             foreach (var method in allInitializeMethods)
             {
+                if (method.Parameters.Any())
+                {
+                    writer.Context.InitializeMethodShouldHasNoneArguments(method);
+                    // compile error
+                    continue;
+                }
+
                 if (method.IsStatic)
                 {
                     writer.Context.InitializeMethodShouldNotBeStatic(method);
@@ -295,13 +285,6 @@ namespace FlyTiger
                     codeBuilder.AppendCodeLines(BuildInitializeMethod(method));
                     continue;
                 }
-                if (method.Parameters.Any())
-                {
-                    writer.Context.InitializeMethodShouldHasNoneArguments(method);
-                    // compile error
-                    continue;
-                }
-
                 codeBuilder.AppendCodeLines(BuildInitializeMethod(method));
             }
 
