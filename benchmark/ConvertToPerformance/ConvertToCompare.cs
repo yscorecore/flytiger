@@ -2,9 +2,11 @@
 using AutoMapper;
 using BenchmarkDotNet.Attributes;
 using FlyTiger;
+using Mapster;
+
 namespace ConvertToPerformance
 {
-    [Mapper(typeof(UserInfo), typeof(UserDto))]
+    [FlyTiger.Mapper(typeof(UserInfo), typeof(UserDto))]
     public class ConvertToCompare
     {
         private readonly IMapper _mapper;
@@ -27,20 +29,22 @@ namespace ConvertToPerformance
             Name = "zhangsan",
             Birthday = DateTime.Parse("2000-11-11"),
             Role = new RoleInfo { Name = "admin" },
-            Addresses = new List<AddressInfo> {
-                 new AddressInfo {
+            Addresses = Enumerable.Repeat(
+                 new AddressInfo
+                 {
                      Province = "shan'xi",
-                     City ="xi'an",
-                     Street ="da zhai lu",
+                     City = "xi'an",
+                     Street = "da zhai lu",
                      Tel = "13666666666"
-                 }
-             }
+                 }, 100).ToList()
+
         };
 
         UserInfo[] userInfo10;
         UserInfo[] userInfo100;
-
         UserInfo[] userInfo1000;
+
+
         [Benchmark]
         public void MapSingleUseFlyTiger()
         {
@@ -51,6 +55,11 @@ namespace ConvertToPerformance
         public void MapSingleUseAutoMapper()
         {
             _ = _mapper.Map<UserDto>(userInfo);
+        }
+        [Benchmark]
+        public void MapSingleUseMapster()
+        {
+            _ = userInfo.Adapt<UserDto>();
         }
 
         [Benchmark]
@@ -63,6 +72,11 @@ namespace ConvertToPerformance
         {
             _ = _mapper.Map<UserInfo[], IEnumerable<UserDto>>(userInfo10).ToArray();
         }
+        [Benchmark]
+        public void Map10ObjectUseMapster()
+        {
+            _ = userInfo10.Adapt<UserInfo[], UserDto[]>();
+        }
 
         [Benchmark]
         public void Map100ObjectUseFlyTiger()
@@ -74,7 +88,11 @@ namespace ConvertToPerformance
         {
             _ = _mapper.Map<UserInfo[], IEnumerable<UserDto>>(userInfo100).ToArray();
         }
-
+        [Benchmark]
+        public void Map100ObjectUseMapster()
+        {
+            _ = userInfo100.Adapt<UserInfo[], UserDto[]>();
+        }
         [Benchmark]
         public void Map1000ObjectUseFlyTiger()
         {
@@ -84,6 +102,11 @@ namespace ConvertToPerformance
         public void Map1000ObjectUseAutoMapper()
         {
             _ = _mapper.Map<UserInfo[], IEnumerable<UserDto>>(userInfo1000).ToArray();
+        }
+        [Benchmark]
+        public void Map1000ObjectUseMapster()
+        {
+            _ = userInfo1000.Adapt<UserInfo[], UserDto[]>();
         }
     }
 }
