@@ -19,7 +19,7 @@ namespace FlyTiger
         const string NullCheckPropertyName = "NullCheck";
         static readonly string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
         static readonly string IgnoreAttributeFullName = $"{NameSpaceName}.{IgnoreAttributeName}";
-        static readonly string InitializeAttributeFullName = $"{NameSpaceName}.{InitializeAttributeName}";
+        internal static readonly string InitializeAttributeFullName = $"{NameSpaceName}.{InitializeAttributeName}";
         const string AttributeCode = @"using System;
 namespace FlyTiger
 {
@@ -113,7 +113,7 @@ namespace FlyTiger
         bool HasDefineValidAutoConstructorInitializeAttribute(INamedTypeSymbol classSymbol)
         {
             return classSymbol.GetMembers().OfType<IMethodSymbol>()
-                  .Any(p => p.IsStatic == false && p.Parameters.Length == 0 && p.HasAttribute(InitializeAttributeFullName));
+                  .Any(p => p.Parameters.Length == 0 && p.HasAttribute(InitializeAttributeFullName));
         }
         IDictionary<string, ArgumentInfo> GetSymbolNameMapper(Compilation compilation, INamedTypeSymbol classSymbol)
         {
@@ -234,12 +234,21 @@ namespace FlyTiger
                 codeBuilder.BeginSegment();
             }
         }
-        Location FindMethodLocation(IMethodSymbol method)
+        Location FindMethodInitializeAttributeLocation(IMethodSymbol method)
         {
-            SyntaxNode methodNode = method.DeclaringSyntaxReferences
-                    .Select(reference => reference.GetSyntax())
-                    .FirstOrDefault();
-            return methodNode?.GetLocation() ?? Location.None;
+            var attribute = method.GetAttributes()
+                .Where(p => p.AttributeClass.Is(InitializeAttributeFullName))
+                .FirstOrDefault();
+
+            if (attribute != null)
+            {
+                var syntaxReference = attribute.ApplicationSyntaxReference;
+                var syntaxNode = syntaxReference.GetSyntax();
+                var location = syntaxNode.GetLocation();
+                return location;
+            }
+
+            return Location.None;
         }
         void AppendPublicCtor(INamedTypeSymbol classSymbol, IDictionary<string, ArgumentInfo> nameMapper, bool isDependencyInjection, bool nullCheck, CsharpCodeBuilder codeBuilder, CodeWriter writer, ClassDeclarationSyntax syntax)
         {
@@ -267,16 +276,29 @@ namespace FlyTiger
                 codeBuilder.AppendCodeLines(BuildCtorAssignLine(member));
             }
             // init methods
-            foreach (var method in GetAllInitializeMethods())
+            var allInitializeMethods = GetAllInitializeMethods().ToList();
+            if (allInitializeMethods.Count > 1)
+            { 
+                 writer.Context.InitializeMethodShouldOnlyOne(classSymbol, allInitializeMethods);
+            }
+            foreach (var method in allInitializeMethods)
             {
                 if (method.IsStatic)
                 {
-                    writer.Context.InitializeMethodShouldNotBeStatic(FindMethodLocation(method));
+                    writer.Context.InitializeMethodShouldNotBeStatic(method);
+                    codeBuilder.AppendCodeLines(BuildInitializeMethod(method));
                     continue;
                 }
                 if (!method.ReturnsVoid)
                 {
-                    writer.Context.InitializeMethodShouldReturnVoid(FindMethodLocation(method));
+                    writer.Context.InitializeMethodShouldReturnVoid(method);
+                    codeBuilder.AppendCodeLines(BuildInitializeMethod(method));
+                    continue;
+                }
+                if (method.Parameters.Any())
+                {
+                    writer.Context.InitializeMethodShouldHasNoneArguments(method);
+                    // compile error
                     continue;
                 }
 
@@ -309,8 +331,7 @@ namespace FlyTiger
             }
             IEnumerable<IMethodSymbol> GetAllInitializeMethods()
             {
-                return classSymbol.GetAllMethodsByAttribute(InitializeAttributeFullName)
-                      .Where(p => p.Parameters.Count() == 0);
+                return classSymbol.GetAllMethodsByAttribute(InitializeAttributeFullName);
             }
 
         }
