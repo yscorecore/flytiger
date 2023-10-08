@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using FlyTiger.Mapper;
 using FlyTiger.Mapper.Generators;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FlyTiger
+namespace FlyTiger.Mapper
 {
     [Generator]
     partial class MapperGenerator : ISourceGenerator
@@ -55,11 +52,11 @@ namespace FlyTiger
             // class
             codeBuilder.AppendCodeLines($@"static class MapperExtensions");
             codeBuilder.BeginSegment();
-            // 通用方法
+            // common
             new CommonFunctionGenerator().AppendFunctions(codeBuilder);
-            // 转换方法
+            // convert
             new ConvertFunctionGenerator().AppendFunctions(codeWriter, codeBuilder, attributeDatas);
-            // 添加泛型方法
+            // generic
             new GenericFunctionGenerator().AppendFunctions(codeWriter, codeBuilder, attributeDatas);
             codeBuilder.EndAllSegments();
             return codeBuilder.ToString();

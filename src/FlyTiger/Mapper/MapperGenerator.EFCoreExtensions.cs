@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FlyTiger
+﻿namespace FlyTiger.Mapper
 {
     partial class MapperGenerator
     {

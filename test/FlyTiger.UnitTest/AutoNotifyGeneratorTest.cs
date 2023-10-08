@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
+using FlyTiger.AutoNotify;
 using Xunit;
 
 namespace FlyTiger.Generator.UnitTest

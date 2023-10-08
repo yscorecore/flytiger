@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace FlyTiger
+namespace FlyTiger.Mapper
 {
 
     class ConvertMappingInfo
@@ -71,6 +71,10 @@ namespace FlyTiger
 
         public static bool CanMappingSubObject(ITypeSymbol sourceType, ITypeSymbol targetType)
         {
+            if (sourceType.IsPrimitive() || targetType.IsPrimitive())
+            {
+                return false;
+            }
             if (targetType is INamedTypeSymbol namedTargetType)
             {
                 if (sourceType.TypeKind == TypeKind.Class || sourceType.TypeKind == TypeKind.Struct)

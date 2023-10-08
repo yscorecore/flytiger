@@ -54,7 +54,7 @@ namespace FlyTiger.Mapper.Generators
             void AddToMethodForSingleWithPostAction()
             {
                 codeBuilder.AppendCodeLines(
-                   $"public static T {methodName}<T>(this {fromType.Display} source, Action<T> postHandler) where T:class, new()");
+                   $"public static T {methodName}<T>(this {fromType.Display} source, Action<T> postHandler) where T: class, new()");
                 codeBuilder.BeginSegment();
                 codeBuilder.AppendCodeLines($"var result = source.{methodName}<T>();");
                 codeBuilder.AppendCodeLines("postHandler?.Invoke(result);");
@@ -86,7 +86,7 @@ namespace FlyTiger.Mapper.Generators
             void AddCopyToMethodForCollection()
             {
                 codeBuilder.AppendCodeLines(
-               $"public static void {methodName}<T>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T:class, new()");
+               $"public static void {methodName}<T>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T: class, new()");
                 codeBuilder.BeginSegment();
                 foreach (var mapping in mappingInfos)
                 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using FlyTiger.SingletonPattern;
 using Xunit;
 
 namespace FlyTiger.Generator.UnitTest

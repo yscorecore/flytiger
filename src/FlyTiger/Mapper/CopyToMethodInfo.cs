@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.CodeAnalysis;
 
-namespace FlyTiger
+namespace FlyTiger.Mapper
 {
 
     internal class CopyToMethodInfo : IEquatable<CopyToMethodInfo>

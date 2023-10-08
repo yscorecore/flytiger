@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace FlyTiger
+namespace FlyTiger.Mapper
 {
 
     class MapperContext
