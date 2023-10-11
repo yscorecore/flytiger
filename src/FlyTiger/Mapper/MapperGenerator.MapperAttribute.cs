@@ -1,4 +1,6 @@
-﻿namespace FlyTiger.Mapper
+﻿using System;
+
+namespace FlyTiger.Mapper
 {
     partial class MapperGenerator
     {
@@ -28,6 +30,33 @@ namespace FlyTiger
 
         public string[] CustomMappings { get; set; }
 
+        public MapperType MapperType { get; set; } = MapperType.All;
+        
+        public CheckType CheckType { get; set; } = CheckType.None;
+
+    }
+    [Flags]
+    enum MapperType
+    {
+        Query = 1,
+        Convert = 2,
+        Update = 4,
+        BatchUpdate = Convert | Update,
+        All = Query | Convert | Update
+    }
+    [Flags]
+    enum CheckType
+    {
+        None = 0,
+        SourceMembersFullUsed = 1,
+        TargetMembersFullFilled = 2,
+        All = SourceMembersFullUsed | TargetMembersFullFilled
+    }
+    enum CollectionUpdateMode
+    {
+        Append = 0,
+        Merge = 1,
+        Update = 2
     }
 }
 ";

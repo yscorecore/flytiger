@@ -36,9 +36,12 @@ namespace FlyTiger.Mapper.Generators
             var fromType = mappingInfo.SourceType;
             var toTypeDisplay = mappingInfo.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var fromTypeDisplay = mappingInfo.SourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            //convert
             AddToMethodForSingle(); //dto2entity    ,all dto readable properties should be use
+            //update
             AddCopyToMethodForSingle(); //dto2entity, all  dto readable properties should be use
             AddCopyToMethodForCollection(); //dto2entity, all dto readable properties should be use
+            //query
             AddToMethodForQueryable(); //entity2dto, all dto writeable properties should be mapped 
 
             void AddToMethodForSingle()
@@ -82,9 +85,18 @@ namespace FlyTiger.Mapper.Generators
             void AddCopyToMethodForCollection()
             {
                 codeBuilder.AppendCodeLines(
-                    $"private static void {mappingInfo.ConvertToMethodName}(this IEnumerable<{fromTypeDisplay}> source, ICollection<{toTypeDisplay}> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
+                    $"private static void {mappingInfo.ConvertToMethodName}(this IEnumerable<{fromTypeDisplay}> source, ICollection<{toTypeDisplay}> target, CollectionUpdateMode updateMode, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
                 codeBuilder.BeginSegment();
-
+                codeBuilder.AppendCodeLines($@"if (updateMode == CollectionUpdateMode.Append)
+{{
+    source.Select(p => p.{mappingInfo.ConvertToMethodName}()).ForEach(p =>
+    {{
+        target.Add(p);
+        onAddItem?.Invoke(p);
+    }});
+}}
+else");
+                codeBuilder.BeginSegment();
                 var keyMap = EntityKeyFinder.GetEntityKeyMaps(mappingInfo.SourceType, mappingInfo.TargetType);
                 if (keyMap == null)
                 {
@@ -94,42 +106,33 @@ namespace FlyTiger.Mapper.Generators
                 {
                     var sourceIdName = keyMap.SourceKey;
                     var targetIdName = keyMap.TargetKey;
-                    codeBuilder.AppendCodeLines($@"var sourceKeys = source.Select(p => p.{sourceIdName}).ToHashSet();
-var targetKeys = target.Select(p => p.{targetIdName}).ToHashSet();");
-
-                    codeBuilder.AppendCodeLines($@"// update
-foreach (var updateKey in sourceKeys.Intersect(targetKeys))
+                    codeBuilder.AppendCodeLines($@"var sourceKeys = source.Select(p => p.Id).ToHashSet();
+var targetKeys = target.Select(p => p.Id).ToHashSet();
+// modify item
+sourceKeys.Intersect(targetKeys).ForEach(key =>
 {{
-    var sourceItem = source.Where(p => p.{sourceIdName} == updateKey).First();
-    var targetItem = target.Where(p => p.{targetIdName} == updateKey).First();
-    {mappingInfo.ConvertToMethodName}(sourceItem, targetItem, onRemoveItem, onAddItem);
-}}");
-                    codeBuilder.AppendCodeLines($@"// remove
-var removeKeys = targetKeys.Except(sourceKeys).ToHashSet();
-var removeItems = target.Where(p => removeKeys.Contains(p.{targetIdName})).ToList();
-removeItems.ForEach(p =>
+    {mappingInfo.ConvertToMethodName}(
+        source.Where(p => p.{sourceIdName} == key).First(),
+        target.Where(p => p.{targetIdName} == key).First(),
+        onRemoveItem, onAddItem);
+}});
+// remove item
+if (updateMode == CollectionUpdateMode.Update)
 {{
-    target.Remove(p);
-    onRemoveItem?.Invoke(p);
-}});");
-                    codeBuilder.AppendCodeLines($@"// add
-var newKeys = sourceKeys.Except(targetKeys).ToHashSet();");
-
-                    codeBuilder.AppendCodeLines($"var newItems = source.Where(p => newKeys.Contains(p.{sourceIdName})).Select(p => p.{mappingInfo.ConvertToMethodName}()).ToList();");
-                    codeBuilder.AppendCodeLines($@"newItems.ForEach(p =>
+    target.Where(p => !sourceKeys.Contains(p.{targetIdName})).ToList().ForEach(p =>
+    {{
+        target.Remove(p);
+        onRemoveItem?.Invoke(p);
+    }});
+}}
+// add item
+source.Where(p => !targetKeys.Contains(p.{sourceIdName})).Select(p => p.{mappingInfo.ConvertToMethodName}()).ForEach(p =>
 {{
     target.Add(p);
     onAddItem?.Invoke(p);
 }});");
-
-
-
                 }
-
-
-
-
-
+                codeBuilder.EndSegment();
                 codeBuilder.EndSegment();
             }
 

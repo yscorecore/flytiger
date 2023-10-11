@@ -15,7 +15,15 @@ namespace FlyTiger.Mapper.Generators
         handler(item);
         yield return item;
     }
-}");
+}
+private static void ForEach<T>(this IEnumerable<T> source, Action<T> handler)
+{
+    foreach (var item in source)
+    {
+        handler(item);
+    }
+}
+");
         }
     }
 }

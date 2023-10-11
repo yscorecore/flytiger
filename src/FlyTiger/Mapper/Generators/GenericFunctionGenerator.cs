@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace FlyTiger.Mapper.Generators
@@ -23,12 +21,15 @@ namespace FlyTiger.Mapper.Generators
             CsharpCodeBuilder codeBuilder)
         {
             var methodName = "To";
+            //convert
             AddToMethodForSingle();
             AddToMethodForSingleWithPostAction();
-            AddCopyToMethodForSingle();
-            AddCopyToMethodForCollection();
             AddToMethodForEnumable();
             AddToMethodForEnumableWithPostAction();
+            //update
+            AddCopyToMethodForSingle();
+            AddCopyToMethodForCollection();
+            //query
             AddToMethodForQueryable();
 
             void AddToMethodForSingle()
@@ -71,7 +72,6 @@ namespace FlyTiger.Mapper.Generators
                 {
                     codeBuilder.AppendCodeLines("if (source == null) return;");
                 }
-
                 foreach (var mapping in mappingInfos)
                 {
                     codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
@@ -86,16 +86,16 @@ namespace FlyTiger.Mapper.Generators
             void AddCopyToMethodForCollection()
             {
                 codeBuilder.AppendCodeLines(
-               $"public static void {methodName}<T>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T: class, new()");
+               $"public static void {methodName}<T>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T: class, new()");
                 codeBuilder.BeginSegment();
                 foreach (var mapping in mappingInfos)
                 {
                     codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
                     codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, (ICollection<{mapping.TargetTypeFullDisplay}>)target, onRemoveItem, onAddItem);");
+                    codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, (ICollection<{mapping.TargetTypeFullDisplay}>)target, updateMode, onRemoveItem, onAddItem);");
+                    codeBuilder.AppendCodeLines("return;");
                     codeBuilder.EndSegment();
                 }
-
                 AppendNotSupportedExceptionAndEndSegment();
             }
 
@@ -135,7 +135,6 @@ namespace FlyTiger.Mapper.Generators
                     codeBuilder.AppendCodeLines($"return (IQueryable<T>){mapping.ConvertToMethodName}(source);");
                     codeBuilder.EndSegment();
                 }
-
                 AppendNotSupportedExceptionAndEndSegment();
             }
             void AppendNotSupportedExceptionAndEndSegment()
