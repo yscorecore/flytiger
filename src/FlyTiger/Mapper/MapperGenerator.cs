@@ -46,6 +46,7 @@ namespace FlyTiger.Mapper
             codeBuilder.AppendCodeLines("using System;");
             codeBuilder.AppendCodeLines("using System.Collections.Generic;");
             codeBuilder.AppendCodeLines("using System.Linq;");
+            codeBuilder.AppendCodeLines("using System.Linq.Expressions;");
             // namespace
             codeBuilder.AppendCodeLines($"namespace {NameSpaceName}");
             codeBuilder.BeginSegment();

@@ -33,6 +33,10 @@ namespace FlyTiger.Mapper
             }
             return null;
         }
+        public static IPropertySymbol GetEntityKey(ITypeSymbol type)
+        {
+            return FindKeyPropertyByAttribute(type) ?? FindKeyPropertyByName(type);
+        }
         private static IPropertySymbol FindPropertyByInfo(ITypeSymbol symbol, IPropertySymbol propInfo)
         {
             foreach (var prop in symbol.GetAllMembers().OfType<IPropertySymbol>())

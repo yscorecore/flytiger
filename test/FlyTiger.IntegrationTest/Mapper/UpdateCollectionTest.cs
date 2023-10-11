@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Moq;
-using static FlyTiger.IntegrationTest.CopySingleObjectTest;
 
 namespace FlyTiger.IntegrationTest.Mapper
 {
@@ -120,13 +114,70 @@ namespace FlyTiger.IntegrationTest.Mapper
             Mock.Get(addAction).Verify(t => t.Invoke(It.IsAny<object>()), Times.Exactly(1));
         }
 
-        public class User1
+        [Fact]
+        public void ShouldUpdateWhenUseCustomSourceKey()
+        {
+            var source = new[] {
+                new User1 { Id = 5, Name = "lisi", Age = 15 },
+                new User1 { Id = 4, Name = "wangmazi", Age = 13 }
+            };
+            var target = new List<TargetUser1> {
+                new TargetUser1{ Id=1, Name="zhangsan", Age=12 },
+                new TargetUser1{ Id=2, Name="lisi", Age=14 } ,
+                new TargetUser1{ Id=3, Name="wangwu", Age=13 }
+            };
+            source.To(target, CollectionUpdateMode.Update, p => p.Name);
+            target.Should().HaveCount(2);
+            target.SingleOrDefault(p => p.Id == 5).Should().BeEquivalentTo(new TargetUser1 { Id = 5, Name = "lisi", Age = 15 });
+        }
+        [Fact]
+        public void ShouldUpdateWhenUseCustomSourceKeyAndTargetKey()
+        {
+            var source = new[] {
+                new User1 { Id = 5, Name = "lisi", Age = 15 },
+                new User1 { Id = 4, Name = "wangmazi", Age = 13 }
+            };
+            var target = new List<TargetUser1> {
+                new TargetUser1{ Id=1, Name="zhangsan", Age=12 },
+                new TargetUser1{ Id=2, Name="lisi", Age=14 } ,
+                new TargetUser1{ Id=3, Name="wangwu", Age=13 }
+            };
+            source.To(target, CollectionUpdateMode.Update, p => p.Name, p => p.Name);
+            target.Should().HaveCount(2);
+            target.SingleOrDefault(p => p.Id == 5).Should().BeEquivalentTo(new TargetUser1 { Id = 5, Name = "lisi", Age = 15 });
+        }
+        [Fact]
+        public void ShouldUpdateWhenUseCustomSourceKeyAndTargetKeyAndKeyIsObject()
+        {
+            var source = new[] {
+                new User1 { Id = 5, Name = "lisi", Age = 15 },
+                new User1 { Id = 4, Name = "wangmazi", Age = 13 },
+                new User1 { Id = 6, Name = "lisi", Age = 14 },
+            };
+            var target = new List<TargetUser1> {
+                new TargetUser1{ Id=1, Name="zhangsan", Age=12 },
+                new TargetUser1{ Id=2, Name="lisi", Age=14 } ,
+                new TargetUser1{ Id=3, Name="wangwu", Age=13 }
+            };
+            source.To(target, CollectionUpdateMode.Merge, p => new { p.Age, p.Name }, p => new { p.Age, p.Name });
+            target.Should().HaveCount(5)
+                .And.BeEquivalentTo(new List<TargetUser1>
+                {
+                    new TargetUser1{ Id=1, Name="zhangsan", Age=12 },
+                    new TargetUser1{ Id=6, Name="lisi", Age=14 } ,
+                    new TargetUser1{ Id=3, Name="wangwu", Age=13 },
+                    new TargetUser1 { Id = 5, Name = "lisi", Age = 15 },
+                    new TargetUser1 { Id = 4, Name = "wangmazi", Age = 13 },
+
+                }, o => o.WithoutStrictOrdering());
+        }
+        public record User1
         {
             public int Id { get; set; }
             public string Name { get; set; }
             public int Age { get; set; }
         }
-        public class TargetUser1
+        public record TargetUser1
         {
             public int Id { get; set; }
             public string Name { get; set; }

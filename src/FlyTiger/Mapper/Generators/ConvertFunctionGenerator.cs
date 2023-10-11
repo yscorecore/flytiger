@@ -85,7 +85,7 @@ namespace FlyTiger.Mapper.Generators
             void AddCopyToMethodForCollection()
             {
                 codeBuilder.AppendCodeLines(
-                    $"private static void {mappingInfo.ConvertToMethodName}(this IEnumerable<{fromTypeDisplay}> source, ICollection<{toTypeDisplay}> target, CollectionUpdateMode updateMode, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
+                    $"private static void {mappingInfo.ConvertToMethodName}<T>(this IEnumerable<{fromTypeDisplay}> source, ICollection<{toTypeDisplay}> target, CollectionUpdateMode updateMode, Func<{fromTypeDisplay}, T> sourceItemKeySelector, Func<{toTypeDisplay}, T> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
                 codeBuilder.BeginSegment();
                 codeBuilder.AppendCodeLines($@"if (updateMode == CollectionUpdateMode.Append)
 {{
@@ -97,41 +97,32 @@ namespace FlyTiger.Mapper.Generators
 }}
 else");
                 codeBuilder.BeginSegment();
-                var keyMap = EntityKeyFinder.GetEntityKeyMaps(mappingInfo.SourceType, mappingInfo.TargetType);
-                if (keyMap == null)
-                {
-                    codeBuilder.AppendCodeLines(@"throw new InvalidOperationException(""can not infer the key property in source type or target type. If you want update collection by item key, you should define [System.ComponentModel.DataAnnotations.KeyAttribute] in source property or target property."");");
-                }
-                else
-                {
-                    var sourceIdName = keyMap.SourceKey;
-                    var targetIdName = keyMap.TargetKey;
-                    codeBuilder.AppendCodeLines($@"var sourceKeys = source.Select(p => p.Id).ToHashSet();
-var targetKeys = target.Select(p => p.Id).ToHashSet();
+                codeBuilder.AppendCodeLines($@"var sourceKeys = source.Select(sourceItemKeySelector).ToHashSet();
+var targetKeys = target.Select(targetItemKeySelector).ToHashSet();
 // modify item
 sourceKeys.Intersect(targetKeys).ForEach(key =>
 {{
     {mappingInfo.ConvertToMethodName}(
-        source.Where(p => p.{sourceIdName} == key).First(),
-        target.Where(p => p.{targetIdName} == key).First(),
+        source.Where(p => sourceItemKeySelector(p).Equals(key)).First(),
+        target.Where(p => targetItemKeySelector(p).Equals(key)).First(),
         onRemoveItem, onAddItem);
 }});
 // remove item
 if (updateMode == CollectionUpdateMode.Update)
 {{
-    target.Where(p => !sourceKeys.Contains(p.{targetIdName})).ToList().ForEach(p =>
+    target.Where(p => !sourceKeys.Contains(targetItemKeySelector(p))).ToList().ForEach(p =>
     {{
         target.Remove(p);
         onRemoveItem?.Invoke(p);
     }});
 }}
 // add item
-source.Where(p => !targetKeys.Contains(p.{sourceIdName})).Select(p => p.{mappingInfo.ConvertToMethodName}()).ForEach(p =>
+source.Where(p => !targetKeys.Contains(sourceItemKeySelector(p))).Select(p => p.{mappingInfo.ConvertToMethodName}()).ForEach(p =>
 {{
     target.Add(p);
     onAddItem?.Invoke(p);
 }});");
-                }
+
                 codeBuilder.EndSegment();
                 codeBuilder.EndSegment();
             }

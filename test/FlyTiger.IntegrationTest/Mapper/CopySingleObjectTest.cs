@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
+using Moq;
 
 namespace FlyTiger.IntegrationTest
 {
@@ -104,10 +105,8 @@ namespace FlyTiger.IntegrationTest
                     new Address6{ Id=4, City="wuhan"}
                 }
             };
-            int addCount = 0;
-            var addAction = (object item) => { addCount++; };
-            var removeCount = 0;
-            var removeActon = (object item) => { removeCount++; };
+            var addAction = Moq.Mock.Of<Action<object>>();
+            var removeActon = Moq.Mock.Of<Action<object>>();
             var xianAddress = new TargetAddress6 { Id = 2, City = "xi'an" };
             var target = new TargetUser6() { Address = new List<TargetAddress6>() { xianAddress, new TargetAddress6 { Id = 1, City = "shanghai" } } };
             user.To(target, removeActon, addAction);
@@ -120,8 +119,8 @@ namespace FlyTiger.IntegrationTest
                 });
             //在原有对象上更新
             target.Address.First().Should().Be(xianAddress);
-            addCount.Should().Be(2);
-            removeCount.Should().Be(1);
+            Mock.Get(addAction).Verify(t => t.Invoke(It.IsAny<object>()), Times.Exactly(2));
+            Mock.Get(removeActon).Verify(t => t.Invoke(It.IsAny<object>()), Times.Once);
 
         }
         [Fact]
