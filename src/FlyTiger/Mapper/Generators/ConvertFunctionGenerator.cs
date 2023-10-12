@@ -170,8 +170,6 @@ source.Where(p => !targetKeys.Contains(sourceItemKeySelector(p))).Select(p => p.
             var sourceItemType = GetItemType(fromType);
             var targetItemType = GetItemType(toType);
             var keyMap = EntityKeyFinder.GetEntityKeyMaps(sourceItemType, targetItemType);
-            var sourceIdName = keyMap.SourceKey;
-            var targetIdName = keyMap.TargetKey;
             var newContext = method.Context.Fork(sourceItemType, targetItemType);
             //生成对象
             queue.AddObjectCopyMethod(newContext);
@@ -180,38 +178,46 @@ source.Where(p => !targetKeys.Contains(sourceItemKeySelector(p))).Select(p => p.
 
             codeBuilder.AppendCodeLines($"void {methodName}({fromTypeDisplay} source, {toTypeDisplay} target)");
             codeBuilder.BeginSegment();
-            codeBuilder.AppendCodeLines($@"var sourceKeys = source.Select(p => p.{sourceIdName}).ToHashSet();
-var targetKeys = target.Select(p => p.{targetIdName}).ToHashSet();");
-
-            codeBuilder.AppendCodeLines($@"// update
-foreach (var updateKey in sourceKeys.Intersect(targetKeys))
+            var sourceItemKeySelector = BuildKeySelectExpression("p", keyMap.SourceKey);
+            var targetItemKeySelector = BuildKeySelectExpression("p", keyMap.TargetKey);
+            codeBuilder.AppendCodeLines($@"var sourceKeys = source.Select(p => {sourceItemKeySelector}).ToHashSet();
+var targetKeys = target.Select(p => {targetItemKeySelector}).ToHashSet();
+// modify item
+sourceKeys.Intersect(targetKeys).ForEach(key =>
 {{
-    var sourceItem = source.Where(p => p.{sourceIdName} == updateKey).First();
-    var targetItem = target.Where(p => p.{targetIdName} == updateKey).First();
-    {BuildCopyObjectMethodName(sourceItemType, targetItemType)}(sourceItem, targetItem);
-}}");
-            codeBuilder.AppendCodeLines($@"// remove
-var removeKeys = targetKeys.Except(sourceKeys).ToHashSet();
-var removeItems = target.Where(p => removeKeys.Contains(p.{targetIdName})).ToList();
-removeItems.ForEach(p =>
+    {BuildCopyObjectMethodName(sourceItemType, targetItemType)}(
+        source.Where(p => key.Equals({sourceItemKeySelector})).First(),
+        target.Where(p => key.Equals({targetItemKeySelector})).First());
+}});
+// remove item
+target.Where(p => !sourceKeys.Contains({targetItemKeySelector})).ToList().ForEach(p =>
 {{
     target.Remove(p);
     onRemoveItem?.Invoke(p);
-}});");
-            codeBuilder.AppendCodeLines($@"// add
-var newKeys = sourceKeys.Except(targetKeys).ToHashSet();");
-
-            codeBuilder.AppendCodeLines($"var newItems = source.Where(p => newKeys.Contains(p.{sourceIdName})).Select(p => new {targetItemDisplay}");
+}});
+// add item
+source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new {targetItemDisplay}");
             codeBuilder.BeginSegment();
             AppendPropertyAssign("p", null, ",", newContext);
-            codeBuilder.EndSegment("}).ToList();");
-            codeBuilder.AppendCodeLines($@"newItems.ForEach(p =>
-{{
+            codeBuilder.EndSegment(@"}).ForEach(p =>
+{
     target.Add(p);
     onAddItem?.Invoke(p);
-}});");
+});");
 
             codeBuilder.EndSegment();
+
+            string BuildKeySelectExpression(string paramName, IPropertySymbol[] keys)
+            {
+                if (keys.Length == 1)
+                {
+                    return $"p.{keys.First().Name}";
+                }
+                else
+                {
+                    return $"new {{ {string.Join(", ", keys.Select(k => $"p.{k.Name}"))} }}";
+                }
+            }
         }
         void AddCopyObjectMethodInternal(CopyToQueue queue, CopyToMethodInfo method)
         {
@@ -435,7 +441,7 @@ var newKeys = sourceKeys.Except(targetKeys).ToHashSet();");
             else
             {
                 codeBuilder.AppendCodeLines(
-                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default({targetPropertyTypeText}): new {targetPropertyTypeText}");
+                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default({targetPropertyTypeText}) : new {targetPropertyTypeText}");
             }
 
             codeBuilder.BeginSegment();

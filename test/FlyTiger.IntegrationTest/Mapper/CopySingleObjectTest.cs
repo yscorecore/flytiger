@@ -13,6 +13,7 @@ namespace FlyTiger.IntegrationTest
     [Mapper(typeof(User6), typeof(TargetUser6))]
     [Mapper(typeof(User7), typeof(TargetUser7))]
     [Mapper(typeof(User8), typeof(TargetUser8))]
+    [Mapper(typeof(User9), typeof(TargetUser9))]
     public class CopySingleObjectTest
     {
         [Fact]
@@ -154,13 +155,13 @@ namespace FlyTiger.IntegrationTest
             var user = new User8()
             {
                 Address = new Address8[] {
-                    new Address8{ Id = 1,  Key1="1",  City="beijing"}  ,
-                    new Address8{ Id =2, Key1="2", City="nanjing"}  ,
-                    new Address8{ Id=3, Key1="3", City="wuhan"}
+                    new Address8{ Id = 1,  Tel="1",  City="beijing"}  ,
+                    new Address8{ Id =2, Tel="2", City="nanjing"}  ,
+                    new Address8{ Id=3, Tel="3", City="wuhan"}
                 }
             };
-            var targetAddress1 = new TargetAddress8 { Id = 3, Key1 = "1", City = "xi'an" };
-            var targetAddress2 = new TargetAddress8 { Id = 2, Key1 = "3", City = "shanghai" };
+            var targetAddress1 = new TargetAddress8 { Id = 3, Tel = "1", City = "xi'an" };
+            var targetAddress2 = new TargetAddress8 { Id = 2, Tel = "3", City = "shanghai" };
             var target = new TargetUser8()
             {
                 Address = new List<TargetAddress8>()
@@ -170,8 +171,39 @@ namespace FlyTiger.IntegrationTest
                 }
             };
             user.To(target);
-            targetAddress1.Should().BeEquivalentTo(new TargetAddress8 { Id = 1, Key1 = "1", City = "beijing" });
-            targetAddress2.Should().BeEquivalentTo(new TargetAddress8 { Id = 3, Key1 = "3", City = "wuhan" });
+            targetAddress1.Should().BeEquivalentTo(new TargetAddress8 { Id = 1, Tel = "1", City = "beijing" });
+            targetAddress2.Should().BeEquivalentTo(new TargetAddress8 { Id = 3, Tel = "3", City = "wuhan" });
+        }
+        [Fact]
+        public void ShouldUpdateTargetByMultiSourceKey()
+        {
+            var user = new User9()
+            {
+                Address = new Address9[] {
+                    new Address9{ Id = 1, Tel="1", Name="A",  City="beijing"}  ,
+                    new Address9{ Id =2, Tel="2", City="nanjing"}  ,
+                    new Address9{ Id=3, Tel="3", City="wuhan"},
+                    new Address9{ Id = 4, Tel="1", Name="B",  City="beijing"}  ,
+                }
+            };
+            var targetAddress1 = new TargetAddress9 { Id = 3, Tel = "1", Name = "B", City = "xi'an" };
+            var targetAddress2 = new TargetAddress9 { Id = 2, Tel = "3", City = "shanghai" };
+            var target = new TargetUser9()
+            {
+                Address = new List<TargetAddress9>()
+                {
+                    targetAddress1,
+                    targetAddress2
+                }
+            };
+            user.To(target);
+            target.Address.Should().BeEquivalentTo(new[]
+            {
+                 new TargetAddress9 { Id = 4, Tel = "1", Name="A", City = "beijing" } ,
+                  new TargetAddress9 { Id = 3, Tel = "3", City = "wuhan" },
+                  new TargetAddress9 { Id = 2, Tel = "2", City = "nanjing" },
+                  new TargetAddress9 { Id = 4, Tel="1", Name="B",  City="beijing" }
+            }, o => o.WithoutStrictOrdering());
         }
 
 
@@ -292,7 +324,7 @@ namespace FlyTiger.IntegrationTest
         {
             public int Id { get; set; }
             [Key]
-            public string Key1 { get; set; }
+            public string Tel { get; set; }
             public string City { get; set; }
         }
         public class TargetUser8
@@ -304,7 +336,35 @@ namespace FlyTiger.IntegrationTest
         public class TargetAddress8
         {
             public int Id { get; set; }
-            public string Key1 { get; set; }
+            public string Tel { get; set; }
+            public string City { get; set; }
+        }
+        public class User9
+        {
+            public Address9[] Address { get; set; }
+        }
+        public class Address9
+        {
+            public int Id { get; set; }
+            [Key]
+            public string Tel { get; set; }
+
+            [Key]
+            public string Name { get; set; }
+
+            public string City { get; set; }
+        }
+        public class TargetUser9
+        {
+            public List<TargetAddress9> Address { get; set; }
+
+        }
+
+        public class TargetAddress9
+        {
+            public int Id { get; set; }
+            public string Tel { get; set; }
+            public string Name { get; set; }
             public string City { get; set; }
         }
 

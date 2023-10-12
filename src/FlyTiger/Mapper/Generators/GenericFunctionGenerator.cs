@@ -94,7 +94,7 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
             void AddToMethodForSingle()
             {
                 codeBuilder.AppendCodeLines(
-                    $"public static T {methodName}<T>(this {fromType.Display} source) where T:new()");
+                    $"public static T {methodName}<T>(this {fromType.Display} source) where T : new()");
                 codeBuilder.BeginSegment();
                 if (!fromType.Type.IsValueType)
                 {
@@ -114,7 +114,7 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
             void AddToMethodForSingleWithPostAction()
             {
                 codeBuilder.AppendCodeLines(
-                   $"public static T {methodName}<T>(this {fromType.Display} source, Action<T> postHandler) where T: class, new()");
+                   $"public static T {methodName}<T>(this {fromType.Display} source, Action<T> postHandler) where T : class, new()");
                 codeBuilder.BeginSegment();
                 codeBuilder.AppendCodeLines($"var result = source.{methodName}<T>();");
                 codeBuilder.AppendCodeLines("postHandler?.Invoke(result);");
@@ -125,7 +125,7 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
             void AddCopyToMethodForSingle()
             {
                 codeBuilder.AppendCodeLines(
-                    $"public static void {methodName}<T>(this {fromType.Display} source, T target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T:class");
+                    $"public static void {methodName}<T>(this {fromType.Display} source, T target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class");
                 codeBuilder.BeginSegment();
                 if (!fromType.Type.IsValueType)
                 {
@@ -145,7 +145,7 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
             void AddCopyToMethodForCollection()
             {
                 codeBuilder.AppendCodeLines(
-               $"public static void {methodName}<T, K>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Func<{fromType.Display}, K> sourceItemKeySelector, Func<T, K> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T: class, new()");
+               $"public static void {methodName}<T, K>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Func<{fromType.Display}, K> sourceItemKeySelector, Func<T, K> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
                 codeBuilder.BeginSegment();
                 codeBuilder.AppendCodeLines(@"_ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
 _ = targetItemKeySelector ?? throw new ArgumentNullException(nameof(targetItemKeySelector));");
@@ -162,7 +162,7 @@ _ = targetItemKeySelector ?? throw new ArgumentNullException(nameof(targetItemKe
             void AddCopyToMethodForCollection2()
             {
                 codeBuilder.AppendCodeLines(
-               $"public static void {methodName}<T, K>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Expression<Func<{fromType.Display}, K>> sourceItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T: class, new()");
+               $"public static void {methodName}<T, K>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Expression<Func<{fromType.Display}, K>> sourceItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
                 codeBuilder.BeginSegment();
                 codeBuilder.AppendCodeLines($@"_ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
 var sourceFunc = GetSourceKeySelectorFunc(sourceItemKeySelector);
@@ -172,23 +172,33 @@ source.To(target, updateMode, sourceFunc, targetFunc, onRemoveItem, onAddItem);"
             }
             void AddCopyToMethodForCollection3()
             {
-                var keyProperty = EntityKeyFinder.GetEntityKey(fromType.Type);
-                if (keyProperty != null)
+                var keyPropertys = EntityKeyFinder.GetEntityKey(fromType.Type);
+                if (keyPropertys != null)
                 {
                     codeBuilder.AppendCodeLines(
-             $"public static void {methodName}<T>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T: class, new()");
+             $"public static void {methodName}<T>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
                     codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($@"source.To(target, updateMode, p => p.{keyProperty.Name}, onRemoveItem, onAddItem);");
+                    codeBuilder.AppendCodeLines($@"source.To(target, updateMode, {BuildKeySelectExpression(keyPropertys)}, onRemoveItem, onAddItem);");
                     codeBuilder.EndSegment();
                 }
-
+                string BuildKeySelectExpression(IPropertySymbol[] keys)
+                {
+                    if (keys.Length == 1)
+                    {
+                        return $"p => p.{keys.First().Name}";
+                    }
+                    else
+                    {
+                        return $"p => new {{ {string.Join(", ", keys.Select(k => $"p.{k.Name}"))} }}";
+                    }
+                }
 
             }
 
             void AddToMethodForEnumable()
             {
                 codeBuilder.AppendCodeLines(
-                    $"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromType.Display}> source) where T:new()");
+                    $"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromType.Display}> source) where T : new()");
                 codeBuilder.BeginSegment();
                 foreach (var mapping in mappingInfos)
                 {
@@ -212,7 +222,7 @@ source.To(target, updateMode, sourceFunc, targetFunc, onRemoveItem, onAddItem);"
             void AddToMethodForQueryable()
             {
                 codeBuilder.AppendCodeLines(
-                    $"public static IQueryable<T> {methodName}<T>(this IQueryable<{fromType.Display}> source) where T:new()");
+                    $"public static IQueryable<T> {methodName}<T>(this IQueryable<{fromType.Display}> source) where T : new()");
                 codeBuilder.BeginSegment();
                 foreach (var mapping in mappingInfos)
                 {

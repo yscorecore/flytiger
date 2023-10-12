@@ -12,67 +12,55 @@ namespace FlyTiger.Mapper
 
         public static KeyMap GetEntityKeyMaps(ITypeSymbol source, ITypeSymbol target)
         {
-            var sourceAttributeKey = FindKeyPropertyByAttribute(source);
-            if (sourceAttributeKey != null)
+            var sourceAttributeKeys = FindKeyPropertyByAttribute(source);
+            if (sourceAttributeKeys != null)
             {
-                var targetKey = FindPropertyByInfo(target, sourceAttributeKey);
-                if (targetKey != null)
+                var targetKeys = FindPropertyByInfo(target, sourceAttributeKeys);
+                if (targetKeys != null)
                 {
                     // 优先使用source指定的key
-                    return new KeyMap { SourceKey = sourceAttributeKey.Name, TargetKey = targetKey.Name };
+                    return new KeyMap { SourceKey = sourceAttributeKeys, TargetKey = targetKeys };
                 }
             }
-            var targetAttributeKey = FindKeyPropertyByAttribute(target) ?? FindKeyPropertyByName(target);
-            if (targetAttributeKey != null)
+            var targetAttributeKeys = FindKeyPropertyByAttribute(target) ?? FindKeyPropertyByName(target);
+            if (targetAttributeKeys != null)
             {
-                var sourceKey = FindPropertyByInfo(source, targetAttributeKey);
-                if (sourceKey != null)
+                var sourceKeys = FindPropertyByInfo(source, targetAttributeKeys);
+                if (sourceKeys != null)
                 {
-                    return new KeyMap { SourceKey = sourceKey.Name, TargetKey = targetAttributeKey.Name };
+                    return new KeyMap { SourceKey = sourceKeys, TargetKey = targetAttributeKeys };
                 }
             }
             return null;
         }
-        public static IPropertySymbol GetEntityKey(ITypeSymbol type)
+        public static IPropertySymbol[] GetEntityKey(ITypeSymbol type)
         {
             return FindKeyPropertyByAttribute(type) ?? FindKeyPropertyByName(type);
         }
-        private static IPropertySymbol FindPropertyByInfo(ITypeSymbol symbol, IPropertySymbol propInfo)
+        private static IPropertySymbol[] FindPropertyByInfo(ITypeSymbol symbol, IPropertySymbol[] propInfo)
         {
-            foreach (var prop in symbol.GetAllMembers().OfType<IPropertySymbol>())
-            {
-                if (prop.Name == propInfo.Name && prop.Type.Equals(propInfo.Type, SymbolEqualityComparer.Default))
-                {
-                    return prop;
-                }
-            }
-            return null;
+            var result = propInfo.Select(p => symbol.GetAllMembers().OfType<IPropertySymbol>().SingleOrDefault(t => t.Name == p.Name && t.Type.Equals(p.Type, SymbolEqualityComparer.Default))).ToArray();
+            return result.Contains(null) ? null : result;
         }
-        private static IPropertySymbol FindKeyPropertyByAttribute(ITypeSymbol symbol)
+        private static IPropertySymbol[] FindKeyPropertyByAttribute(ITypeSymbol symbol)
         {
-            foreach (var prop in symbol.GetAllMembers().OfType<IPropertySymbol>())
-            {
-                if (prop.HasAttribute(KeyAttributeFullName))
-                {
-                    return prop;
-                }
-            }
-            return null;
+            var keys = symbol.GetAllMembers().OfType<IPropertySymbol>().Where(p => p.HasAttribute(KeyAttributeFullName)).ToArray();
+            return keys.Any() ? keys : null;
         }
-        private static IPropertySymbol FindKeyPropertyByName(ITypeSymbol symbol)
+        private static IPropertySymbol[] FindKeyPropertyByName(ITypeSymbol symbol)
         {
             foreach (var prop in symbol.GetAllMembers().OfType<IPropertySymbol>())
             {
                 if (prop.Name.Equals("Id", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return prop;
+                    return new[] { prop };
                 }
             }
             foreach (var prop in symbol.GetAllMembers().OfType<IPropertySymbol>())
             {
                 if (prop.Name.Equals($"{symbol.Name}Id", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return prop;
+                    return new[] { prop };
                 }
             }
             return null;
@@ -80,7 +68,7 @@ namespace FlyTiger.Mapper
     }
     public class KeyMap
     {
-        public string SourceKey { get; set; }
-        public string TargetKey { get; set; }
+        public IPropertySymbol[] SourceKey { get; set; }
+        public IPropertySymbol[] TargetKey { get; set; }
     }
 }

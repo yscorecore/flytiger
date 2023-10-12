@@ -1,9 +1,11 @@
-﻿using FluentAssertions;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentAssertions;
 using Moq;
 
 namespace FlyTiger.IntegrationTest.Mapper
 {
     [Mapper(typeof(User1), typeof(TargetUser1))]
+    [Mapper(typeof(User2), typeof(TargetUser2))]
     public class UpdateCollectionTest
     {
         [Fact]
@@ -146,6 +148,8 @@ namespace FlyTiger.IntegrationTest.Mapper
             target.Should().HaveCount(2);
             target.SingleOrDefault(p => p.Id == 5).Should().BeEquivalentTo(new TargetUser1 { Id = 5, Name = "lisi", Age = 15 });
         }
+        
+
         [Fact]
         public void ShouldUpdateWhenUseCustomSourceKeyAndTargetKeyAndKeyIsObject()
         {
@@ -171,6 +175,31 @@ namespace FlyTiger.IntegrationTest.Mapper
 
                 }, o => o.WithoutStrictOrdering());
         }
+        [Fact]
+        public void ShouldUpdateWhenDefinedMultiKeys()
+        {
+            var source = new[] {
+                new User2 { Id = 5, Name = "lisi", Age = 15 },
+                new User2 { Id = 4, Name = "wangmazi", Age = 13 },
+                new User2 { Id = 6, Name = "lisi", Age = 14 },
+            };
+            var target = new List<TargetUser2> {
+                new TargetUser2{ Id=1, Name="zhangsan", Age=12 },
+                new TargetUser2{ Id=2, Name="lisi", Age=14 } ,
+                new TargetUser2{ Id=3, Name="wangwu", Age=13 }
+            };
+            source.To(target, CollectionUpdateMode.Merge);
+            target.Should().HaveCount(5)
+                .And.BeEquivalentTo(new List<TargetUser2>
+                {
+                    new TargetUser2{ Id=1, Name="zhangsan", Age=12 },
+                    new TargetUser2{ Id=6, Name="lisi", Age=14 } ,
+                    new TargetUser2{ Id=3, Name="wangwu", Age=13 },
+                    new TargetUser2 { Id = 5, Name = "lisi", Age = 15 },
+                    new TargetUser2 { Id = 4, Name = "wangmazi", Age = 13 },
+
+                }, o => o.WithoutStrictOrdering());
+        }
         public record User1
         {
             public int Id { get; set; }
@@ -178,6 +207,20 @@ namespace FlyTiger.IntegrationTest.Mapper
             public int Age { get; set; }
         }
         public record TargetUser1
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int Age { get; set; }
+        }
+        public record User2
+        {
+            public int Id { get; set; }
+            [Key]
+            public string Name { get; set; }
+            [Key]
+            public int Age { get; set; }
+        }
+        public record TargetUser2
         {
             public int Id { get; set; }
             public string Name { get; set; }
