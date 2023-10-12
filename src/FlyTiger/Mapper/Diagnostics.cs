@@ -23,8 +23,9 @@ namespace FlyTiger.Mapper
             //    FindMemberLocation(targetProperty)));
         }
 
-        public static void ReportTargetPropertyNotFilled(this GeneratorExecutionContext context, ISymbol targetProperty, INamedTypeSymbol source, INamedTypeSymbol target, DiagnosticSeverity diagnosticSeverity)
+        public static void ReportTargetPropertyNotFilled(this GeneratorExecutionContext context, IPropertySymbol targetProperty, ITypeSymbol source, ITypeSymbol target, DiagnosticSeverity diagnosticSeverity = DiagnosticSeverity.Error)
         {
+            
             context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
                 "FT4002",
                 "Target property is not filled",
@@ -32,9 +33,9 @@ namespace FlyTiger.Mapper
                 Category,
                 diagnosticSeverity,
                 true),
-                FindMemberLocation(targetProperty), targetProperty.Name, target.GetTypeName(), source.GetTypeName()));
+                FindMemberLocation(targetProperty), targetProperty.Name, target.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat), source.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
         }
-        public static void ReportSourcePropertyNotMapped(this GeneratorExecutionContext context, ISymbol sourceProperty, INamedTypeSymbol source, INamedTypeSymbol target, DiagnosticSeverity diagnosticSeverity)
+        public static void ReportSourcePropertyNotMapped(this GeneratorExecutionContext context, IPropertySymbol sourceProperty, ITypeSymbol source, ITypeSymbol target, DiagnosticSeverity diagnosticSeverity = DiagnosticSeverity.Error)
         {
             context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
                 "FT4003",
@@ -43,7 +44,7 @@ namespace FlyTiger.Mapper
                 Category,
                 diagnosticSeverity,
                 true),
-                FindMemberLocation(sourceProperty), sourceProperty.Name, source.GetTypeName(), target.GetTypeName()));
+                FindMemberLocation(sourceProperty), sourceProperty.Name, source.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat), target.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
         }
 
     }

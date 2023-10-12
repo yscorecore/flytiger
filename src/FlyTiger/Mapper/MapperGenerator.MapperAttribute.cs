@@ -8,6 +8,8 @@ namespace FlyTiger.Mapper
 
         internal const string IgnoreTargetPropertiesPropertyName = "IgnoreTargetProperties";
         internal const string CustomMappingsPropertyName = "CustomMappings";
+        internal const string CheckTypeName = "CheckType";
+        internal const string MapperTypeName = "MapperType";
 
         internal static string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
         const string AttributeCode = @"using System;

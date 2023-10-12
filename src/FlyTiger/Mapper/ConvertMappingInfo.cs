@@ -1,20 +1,41 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace FlyTiger.Mapper
 {
 
-    class ConvertMappingInfo
+    public class ConvertMappingInfo
     {
+        private ConvertMappingInfo()
+        {
+
+        }
         public ITypeSymbol TargetType { get; internal set; }
         public ITypeSymbol SourceType { get; internal set; }
         public string TargetTypeFullDisplay { get; internal set; }
         public string SourceTypeFullDisplay { get; internal set; }
         public HashSet<string> IgnoreTargetProperties { get; internal set; }
         public Dictionary<string, string> CustomerMappings { get; internal set; }
+        public bool CheckTargetPropertiesFullFilled { get; internal set; }
+        public bool CheckSourcePropertiesFullUsed { get; internal set; }
         public string ConvertToMethodName { get; internal set; }
 
+        public ConvertMappingInfo Fork(ITypeSymbol fromType, ITypeSymbol toType)
+        {
+            return new ConvertMappingInfo
+            {
+                SourceType = fromType,
+                TargetType = toType,
+                TargetTypeFullDisplay = toType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                SourceTypeFullDisplay = fromType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                CheckSourcePropertiesFullUsed = this.CheckSourcePropertiesFullUsed,
+                CheckTargetPropertiesFullFilled = this.CheckTargetPropertiesFullFilled,
+                CustomerMappings = new Dictionary<string, string>(),
+                IgnoreTargetProperties = new HashSet<string>(),
+            };
+        }
         public static ConvertMappingInfo FromAttributeData(AttributeData attributeData)
         {
             var arguments = attributeData.ConstructorArguments;
@@ -34,6 +55,11 @@ namespace FlyTiger.Mapper
                 .Select(item => item.Value)
                 .ToLookup(item => item.Key, item => item.Value)
                 .ToDictionary(p => p.Key, p => p.Last());
+            var checkType = attributeData.NamedArguments
+                .Where(p => p.Key == MapperGenerator.CheckTypeName)
+                .Where(p => p.Value.IsNull == false)
+                .Select(p => Convert.ToInt32(p.Value.Value))
+                .FirstOrDefault();
             var methodName = new string(toType.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)
                 .Where(ch => char.IsLetterOrDigit(ch)).ToArray());
             return new ConvertMappingInfo
@@ -45,6 +71,8 @@ namespace FlyTiger.Mapper
                 IgnoreTargetProperties = new HashSet<string>(ignoreProperties),
                 CustomerMappings = customMappings,
                 ConvertToMethodName = $"To{methodName}",
+                CheckSourcePropertiesFullUsed = (checkType & 1) == 1,
+                CheckTargetPropertiesFullFilled = (checkType & 2) == 2,
             };
         }
 
