@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace FlyTiger.Mapper
@@ -9,6 +10,12 @@ namespace FlyTiger.Mapper
         static Location FindMemberLocation(ISymbol fieldOrProperty)
         {
             return fieldOrProperty.Locations.FirstOrDefault() ?? Location.None;
+        }
+        static Location FindAttributeLocation(AttributeData attributeData)
+        {
+            var syntaxReference = attributeData.ApplicationSyntaxReference;
+            var syntaxNode = syntaxReference.GetSyntax();
+            return syntaxNode.GetLocation();
         }
         static string GetTypeName(this INamedTypeSymbol type) => type.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
         public static void ReportCanNotMapper(this GeneratorExecutionContext context, AttributeData attributeData)
@@ -25,7 +32,7 @@ namespace FlyTiger.Mapper
 
         public static void ReportTargetPropertyNotFilled(this GeneratorExecutionContext context, IPropertySymbol targetProperty, ITypeSymbol source, ITypeSymbol target, DiagnosticSeverity diagnosticSeverity = DiagnosticSeverity.Error)
         {
-            
+
             context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
                 "FT4002",
                 "Target property is not filled",
@@ -57,6 +64,16 @@ namespace FlyTiger.Mapper
                 true),
                 FindMemberLocation(sourceProperty), sourceProperty.Name, source.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat), target.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
         }
-
+        public static void ReportTargetStructCanNotCopy(this GeneratorExecutionContext context, AttributeData attribute, ITypeSymbol source, ITypeSymbol target, DiagnosticSeverity diagnosticSeverity = DiagnosticSeverity.Error)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
+                "FT4005",
+                "Can not copy to struct type",
+                "Target type is struct, can not copy '{0}' to '{1}'.",
+                Category,
+                diagnosticSeverity,
+                true),
+                FindAttributeLocation(attribute), source.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat), target.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
+        }
     }
 }
