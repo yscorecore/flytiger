@@ -572,12 +572,12 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             }
 
             var mappingPropKeys = targetProps.Keys.Intersect(sourceProps.Keys)
-                .Except(mappingInfo.IgnoreTargetProperties).Except(mappingInfo.CustomerMappings.Keys).ToList();
+                .Except(mappingInfo.IgnoreProperties).Except(mappingInfo.CustomerMappings.Keys).ToList();
 
-            var targetNotFilledKeys = targetProps.Keys.Except(mappingInfo.IgnoreTargetProperties)
+            var targetNotFilledKeys = targetProps.Keys.Except(mappingInfo.IgnoreProperties)
                 .Except(mappingInfo.CustomerMappings.Keys).Except(mappingPropKeys).ToList();
 
-            var sourceNotUsedKeys = sourceProps.Keys.Except(mappingInfo.IgnoreTargetProperties)
+            var sourceNotUsedKeys = sourceProps.Keys.Except(mappingInfo.IgnoreProperties)
                 .Except(mappingInfo.CustomerMappings.Keys).Except(mappingPropKeys).ToList();
 
             // same name
@@ -739,12 +739,12 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             }
 
             var mappingPropKeys = targetProps.Keys.Intersect(sourceProps.Keys)
-                .Except(mappingInfo.IgnoreTargetProperties).Except(mappingInfo.CustomerMappings.Keys).ToList();
+                .Except(mappingInfo.IgnoreProperties).Except(mappingInfo.CustomerMappings.Keys).ToList();
 
-            var targetNotFilledKeys = targetProps.Keys.Except(mappingInfo.IgnoreTargetProperties)
+            var targetNotFilledKeys = targetProps.Keys.Except(mappingInfo.IgnoreProperties)
                 .Except(mappingInfo.CustomerMappings.Keys).Except(mappingPropKeys).ToList();
 
-            var sourceNotUsedKeys = sourceProps.Keys.Except(mappingInfo.IgnoreTargetProperties)
+            var sourceNotUsedKeys = sourceProps.Keys.Except(mappingInfo.IgnoreProperties)
                 .Except(mappingInfo.CustomerMappings.Keys).Except(mappingPropKeys).ToList();
 
             // same name
@@ -842,7 +842,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                     {
                         continue;
                     }
-                    if (mappingInfo.IgnoreTargetProperties.Contains(source.Key))
+                    if (mappingInfo.IgnoreProperties.Contains(source.Key))
                     {
                         continue;
                     }

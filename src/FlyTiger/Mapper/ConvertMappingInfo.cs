@@ -16,7 +16,7 @@ namespace FlyTiger.Mapper
         public ITypeSymbol SourceType { get; private set; }
         public string TargetTypeFullDisplay { get; private set; }
         public string SourceTypeFullDisplay { get; private set; }
-        public HashSet<string> IgnoreTargetProperties { get; private set; }
+        public HashSet<string> IgnoreProperties { get; private set; }
         public Dictionary<string, string> CustomerMappings { get; private set; }
         public bool CheckTargetPropertiesFullFilled { get; private set; }
         public bool CheckSourcePropertiesFullUsed { get; private set; }
@@ -34,7 +34,7 @@ namespace FlyTiger.Mapper
                 CheckSourcePropertiesFullUsed = this.CheckSourcePropertiesFullUsed,
                 CheckTargetPropertiesFullFilled = this.CheckTargetPropertiesFullFilled,
                 CustomerMappings = new Dictionary<string, string>(),
-                IgnoreTargetProperties = new HashSet<string>(),
+                IgnoreProperties = new HashSet<string>(),
                 FromAttribute = this.FromAttribute,
             };
         }
@@ -44,7 +44,7 @@ namespace FlyTiger.Mapper
             var fromType = arguments.First().Value as INamedTypeSymbol;
             var toType = arguments.Last().Value as INamedTypeSymbol;
             var ignoreProperties = attributeData.NamedArguments
-                .Where(p => p.Key == MapperGenerator.IgnoreTargetPropertiesPropertyName)
+                .Where(p => p.Key == MapperGenerator.IgnorePropertiesPropertyName)
                 .Where(p => p.Value.IsNull == false)
                 .SelectMany(p => p.Value.Values.Select(t => (string)t.Value))
                 .Where(p => !string.IsNullOrWhiteSpace(p));
@@ -70,7 +70,7 @@ namespace FlyTiger.Mapper
                 TargetType = toType,
                 TargetTypeFullDisplay = toType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 SourceTypeFullDisplay = fromType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                IgnoreTargetProperties = new HashSet<string>(ignoreProperties),
+                IgnoreProperties = new HashSet<string>(ignoreProperties),
                 CustomerMappings = customMappings,
                 ConvertToMethodName = $"To{methodName}",
                 CheckSourcePropertiesFullUsed = (checkType & 1) == 1,

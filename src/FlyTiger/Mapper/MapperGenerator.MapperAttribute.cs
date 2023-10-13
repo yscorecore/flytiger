@@ -6,7 +6,7 @@ namespace FlyTiger.Mapper
     {
         const string AttributeName = "MapperAttribute";
 
-        internal const string IgnoreTargetPropertiesPropertyName = "IgnoreTargetProperties";
+        internal const string IgnorePropertiesPropertyName = "IgnoreProperties";
         internal const string CustomMappingsPropertyName = "CustomMappings";
         internal const string CheckTypeName = "CheckType";
         internal const string MapperTypeName = "MapperType";
@@ -28,7 +28,7 @@ namespace FlyTiger
         public Type SourceType { get; }
         public Type TargetType { get; }
 
-        public string[] IgnoreTargetProperties { get; set; }
+        public string[] IgnoreProperties { get; set; }
 
         public string[] CustomMappings { get; set; }
 

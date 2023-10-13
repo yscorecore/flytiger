@@ -30,7 +30,7 @@ using FlyTiger.Generator.UnitTest;
 namespace ConsoleApp2
 {
     [MapperAttribute(typeof(TUser), typeof(UserInfo), 
-            IgnoreTargetProperties = new string[]{"Name",null})]
+            IgnoreProperties = new string[]{"Name",null})]
     partial class Convertors
     {
 

@@ -7,7 +7,7 @@ namespace FlyTiger.IntegrationTest
     [Mapper(typeof(User1), typeof(TargetUser1))]
     [Mapper(typeof(User2), typeof(TargetUser2),
         CustomMappings = new[] { $"{nameof(TargetUser2.FullName)} = $.{nameof(User2.FirstName)} + $.{nameof(User2.LastName)}" })]
-    [Mapper(typeof(User3), typeof(TargetUser3), IgnoreTargetProperties = new[] { nameof(TargetUser3.Age) })]
+    [Mapper(typeof(User3), typeof(TargetUser3), IgnoreProperties = new[] { nameof(TargetUser3.Age) })]
     [Mapper(typeof(User4), typeof(TargetUser4))]
     [Mapper(typeof(User5), typeof(TargetUser5))]
     [Mapper(typeof(User6), typeof(TargetUser6))]
@@ -44,7 +44,7 @@ namespace FlyTiger.IntegrationTest
             target.Age.Should().Be(30);
         }
         [Fact]
-        public void ShouldSkipThosePropertiesWhenDefineIgnoreTargetProperties()
+        public void ShouldSkipThosePropertiesWhenDefineIgnoreProperties()
         {
             var user = new User3()
             {
