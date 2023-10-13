@@ -12,15 +12,16 @@ namespace FlyTiger.Mapper
         {
 
         }
-        public ITypeSymbol TargetType { get; internal set; }
-        public ITypeSymbol SourceType { get; internal set; }
-        public string TargetTypeFullDisplay { get; internal set; }
-        public string SourceTypeFullDisplay { get; internal set; }
-        public HashSet<string> IgnoreTargetProperties { get; internal set; }
-        public Dictionary<string, string> CustomerMappings { get; internal set; }
-        public bool CheckTargetPropertiesFullFilled { get; internal set; }
-        public bool CheckSourcePropertiesFullUsed { get; internal set; }
-        public string ConvertToMethodName { get; internal set; }
+        public ITypeSymbol TargetType { get; private set; }
+        public ITypeSymbol SourceType { get; private set; }
+        public string TargetTypeFullDisplay { get; private set; }
+        public string SourceTypeFullDisplay { get; private set; }
+        public HashSet<string> IgnoreTargetProperties { get; private set; }
+        public Dictionary<string, string> CustomerMappings { get; private set; }
+        public bool CheckTargetPropertiesFullFilled { get; private set; }
+        public bool CheckSourcePropertiesFullUsed { get; private set; }
+        public string ConvertToMethodName { get; private set; }
+        public AttributeData FromAttribute { get; private set; }
 
         public ConvertMappingInfo Fork(ITypeSymbol fromType, ITypeSymbol toType)
         {
@@ -34,6 +35,7 @@ namespace FlyTiger.Mapper
                 CheckTargetPropertiesFullFilled = this.CheckTargetPropertiesFullFilled,
                 CustomerMappings = new Dictionary<string, string>(),
                 IgnoreTargetProperties = new HashSet<string>(),
+                FromAttribute = this.FromAttribute,
             };
         }
         public static ConvertMappingInfo FromAttributeData(AttributeData attributeData)
@@ -73,6 +75,7 @@ namespace FlyTiger.Mapper
                 ConvertToMethodName = $"To{methodName}",
                 CheckSourcePropertiesFullUsed = (checkType & 1) == 1,
                 CheckTargetPropertiesFullFilled = (checkType & 2) == 2,
+                FromAttribute = attributeData
             };
         }
 

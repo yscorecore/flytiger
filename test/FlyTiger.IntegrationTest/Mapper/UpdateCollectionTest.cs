@@ -173,7 +173,8 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new TargetUser1 { Id = 5, Name = "lisi", Age = 15 },
                     new TargetUser1 { Id = 4, Name = "wangmazi", Age = 13 },
 
-                }, o => o.WithoutStrictOrdering());
+                }, o => o.WithStrictOrdering());
+            
         }
         [Fact]
         public void ShouldUpdateWhenDefinedMultiKeys()
@@ -198,7 +199,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new TargetUser2 { Id = 5, Name = "lisi", Age = 15 },
                     new TargetUser2 { Id = 4, Name = "wangmazi", Age = 13 },
 
-                }, o => o.WithoutStrictOrdering());
+                }, o => o.WithStrictOrdering());
         }
         public record User1
         {

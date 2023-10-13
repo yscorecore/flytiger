@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -38,8 +40,9 @@ namespace FlyTiger.Mapper.Generators
             var fromTypeDisplay = mappingInfo.SourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             //convert
             AddToMethodForSingle(); //dto2entity    ,all dto readable properties should be use
-            //update
-            AddCopyToMethodForSingle(); //dto2entity, all  dto readable properties should be use
+            //update single
+            AddCopyToMethodForSingle();
+            // update collection
             AddCopyToMethodForCollection(); //dto2entity, all dto readable properties should be use
             //query
             AddToMethodForQueryable(); //entity2dto, all dto writeable properties should be mapped 
@@ -529,26 +532,28 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
         }
 
 
-
+        static ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>
+            sourcePropertiesCache = new ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>();
         private Dictionary<string, IPropertySymbol> GetSourcePropertyDictionary(ITypeSymbol typeSymbol)
         {
-            // TODO use cache
-            return typeSymbol.GetAllMembers()
-                .OfType<IPropertySymbol>()
-                .Where(p => !p.IsWriteOnly && p.CanBeReferencedByName && !p.IsStatic && !p.IsIndexer)
-                .Select(p => new { p.Name, Property = p })
-                .ToLookup(p => p.Name)
-                .ToDictionary(p => p.Key, p => p.First().Property);
+            return sourcePropertiesCache.GetOrAdd(typeSymbol, (s) => s.GetAllMembers()
+                 .OfType<IPropertySymbol>()
+                 .Where(p => !p.IsWriteOnly && p.CanBeReferencedByName && !p.IsStatic && !p.IsIndexer && p.DeclaredAccessibility == Accessibility.Public)
+                 .Select(p => new { p.Name, Property = p })
+                 .ToLookup(p => p.Name)
+                 .ToDictionary(p => p.Key, p => p.First().Property));
         }
+        static ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>
+           targetPropertiesCache = new ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>();
+
         private Dictionary<string, IPropertySymbol> GetTargetPropertyDictionary(ITypeSymbol typeSymbol)
         {
-            // TODO use cache
-            return typeSymbol.GetAllMembers()
+            return targetPropertiesCache.GetOrAdd(typeSymbol, s => s.GetAllMembers()
                 .OfType<IPropertySymbol>()
-                .Where(p => !p.IsReadOnly && p.CanBeReferencedByName && !p.IsStatic && !p.IsIndexer)
+                .Where(p => p.CanBeReferencedByName && !p.IsStatic && !p.IsIndexer && p.DeclaredAccessibility == Accessibility.Public)
                 .Select(p => new { p.Name, Property = p })
                 .ToLookup(p => p.Name)
-                .ToDictionary(p => p.Key, p => p.First().Property);
+                .ToDictionary(p => p.Key, p => p.First().Property));
         }
         private void AppendObjectPropertyCopyAssign(string sourceRefrenceName, string targetRefrenceName, MapperContext convertContext, CopyToQueue queue)
         {
@@ -557,83 +562,97 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             var codeBuilder = convertContext.CodeBuilder;
             var targetProps = GetTargetPropertyDictionary(mappingInfo.TargetType);
             var sourceProps = GetSourcePropertyDictionary(mappingInfo.SourceType);
-            var notMappedTargetProperties = new List<IPropertySymbol>();
-            var usedSourceProperties = new List<IPropertySymbol>();
-            foreach (var prop in targetProps)
+
+            // custom
+            foreach (var cm in mappingInfo.CustomerMappings)
             {
-                var targetPropType = prop.Value.Type;
-                if (mappingInfo.IgnoreTargetProperties != null && mappingInfo.IgnoreTargetProperties.Contains(prop.Key))
+                var actualSourceExpression = cm.Value.Replace("$", sourceRefrenceName);
+                codeBuilder.AppendCodeLines(
+                    $"{FormatRefrence(targetRefrenceName, cm.Key)} = {actualSourceExpression}{lineSplitChar}");
+            }
+
+            var mappingPropKeys = targetProps.Keys.Intersect(sourceProps.Keys)
+                .Except(mappingInfo.IgnoreTargetProperties).Except(mappingInfo.CustomerMappings.Keys).ToList();
+
+            var targetNotFilledKeys = targetProps.Keys.Except(mappingInfo.IgnoreTargetProperties)
+                .Except(mappingInfo.CustomerMappings.Keys).Except(mappingPropKeys).ToList();
+
+            var sourceNotUsedKeys = sourceProps.Keys.Except(mappingInfo.IgnoreTargetProperties)
+                .Except(mappingInfo.CustomerMappings.Keys).Except(mappingPropKeys).ToList();
+
+            // same name
+            foreach (var propName in mappingPropKeys)
+            {
+                var targetProp = targetProps[propName];
+                var sourceProp = sourceProps[propName];
+                var targetPropType = targetProp.Type;
+                var sourcePropType = sourceProp.Type;
+                if (targetProp.IsReadOnly)
                 {
+                    this.ReportReadOnlyPropertyCanNotFilled(convertContext, targetProp, sourceProp);
                     continue;
                 }
 
-                if (mappingInfo.CustomerMappings != null &&
-                    mappingInfo.CustomerMappings.TryGetValue(prop.Key, out var sourceExpression))
+                if (CanCopyingCollectionProperty(sourcePropType, targetPropType, convertContext))
                 {
-                    var actualSourceExpression = sourceExpression.Replace("$", sourceRefrenceName);
-                    codeBuilder.AppendCodeLines(
-                        $"{FormatRefrence(targetRefrenceName, prop.Key)} = {actualSourceExpression}{lineSplitChar}");
-                }
-                else if (sourceProps.TryGetValue(prop.Key, out var sourceProp))
-                {
-                    var sourcePropType = sourceProp.Type; 
-                    if (CanCopyingCollectionProperty(sourcePropType, targetPropType, convertContext))
-                    {
-                        // collection copy
-                        usedSourceProperties.Add(sourceProp);
-                        var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                        AppendCollectionCopyAssign(sourceRefrenceName, targetRefrenceName, prop.Key, prop.Key, newConvertContext);
-                        queue.AddCollectionCopyMethod(newConvertContext);
+                    // collection copy
+                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
+                    AppendCollectionCopyAssign(sourceRefrenceName, targetRefrenceName, propName, propName, newConvertContext);
+                    queue.AddCollectionCopyMethod(newConvertContext);
 
-                    }
-                    else if (CanMappingCollectionProperty(sourcePropType, targetPropType, convertContext))
-                    {
-                        // collection new object
-                        usedSourceProperties.Add(sourceProp);
-                        var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                        MappingCollectionProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, prop.Key,
-                            lineSplitChar);
-                    }
-                    else if (CanCopyingSubObjectProperty(sourcePropType, targetPropType, convertContext))
-                    {
-                        // sub object copy
-                        usedSourceProperties.Add(sourceProp);
-                        var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                        AppendSubObjectCopyAssign(sourceRefrenceName, targetRefrenceName, prop.Key, prop.Key, newConvertContext);
-                        queue.AddObjectCopyMethod(newConvertContext);
-                    }
-                    else if (CanAssign(sourcePropType, targetPropType, convertContext))
-                    {
-                        // default 
-                        usedSourceProperties.Add(sourceProp);
-                        codeBuilder.AppendCodeLines(
-                            $"{FormatRefrence(targetRefrenceName, prop.Key)} = {FormatRefrence(sourceRefrenceName, prop.Key)}{lineSplitChar}");
-                    }
-                    else if (CanMappingSubObjectProperty(sourcePropType, targetPropType, convertContext))
-                    {
-                        usedSourceProperties.Add(sourceProp);
-                        var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                        MappingSubObjectProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, prop.Key,
-                            lineSplitChar);
-                    }
-                    else
-                    {
-                        //不支持的类型
-                        notMappedTargetProperties.Add(prop.Value);
-                    }
                 }
-                // eg UserName = User.Name
-                else if (HasSuggestionPath(prop, sourceProps, out var paths, convertContext))
+                else if (CanMappingCollectionProperty(sourcePropType, targetPropType, convertContext))
                 {
-                    usedSourceProperties.AddRange(paths);
-                    var actualSourceExpression = $"{sourceRefrenceName}.{string.Join(".", paths.Select(p=>p.Name))}";
-                    codeBuilder.AppendCodeLines(
-                        $"{FormatRefrence(targetRefrenceName, prop.Key)} = {actualSourceExpression}{lineSplitChar}");
+                    // collection new object
+                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
+                    MappingCollectionProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, propName,
+                        lineSplitChar);
                 }
-
+                else if (CanCopyingSubObjectProperty(sourcePropType, targetPropType, convertContext))
+                {
+                    // sub object copy
+                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
+                    AppendSubObjectCopyAssign(sourceRefrenceName, targetRefrenceName, propName, propName, newConvertContext);
+                    queue.AddObjectCopyMethod(newConvertContext);
+                }
+                else if (CanAssign(sourcePropType, targetPropType, convertContext))
+                {
+                    // default 
+                    codeBuilder.AppendCodeLines(
+                        $"{FormatRefrence(targetRefrenceName, propName)} = {FormatRefrence(sourceRefrenceName, propName)}{lineSplitChar}");
+                }
+                else if (CanMappingSubObjectProperty(sourcePropType, targetPropType, convertContext))
+                {
+                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
+                    MappingSubObjectProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, propName,
+                        lineSplitChar);
+                }
+                else
+                {
+                    this.ReportPropertyCanNotBeMapped(convertContext, targetProp, sourceProp);
+                }
 
             }
-            ReportError("copy", convertContext, sourceProps, targetProps, notMappedTargetProperties, usedSourceProperties);
+            // UserName = User.Name
+            foreach (var prop in targetProps.Where(p => targetNotFilledKeys.Contains(p.Key)))
+            {
+                if (HasSuggestionPath(prop, sourceProps, out var paths, convertContext))
+                {
+                    sourceNotUsedKeys.Remove(paths.First().Name);
+
+                    var actualSourceExpression = $"{sourceRefrenceName}.{string.Join(".", paths.Select(p => p.Name))}";
+                    codeBuilder.AppendCodeLines(
+                        $"{FormatRefrence(targetRefrenceName, prop.Key)} = {actualSourceExpression}{lineSplitChar}");
+                }
+                else
+                {
+                    this.ReportTargetPrpertyNotFilled(convertContext, prop.Value);
+                }
+            }
+            foreach (var prop in sourceProps.Where(p => sourceNotUsedKeys.Contains(p.Key)))
+            {
+                this.ReportSourcePropertyNotMapped(convertContext, prop.Value);
+            }
         }
         private void AppendSubObjectCopyAssign(string sourceRefrenceName, string targetRefrenceName, string sourcePropName, string targetPropName, MapperContext newConvertContext)
         {
@@ -710,77 +729,111 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             var codeBuilder = convertContext.CodeBuilder;
             var targetProps = GetTargetPropertyDictionary(mappingInfo.TargetType);
             var sourceProps = GetSourcePropertyDictionary(mappingInfo.SourceType);
-            var notMappedTargetProperties = new List<IPropertySymbol>();
-            var usedSourceProperties = new List<IPropertySymbol>();
-            foreach (var prop in targetProps)
+
+            // custom
+            foreach (var cm in mappingInfo.CustomerMappings)
             {
-                var targetPropType = prop.Value.Type;
-                if (mappingInfo.IgnoreTargetProperties != null && mappingInfo.IgnoreTargetProperties.Contains(prop.Key))
+                var actualSourceExpression = cm.Value.Replace("$", sourceRefrenceName);
+                codeBuilder.AppendCodeLines(
+                    $"{FormatRefrence(targetRefrenceName, cm.Key)} = {actualSourceExpression}{lineSplitChar}");
+            }
+
+            var mappingPropKeys = targetProps.Keys.Intersect(sourceProps.Keys)
+                .Except(mappingInfo.IgnoreTargetProperties).Except(mappingInfo.CustomerMappings.Keys).ToList();
+
+            var targetNotFilledKeys = targetProps.Keys.Except(mappingInfo.IgnoreTargetProperties)
+                .Except(mappingInfo.CustomerMappings.Keys).Except(mappingPropKeys).ToList();
+
+            var sourceNotUsedKeys = sourceProps.Keys.Except(mappingInfo.IgnoreTargetProperties)
+                .Except(mappingInfo.CustomerMappings.Keys).Except(mappingPropKeys).ToList();
+
+            // same name
+            foreach (var propName in mappingPropKeys)
+            {
+                var targetProp = targetProps[propName];
+                var sourceProp = sourceProps[propName];
+                var targetPropType = targetProp.Type;
+                var sourcePropType = sourceProp.Type;
+                if (targetProp.IsReadOnly)
                 {
+                    this.ReportReadOnlyPropertyCanNotFilled(convertContext, targetProp, sourceProp);
                     continue;
                 }
 
-                if (mappingInfo.CustomerMappings != null &&
-                    mappingInfo.CustomerMappings.TryGetValue(prop.Key, out var sourceExpression))
+                if (CanAssign(sourcePropType, targetPropType, convertContext))
                 {
-                    var actualSourceExpression = sourceExpression.Replace("$", sourceRefrenceName);
+                    // default 
                     codeBuilder.AppendCodeLines(
-                        $"{FormatRefrence(targetRefrenceName, prop.Key)} = {actualSourceExpression}{lineSplitChar}");
+                        $"{FormatRefrence(targetRefrenceName, propName)} = {FormatRefrence(sourceRefrenceName, propName)}{lineSplitChar}");
                 }
-                else if (sourceProps.TryGetValue(prop.Key, out var sourceProperty))
+                else if (CanMappingCollectionProperty(sourcePropType, targetPropType, convertContext))
                 {
+                    // collection
+                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
+                    MappingCollectionProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, propName,
+                        lineSplitChar);
+                }
+                else if (CanMappingSubObjectProperty(sourcePropType, targetPropType, convertContext))
+                {
+                    // sub object 
+                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
+                    MappingSubObjectProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, propName,
+                        lineSplitChar);
+                }
+                else
+                {
+                    this.ReportPropertyCanNotBeMapped(convertContext, targetProp, sourceProp);
+                }
 
-                    var sourcePropType = sourceProperty.Type;
-                    if (CanAssign(sourcePropType, targetPropType, convertContext))
-                    {
-                        // default 
-                        usedSourceProperties.Add(sourceProperty);
-                        codeBuilder.AppendCodeLines(
-                            $"{FormatRefrence(targetRefrenceName, prop.Key)} = {FormatRefrence(sourceRefrenceName, prop.Key)}{lineSplitChar}");
-                    }
-                    else if (CanMappingCollectionProperty(sourcePropType, targetPropType, convertContext))
-                    {
-                        // collection
-                        usedSourceProperties.Add(sourceProperty);
-                        var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                        MappingCollectionProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, prop.Key,
-                            lineSplitChar);
-                    }
-                    else if (CanMappingSubObjectProperty(sourcePropType, targetPropType, convertContext))
-                    {
-                        // sub object 
-                        usedSourceProperties.Add(sourceProperty);
-                        var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                        MappingSubObjectProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, prop.Key,
-                            lineSplitChar);
-                    }
-                }
-                // eg UserName = User.Name
-                else if (HasSuggestionPath(prop, sourceProps, out var paths, convertContext))
+            }
+            // UserName = User.Name
+            foreach (var prop in targetProps.Where(p => targetNotFilledKeys.Contains(p.Key)))
+            {
+                if (HasSuggestionPath(prop, sourceProps, out var paths, convertContext))
                 {
-                    usedSourceProperties.AddRange(paths);
-                    var actualSourceExpression = $"{sourceRefrenceName}.{string.Join(".", paths.Select(p=>p.Name))}";
+                    sourceNotUsedKeys.Remove(paths.First().Name);
+
+                    var actualSourceExpression = $"{sourceRefrenceName}.{string.Join(".", paths.Select(p => p.Name))}";
                     codeBuilder.AppendCodeLines(
                         $"{FormatRefrence(targetRefrenceName, prop.Key)} = {actualSourceExpression}{lineSplitChar}");
                 }
                 else
                 {
-                    notMappedTargetProperties.Add(prop.Value);
+                    this.ReportTargetPrpertyNotFilled(convertContext, prop.Value);
                 }
             }
-            ReportError("convert", convertContext, sourceProps, targetProps, notMappedTargetProperties, usedSourceProperties);
+            foreach (var prop in sourceProps.Where(p => sourceNotUsedKeys.Contains(p.Key)))
+            {
+                this.ReportSourcePropertyNotMapped(convertContext, prop.Value);
+            }
         }
-        private void ReportError(string type, MapperContext context, IDictionary<string, IPropertySymbol> sourceProperties, IDictionary<string, IPropertySymbol> targetProperties, IList<IPropertySymbol> notMappedTargetProperties, IList<IPropertySymbol> usedSourceProperties)
+        private void ReportReadOnlyPropertyCanNotFilled(MapperContext context, IPropertySymbol targetProperty, IPropertySymbol sourceProperty)
         {
             var mappingInfo = context.MappingInfo;
-            if (mappingInfo.CheckTargetPropertiesFullFilled)
+            context.CodeWriter.Context.ReportTargetPropertyNotFilledBecauseIsGetOnly(targetProperty, mappingInfo.SourceType, mappingInfo.TargetType);
+
+        }
+        private void ReportTargetPrpertyNotFilled(MapperContext context, IPropertySymbol targetProperty)
+        {
+            if (context.MappingInfo.CheckTargetPropertiesFullFilled)
             {
-                foreach (var target in notMappedTargetProperties)
-                {
-                    //report
-                    context.CodeWriter.Context.ReportTargetPropertyNotFilled(target, mappingInfo.SourceType, mappingInfo.TargetType);
-                }
+                context.CodeWriter.Context.ReportTargetPropertyNotFilled(targetProperty, context.MappingInfo.SourceType, context.MappingInfo.TargetType);
             }
+        }
+        private void ReportSourcePropertyNotMapped(MapperContext context, IPropertySymbol sourceProperty)
+        {
+            if (context.MappingInfo.CheckSourcePropertiesFullUsed)
+            {
+                context.CodeWriter.Context.ReportSourcePropertyNotMapped(sourceProperty, context.MappingInfo.SourceType, context.MappingInfo.TargetType);
+            }
+        }
+        private void ReportPropertyCanNotBeMapped(MapperContext context, IPropertySymbol targetProperty, IPropertySymbol sourceProperty)
+        {
+
+        }
+        private void ReportError(string type, MapperContext context, IDictionary<string, IPropertySymbol> sourceProperties, IDictionary<string, IPropertySymbol> targetProperties, IList<IPropertySymbol> usedSourceProperties)
+        {
+            var mappingInfo = context.MappingInfo;
             if (mappingInfo.CheckSourcePropertiesFullUsed)
             {
                 foreach (var source in sourceProperties)

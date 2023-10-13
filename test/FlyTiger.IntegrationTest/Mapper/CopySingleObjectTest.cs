@@ -180,10 +180,10 @@ namespace FlyTiger.IntegrationTest
             var user = new User9()
             {
                 Address = new Address9[] {
-                    new Address9{ Id = 1, Tel="1", Name="A",  City="beijing"}  ,
-                    new Address9{ Id =2, Tel="2", City="nanjing"}  ,
-                    new Address9{ Id=3, Tel="3", City="wuhan"},
-                    new Address9{ Id = 4, Tel="1", Name="B",  City="beijing"}  ,
+                    new Address9{ Id = 1, Tel="1", Name="A", City="beijing" },
+                    new Address9{ Id =2, Tel="2", City="nanjing" },
+                    new Address9{ Id=3, Tel="3", City="wuhan" },
+                    new Address9{ Id = 4, Tel="1", Name="B", City="beijing"},
                 }
             };
             var targetAddress1 = new TargetAddress9 { Id = 3, Tel = "1", Name = "B", City = "xi'an" };
@@ -199,11 +199,11 @@ namespace FlyTiger.IntegrationTest
             user.To(target);
             target.Address.Should().BeEquivalentTo(new[]
             {
-                 new TargetAddress9 { Id = 4, Tel = "1", Name="A", City = "beijing" } ,
+                  new TargetAddress9 { Id = 4, Tel = "1", Name="B",  City="beijing" },
                   new TargetAddress9 { Id = 3, Tel = "3", City = "wuhan" },
+                  new TargetAddress9 { Id = 1, Tel = "1", Name="A", City = "beijing" } ,
                   new TargetAddress9 { Id = 2, Tel = "2", City = "nanjing" },
-                  new TargetAddress9 { Id = 4, Tel="1", Name="B",  City="beijing" }
-            }, o => o.WithoutStrictOrdering());
+            }, o => o.WithStrictOrdering());
         }
 
 

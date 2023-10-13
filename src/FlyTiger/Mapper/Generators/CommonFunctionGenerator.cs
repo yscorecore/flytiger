@@ -12,7 +12,7 @@ namespace FlyTiger.Mapper.Generators
 {
     foreach (var item in source)
     {
-        handler(item);
+        handler?.Invoke(item);
         yield return item;
     }
 }
@@ -20,7 +20,7 @@ private static void ForEach<T>(this IEnumerable<T> source, Action<T> handler)
 {
     foreach (var item in source)
     {
-        handler(item);
+        handler?.Invoke(item);
     }
 }
 ");
