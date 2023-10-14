@@ -129,9 +129,10 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
                 codeBuilder.BeginSegment();
                 if (!fromType.Type.IsValueType)
                 {
-                    codeBuilder.AppendCodeLines("if (source == null) return;");
+                    codeBuilder.AppendCodeLines("_ = source ?? throw new ArgumentNullException(nameof(source));");
                 }
-                foreach (var mapping in mappingInfos)
+                codeBuilder.AppendCodeLines("_ = target ?? throw new ArgumentNullException(nameof(target));");
+                foreach (var mapping in mappingInfos.Where(p => !p.TargetType.IsValueType))
                 {
                     codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
                     codeBuilder.BeginSegment();
@@ -147,9 +148,11 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
                 codeBuilder.AppendCodeLines(
                $"public static void {methodName}<T, K>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Func<{fromType.Display}, K> sourceItemKeySelector, Func<T, K> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
                 codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines(@"_ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
+                codeBuilder.AppendCodeLines(@"_ = source ?? throw new ArgumentNullException(nameof(source));
+_ = target ?? throw new ArgumentNullException(nameof(target));
+_ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
 _ = targetItemKeySelector ?? throw new ArgumentNullException(nameof(targetItemKeySelector));");
-                foreach (var mapping in mappingInfos)
+                foreach (var mapping in mappingInfos.Where(p => !p.TargetType.IsValueType))
                 {
                     codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
                     codeBuilder.BeginSegment();

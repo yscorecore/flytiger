@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Data;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -36,6 +37,7 @@ namespace FlyTiger.Mapper.Generators
             var mappingInfo = context.MappingInfo;
             var codeBuilder = context.CodeBuilder;
             var fromType = mappingInfo.SourceType;
+            var toType = mappingInfo.TargetType;
             var toTypeDisplay = mappingInfo.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var fromTypeDisplay = mappingInfo.SourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             //convert
@@ -66,6 +68,12 @@ namespace FlyTiger.Mapper.Generators
 
             void AddCopyToMethodForSingle()
             {
+                if (toType.IsValueType)
+                {
+                    this.ReportTargetIsValueTypeCanNotCopy(context);
+                    return;
+                }
+
                 codeBuilder.AppendCodeLines(
                     $"private static void {mappingInfo.ConvertToMethodName}(this {fromTypeDisplay} source, {toTypeDisplay} target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
                 codeBuilder.BeginSegment();
@@ -87,6 +95,12 @@ namespace FlyTiger.Mapper.Generators
             }
             void AddCopyToMethodForCollection()
             {
+                if (toType.IsValueType)
+                {
+                    this.ReportTargetIsValueTypeCanNotCopy(context);
+                    return;
+                }
+
                 codeBuilder.AppendCodeLines(
                     $"private static void {mappingInfo.ConvertToMethodName}<T>(this IEnumerable<{fromTypeDisplay}> source, ICollection<{toTypeDisplay}> target, CollectionUpdateMode updateMode, Func<{fromTypeDisplay}, T> sourceItemKeySelector, Func<{toTypeDisplay}, T> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
                 codeBuilder.BeginSegment();
@@ -229,17 +243,12 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             var codeBuilder = context.CodeBuilder;
             var fromType = mappingInfo.SourceType;
             var toType = mappingInfo.TargetType;
+
+          
+
             var toTypeDisplay = mappingInfo.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var fromTypeDisplay = mappingInfo.SourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            if (toType.IsValueType)
-            {
-                codeBuilder.AppendCodeLines($"void {BuildCopyObjectMethodName(fromType, toType)}({fromTypeDisplay} source, ref {toTypeDisplay} target)");
-            }
-            else
-            {
-                codeBuilder.AppendCodeLines($"void {BuildCopyObjectMethodName(fromType, toType)}({fromTypeDisplay} source, {toTypeDisplay} target)");
-            }
-
+            codeBuilder.AppendCodeLines($"void {BuildCopyObjectMethodName(fromType, toType)}({fromTypeDisplay} source, {toTypeDisplay} target)");
             codeBuilder.BeginSegment();
             if (!fromType.IsValueType)
             {
@@ -812,6 +821,10 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             var mappingInfo = context.MappingInfo;
             context.CodeWriter.Context.ReportTargetPropertyNotFilledBecauseIsGetOnly(targetProperty, mappingInfo.SourceType, mappingInfo.TargetType);
 
+        }
+        private void ReportTargetIsValueTypeCanNotCopy(MapperContext context)
+        { 
+            
         }
         private void ReportTargetPrpertyNotFilled(MapperContext context, IPropertySymbol targetProperty)
         {

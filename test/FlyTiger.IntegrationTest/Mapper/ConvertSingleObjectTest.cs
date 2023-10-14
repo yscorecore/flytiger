@@ -46,8 +46,18 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceUser_IQueryableToArray), typeof(TargetUser_IQueryableToArray))]
 
     [Mapper(typeof(SourceUser_StructToClass), typeof(TargetUser_StructToClass))]
-    //[Mapper(typeof(SourceUser_ClassToStruct), typeof(TargetUser_ClassToStruct))]
-    //[Mapper(typeof(SourceUser_StructToStruct), typeof(TargetUser_StructToStruct))]
+    [Mapper(typeof(SourceUser_ClassToStruct), typeof(TargetUser_ClassToStruct))]
+    [Mapper(typeof(SourceUser_StructToStruct), typeof(TargetUser_StructToStruct))]
+    [Mapper(typeof(SourceUser_ClassToClass), typeof(TargetUser_ClassToClass))]
+
+    [Mapper(typeof(SourceUser_SubStructToClass), typeof(TargetUser_SubStructToClass))]
+    [Mapper(typeof(SourceUser_SubClassToStruct), typeof(TargetUser_SubClassToStruct))]
+    [Mapper(typeof(SourceUser_SubStructToStruct), typeof(TargetUser_SubStructToStruct))]
+    [Mapper(typeof(SourceUser_SubClassToClass), typeof(TargetUser_SubClassToClass))]
+
+    [Mapper(typeof(SourceUser_StructArrayToClassArray), typeof(TargetUser_StructArrayToClassArray))]
+    [Mapper(typeof(SourceUser_StructArrayToStructArray), typeof(TargetUser_StructArrayToStructArray))]
+    [Mapper(typeof(SourceUser_ClassArrayToStructArray), typeof(TargetUser_ClassArrayToStructArray))]
     public class ConvertSingleObjectTest
     {
         #region ArrayTo
@@ -1556,7 +1566,7 @@ namespace FlyTiger.IntegrationTest.Mapper
         {
             public string Name { get; set; }
         }
-     
+
 
         internal class TargetUser_StructToClass
         {
@@ -1565,75 +1575,395 @@ namespace FlyTiger.IntegrationTest.Mapper
 
         #endregion
 
-        //#region ClassToStruct
-        //[Fact]
-        //public void ShouldConvertClassToStruct()
-        //{
-        //    var user = new SourceUser_ClassToStruct
-        //    {
-        //        Name = "zhangsan",
-        //    };
-        //    user.To<TargetUser_ClassToStruct>().Should().BeEquivalentTo(new TargetUser_ClassToStruct
-        //    {
-        //        Name = "zhangsan",
-        //    });
-        //}
+        #region ClassToStruct
+        [Fact]
+        public void ShouldConvertClassToStruct()
+        {
+            var user = new SourceUser_ClassToStruct
+            {
+                Name = "zhangsan",
+            };
+            user.To<TargetUser_ClassToStruct>().Should().BeEquivalentTo(new TargetUser_ClassToStruct
+            {
+                Name = "zhangsan",
+            });
+        }
 
-        //internal class SourceUser_ClassToStruct
-        //{
-        //    public string Name { get; set; }
-        //}
-
-
-        //internal struct TargetUser_ClassToStruct
-        //{
-        //    public string Name { get; set; }
-        //}
+        internal class SourceUser_ClassToStruct
+        {
+            public string Name { get; set; }
+        }
 
 
-        //#endregion
-
-        //#region StructToStruct
-        //[Fact]
-        //public void ShouldConvertStructToStruct()
-        //{
-        //    var user = new SourceUser_StructToStruct
-        //    {
-        //        Name = "zhangsan",
-        //    };
-        //    user.To<TargetUser_StructToStruct>().Should().BeEquivalentTo(new TargetUser_StructToStruct
-        //    {
-        //        Name = "zhangsan",
-        //    });
-        //}
-
-        //internal struct SourceUser_StructToStruct
-        //{
-        //    public string Name { get; set; }
-        //}
+        internal struct TargetUser_ClassToStruct
+        {
+            public string Name { get; set; }
+        }
 
 
-        //internal struct TargetUser_StructToStruct
-        //{
-        //    public string Name { get; set; }
-        //}
+        #endregion
+
+        #region StructToStruct
+        [Fact]
+        public void ShouldConvertStructToStruct()
+        {
+            var user = new SourceUser_StructToStruct
+            {
+                Name = "zhangsan",
+            };
+            user.To<TargetUser_StructToStruct>().Should().BeEquivalentTo(new TargetUser_StructToStruct
+            {
+                Name = "zhangsan",
+            });
+        }
+
+        internal struct SourceUser_StructToStruct
+        {
+            public string Name { get; set; }
+        }
 
 
-        //#endregion
+        internal struct TargetUser_StructToStruct
+        {
+            public string Name { get; set; }
+        }
+
+
+        #endregion
+
+        #region ClassToClass
+        [Fact]
+        public void ShouldConvertClassToClass()
+        {
+            var user = new SourceUser_ClassToClass
+            {
+                Name = "zhangsan",
+            };
+            user.To<TargetUser_ClassToClass>().Should().BeEquivalentTo(new TargetUser_ClassToClass
+            {
+                Name = "zhangsan",
+            });
+        }
+
+        internal class SourceUser_ClassToClass
+        {
+            public string Name { get; set; }
+        }
+
+
+        internal class TargetUser_ClassToClass
+        {
+            public string Name { get; set; }
+        }
+
+
+        #endregion
 
         #region SubStructToClass
+        [Fact]
+        public void ShouldConvertSubStructToClass()
+        {
+            var user = new SourceUser_SubStructToClass
+            {
+                Name = "zhangsan",
+                Role = new SourceRole_SubStructToClass
+                {
+                    Name = "role1"
+                }
+            };
+            user.To<TargetUser_SubStructToClass>().Should().BeEquivalentTo(new TargetUser_SubStructToClass
+            {
+                Name = "zhangsan",
+                Role = new TargetRole_SubStructToClass
+                {
+                    Name = "role1"
+                }
+            });
+        }
+
+        internal class SourceUser_SubStructToClass
+        {
+            public string Name { get; set; }
+            public SourceRole_SubStructToClass Role { get; set; }
+        }
+        internal struct SourceRole_SubStructToClass
+        {
+            public string Name { get; set; }
+        }
+        internal class TargetUser_SubStructToClass
+        {
+            public string Name { get; set; }
+            public TargetRole_SubStructToClass Role { get; set; }
+        }
+        internal class TargetRole_SubStructToClass
+        {
+            public string Name { get; set; }
+        }
+
         #endregion
+
         #region SubClassToStruct
+        [Fact]
+        public void ShouldConvertSubClassToStruct()
+        {
+            var user = new SourceUser_SubClassToStruct
+            {
+                Name = "zhangsan",
+                Role = new SourceRole_SubClassToStruct
+                {
+                    Name = "role1"
+                }
+            };
+            user.To<TargetUser_SubClassToStruct>().Should().BeEquivalentTo(new TargetUser_SubClassToStruct
+            {
+                Name = "zhangsan",
+                Role = new TargetRole_SubClassToStruct
+                {
+                    Name = "role1"
+                }
+            });
+        }
+
+        internal class SourceUser_SubClassToStruct
+        {
+            public string Name { get; set; }
+            public SourceRole_SubClassToStruct Role { get; set; }
+        }
+        internal class SourceRole_SubClassToStruct
+        {
+            public string Name { get; set; }
+        }
+        internal class TargetUser_SubClassToStruct
+        {
+            public string Name { get; set; }
+            public TargetRole_SubClassToStruct Role { get; set; }
+        }
+        internal struct TargetRole_SubClassToStruct
+        {
+            public string Name { get; set; }
+        }
         #endregion
+
         #region SubStructToStruct
+        [Fact]
+        public void ShouldConvertSubStructToStruct()
+        {
+            var user = new SourceUser_SubStructToStruct
+            {
+                Name = "zhangsan",
+                Role = new SourceRole_SubStructToStruct
+                {
+                    Name = "role1"
+                }
+            };
+            user.To<TargetUser_SubStructToStruct>().Should().BeEquivalentTo(new TargetUser_SubStructToStruct
+            {
+                Name = "zhangsan",
+                Role = new TargetRole_SubStructToStruct
+                {
+                    Name = "role1"
+                }
+            });
+        }
+
+        internal class SourceUser_SubStructToStruct
+        {
+            public string Name { get; set; }
+            public SourceRole_SubStructToStruct Role { get; set; }
+        }
+        internal class SourceRole_SubStructToStruct
+        {
+            public string Name { get; set; }
+        }
+        internal class TargetUser_SubStructToStruct
+        {
+            public string Name { get; set; }
+            public TargetRole_SubStructToStruct Role { get; set; }
+        }
+        internal struct TargetRole_SubStructToStruct
+        {
+            public string Name { get; set; }
+        }
+        #endregion
+
+        #region SubClassToClass
+        [Fact]
+        public void ShouldConvertSubClassToClass()
+        {
+            var user = new SourceUser_SubClassToClass
+            {
+                Name = "zhangsan",
+                Role = new SourceRole_SubClassToClass
+                {
+                    Name = "role1"
+                }
+            };
+            user.To<TargetUser_SubClassToClass>().Should().BeEquivalentTo(new TargetUser_SubClassToClass
+            {
+                Name = "zhangsan",
+                Role = new TargetRole_SubClassToClass
+                {
+                    Name = "role1"
+                }
+            });
+        }
+
+        internal class SourceUser_SubClassToClass
+        {
+            public string Name { get; set; }
+            public SourceRole_SubClassToClass Role { get; set; }
+        }
+        internal class SourceRole_SubClassToClass
+        {
+            public string Name { get; set; }
+        }
+        internal class TargetUser_SubClassToClass
+        {
+            public string Name { get; set; }
+            public TargetRole_SubClassToClass Role { get; set; }
+        }
+        internal struct TargetRole_SubClassToClass
+        {
+            public string Name { get; set; }
+        }
         #endregion
 
         #region SturctArrayToClassArray
+        [Fact]
+        public void ShouldConvertStructArrayToClassArray()
+        {
+            var user = new SourceUser_StructArrayToClassArray
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_StructArrayToClassArray[]
+                {
+                    new SourceAddress_StructArrayToClassArray{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_StructArrayToClassArray>().Should().BeEquivalentTo(new TargetUser_StructArrayToClassArray
+            {
+                Name = "zhangsan",
+                Addresses = new TargetAddress_StructArrayToClassArray[] {
+                    new TargetAddress_StructArrayToClassArray{ City ="xi'an"}
+                }
+            });
+        }
+        internal class SourceUser_StructArrayToClassArray
+        {
+            public string Name { get; set; }
+            public SourceAddress_StructArrayToClassArray[] Addresses { get; set; }
+        }
+        internal struct SourceAddress_StructArrayToClassArray
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_StructArrayToClassArray
+        {
+            public string Name { get; set; }
+            public TargetAddress_StructArrayToClassArray[] Addresses { get; set; }
+        }
+        internal class TargetAddress_StructArrayToClassArray
+        {
+            public string City { get; set; }
+        }
         #endregion
+
         #region SturctArrayToStructArray
+        [Fact]
+        public void ShouldConvertStructArrayToStructArray()
+        {
+            var user = new SourceUser_StructArrayToStructArray
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_StructArrayToStructArray[]
+                {
+                    new SourceAddress_StructArrayToStructArray{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_StructArrayToStructArray>().Should().BeEquivalentTo(new TargetUser_StructArrayToStructArray
+            {
+                Name = "zhangsan",
+                Addresses = new TargetAddress_StructArrayToStructArray[] {
+                    new TargetAddress_StructArrayToStructArray{ City ="xi'an"}
+                }
+            });
+        }
+        internal class SourceUser_StructArrayToStructArray
+        {
+            public string Name { get; set; }
+            public SourceAddress_StructArrayToStructArray[] Addresses { get; set; }
+        }
+        internal struct SourceAddress_StructArrayToStructArray
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_StructArrayToStructArray
+        {
+            public string Name { get; set; }
+            public TargetAddress_StructArrayToStructArray[] Addresses { get; set; }
+        }
+        internal struct TargetAddress_StructArrayToStructArray
+        {
+            public string City { get; set; }
+        }
         #endregion
-        #region ClassArrayToCStructArray
+
+        #region ClassArrayToStructArray
+        [Fact]
+        public void ShouldConvertClassArrayToStructArray()
+        {
+            var user = new SourceUser_ClassArrayToStructArray
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_ClassArrayToStructArray[]
+                {
+                    new SourceAddress_ClassArrayToStructArray{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_ClassArrayToStructArray>().Should().BeEquivalentTo(new TargetUser_ClassArrayToStructArray
+            {
+                Name = "zhangsan",
+                Addresses = new TargetAddress_ClassArrayToStructArray[] {
+                    new TargetAddress_ClassArrayToStructArray{ City ="xi'an"}
+                }
+            });
+        }
+        internal class SourceUser_ClassArrayToStructArray
+        {
+            public string Name { get; set; }
+            public SourceAddress_ClassArrayToStructArray[] Addresses { get; set; }
+        }
+        internal class SourceAddress_ClassArrayToStructArray
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_ClassArrayToStructArray
+        {
+            public string Name { get; set; }
+            public TargetAddress_ClassArrayToStructArray[] Addresses { get; set; }
+        }
+        internal struct TargetAddress_ClassArrayToStructArray
+        {
+            public string City { get; set; }
+        }
         #endregion
+
+        //public void ShouldAssignValue()
+        //{ 
+        
+        //}
+
+        //internal class SourceClass<T>
+        //{
+        //    public T Value { get; set; }
+        //}
+        //internal class TargetClass
+        //{
+        //    public T Value { get; set; }
+        //}
 
 
     }
