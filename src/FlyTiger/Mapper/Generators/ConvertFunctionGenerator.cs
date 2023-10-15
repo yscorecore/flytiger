@@ -244,7 +244,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             var fromType = mappingInfo.SourceType;
             var toType = mappingInfo.TargetType;
 
-          
+
 
             var toTypeDisplay = mappingInfo.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var fromTypeDisplay = mappingInfo.SourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
@@ -442,23 +442,45 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
         {
             var targetPropertyType = convertContext.MappingInfo.TargetType;
             var sourcePropertyType = convertContext.MappingInfo.SourceType;
+
+            var sourceIsNullable = sourcePropertyType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
+            var targetIsNullable = targetPropertyType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
+
+
+
+            var sourceActualType = sourceIsNullable ? ((INamedTypeSymbol)sourcePropertyType).TypeArguments.First() : sourcePropertyType;
+            var targetActualType = targetIsNullable ? ((INamedTypeSymbol)targetPropertyType).TypeArguments.First() : targetPropertyType;
+
+            var context = (sourceIsNullable || targetIsNullable) ? convertContext.Fork(sourceActualType, targetActualType) : convertContext;
             var codeBuilder = convertContext.CodeBuilder;
-            var targetPropertyTypeText = targetPropertyType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var targetPropertyTypeText = targetActualType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var targetPropertyExpression = FormatRefrence(targetRefrenceName, propertyName);
             var sourcePropertyExpression = FormatRefrence(sourceRefrenceName, propertyName);
-            if (sourcePropertyType.IsValueType)
+            if (!sourceIsNullable && sourceActualType.IsValueType)
             {
-                codeBuilder.AppendCodeLines($"{targetPropertyExpression} = new {targetPropertyTypeText}");
+                if (sourcePropertyType.NullableAnnotation != NullableAnnotation.Annotated)
+                {
+                    codeBuilder.AppendCodeLines($"{targetPropertyExpression} = new {targetPropertyTypeText}");
+                }
             }
             else
             {
                 codeBuilder.AppendCodeLines(
-                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default({targetPropertyTypeText}) : new {targetPropertyTypeText}");
-            }
+                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default : new {targetPropertyTypeText}");
 
+            }
             codeBuilder.BeginSegment();
-            AppendPropertyAssign(sourcePropertyExpression, null, ",", convertContext);
+            if (sourceIsNullable)
+            {
+                AppendPropertyAssign(FormatRefrence(sourcePropertyExpression, nameof(Nullable<int>.Value)), null, ",", context);
+            }
+            else
+            {
+                AppendPropertyAssign(sourcePropertyExpression, null, ",", context);
+            }
             codeBuilder.EndSegment("}" + lineSplitChar);
+
+
         }
 
         private void MappingCollectionProperty(MapperContext convertContext,
@@ -596,11 +618,26 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 var sourceProp = sourceProps[propName];
                 var targetPropType = targetProp.Type;
                 var sourcePropType = sourceProp.Type;
+                //if (targetProp.IsReadOnly && targetProp.IsWriteOnly)
+                //{
+                //    //init property
+                //    targetProp.IsAutoProperty
+                //    continue;
+
+                //}
                 if (targetProp.IsReadOnly)
                 {
                     this.ReportReadOnlyPropertyCanNotFilled(convertContext, targetProp, sourceProp);
                     continue;
                 }
+                if (targetProp.SetMethod.IsInitOnly)
+                {
+                    //TOTO 
+                    this.ReportInitOnlyPropertyCanNotCopyValue(convertContext, targetProp, sourceProp);
+                    continue;
+                }
+
+
 
                 if (CanCopyingCollectionProperty(sourcePropType, targetPropType, convertContext))
                 {
@@ -823,8 +860,12 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
 
         }
         private void ReportTargetIsValueTypeCanNotCopy(MapperContext context)
-        { 
-            
+        {
+
+        }
+        private void ReportInitOnlyPropertyCanNotCopyValue(MapperContext context, IPropertySymbol targetProperty, IPropertySymbol sourceProperty)
+        {
+
         }
         private void ReportTargetPrpertyNotFilled(MapperContext context, IPropertySymbol targetProperty)
         {

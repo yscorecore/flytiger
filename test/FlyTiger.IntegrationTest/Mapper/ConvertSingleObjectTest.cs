@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using static FlyTiger.IntegrationTest.Mapper.ConvertSingleObjectTest;
 
 namespace FlyTiger.IntegrationTest.Mapper
 {
@@ -51,13 +52,37 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceUser_ClassToClass), typeof(TargetUser_ClassToClass))]
 
     [Mapper(typeof(SourceUser_SubStructToClass), typeof(TargetUser_SubStructToClass))]
+    [Mapper(typeof(SourceUser_SubNullableStructToClass), typeof(TargetUser_SubNullableStructToClass))]
     [Mapper(typeof(SourceUser_SubClassToStruct), typeof(TargetUser_SubClassToStruct))]
+    [Mapper(typeof(SourceUser_SubClassToNullableStruct), typeof(TargetUser_SubClassToNullableStruct))]
     [Mapper(typeof(SourceUser_SubStructToStruct), typeof(TargetUser_SubStructToStruct))]
+    [Mapper(typeof(SourceUser_SubNullableStructToStruct), typeof(TargetUser_SubNullableStructToStruct))]
+    [Mapper(typeof(SourceUser_SubStructToNullableStruct), typeof(TargetUser_SubStructToNullableStruct))]
+    [Mapper(typeof(SourceUser_SubNullableStructToNullableStruct), typeof(TargetUser_SubNullableStructToNullableStruct))]
     [Mapper(typeof(SourceUser_SubClassToClass), typeof(TargetUser_SubClassToClass))]
 
     [Mapper(typeof(SourceUser_StructArrayToClassArray), typeof(TargetUser_StructArrayToClassArray))]
     [Mapper(typeof(SourceUser_StructArrayToStructArray), typeof(TargetUser_StructArrayToStructArray))]
     [Mapper(typeof(SourceUser_ClassArrayToStructArray), typeof(TargetUser_ClassArrayToStructArray))]
+
+    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<int>))]
+    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<long>))]
+    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<int?>))]
+    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<long?>))]
+    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<object>))]
+
+    [Mapper(typeof(SourceClass<DateTime>), typeof(TargetClass<DateTime>))]
+    [Mapper(typeof(SourceClass<DateTime>), typeof(TargetClass<DateTime?>))]
+    [Mapper(typeof(SourceClass<Value_TheSameSubClass>), typeof(TargetClass<Value_TheSameSubClass>))]
+    [Mapper(typeof(SourceClass<Value_ClassToBaseClass>),typeof(TargetClass<ValueParent_ClassToBaseClass>))]
+    [Mapper(typeof(SourceClass<Value_ClassToInterface>), typeof(TargetClass<IValue_ClassToInterface>))]
+
+    [Mapper(typeof(SourceUser_ClassToRecord), typeof(TargetUser_ClassToRecord))]
+    [Mapper(typeof(SourceUser_RecordToClass), typeof(TargetUser_RecordToClass))]
+
+    [Mapper(typeof(SourceUser_ClassToInitOnlyRecord), typeof(TargetUser_ClassToInitOnlyRecord))]
+    [Mapper(typeof(SourceUser_ClassToInitOnlyClass), typeof(TargetUser_ClassToInitOnlyClass))]
+
     public class ConvertSingleObjectTest
     {
         #region ArrayTo
@@ -1702,6 +1727,49 @@ namespace FlyTiger.IntegrationTest.Mapper
 
         #endregion
 
+        #region SubNullableStructToClass
+        [Fact]
+        public void ShouldConvertSubNullableStructToClass()
+        {
+            var user = new SourceUser_SubNullableStructToClass
+            {
+                Name = "zhangsan",
+                Role = new SourceRole_SubNullableStructToClass
+                {
+                    Name = "role1"
+                }
+            };
+            user.To<TargetUser_SubNullableStructToClass>().Should().BeEquivalentTo(new TargetUser_SubNullableStructToClass
+            {
+                Name = "zhangsan",
+                Role = new TargetRole_SubNullableStructToClass
+                {
+                    Name = "role1"
+                }
+            });
+        }
+
+        internal class SourceUser_SubNullableStructToClass
+        {
+            public string Name { get; set; }
+            public SourceRole_SubNullableStructToClass? Role { get; set; }
+        }
+        internal struct SourceRole_SubNullableStructToClass
+        {
+            public string Name { get; set; }
+        }
+        internal class TargetUser_SubNullableStructToClass
+        {
+            public string Name { get; set; }
+            public TargetRole_SubNullableStructToClass Role { get; set; }
+        }
+        internal class TargetRole_SubNullableStructToClass
+        {
+            public string Name { get; set; }
+        }
+
+        #endregion
+
         #region SubClassToStruct
         [Fact]
         public void ShouldConvertSubClassToStruct()
@@ -1744,6 +1812,48 @@ namespace FlyTiger.IntegrationTest.Mapper
         }
         #endregion
 
+        #region SubClassToNullableStruct
+        [Fact]
+        public void ShouldConvertSubClassToNullableStruct()
+        {
+            var user = new SourceUser_SubClassToNullableStruct
+            {
+                Name = "zhangsan",
+                Role = new SourceRole_SubClassToNullableStruct
+                {
+                    Name = "role1"
+                }
+            };
+            user.To<TargetUser_SubClassToNullableStruct>().Should().BeEquivalentTo(new TargetUser_SubClassToNullableStruct
+            {
+                Name = "zhangsan",
+                Role = new TargetRole_SubClassToNullableStruct
+                {
+                    Name = "role1"
+                }
+            });
+        }
+
+        internal class SourceUser_SubClassToNullableStruct
+        {
+            public string Name { get; set; }
+            public SourceRole_SubClassToNullableStruct Role { get; set; }
+        }
+        internal class SourceRole_SubClassToNullableStruct
+        {
+            public string Name { get; set; }
+        }
+        internal class TargetUser_SubClassToNullableStruct
+        {
+            public string Name { get; set; }
+            public TargetRole_SubClassToNullableStruct Role { get; set; }
+        }
+        internal struct TargetRole_SubClassToNullableStruct
+        {
+            public string Name { get; set; }
+        }
+        #endregion
+
         #region SubStructToStruct
         [Fact]
         public void ShouldConvertSubStructToStruct()
@@ -1771,7 +1881,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             public string Name { get; set; }
             public SourceRole_SubStructToStruct Role { get; set; }
         }
-        internal class SourceRole_SubStructToStruct
+        internal struct SourceRole_SubStructToStruct
         {
             public string Name { get; set; }
         }
@@ -1781,6 +1891,132 @@ namespace FlyTiger.IntegrationTest.Mapper
             public TargetRole_SubStructToStruct Role { get; set; }
         }
         internal struct TargetRole_SubStructToStruct
+        {
+            public string Name { get; set; }
+        }
+        #endregion
+
+        #region SubNullableStructToStruct
+        [Fact]
+        public void ShouldConvertSubNullableStructToStruct()
+        {
+            var user = new SourceUser_SubNullableStructToStruct
+            {
+                Name = "zhangsan",
+                Role = new SourceRole_SubNullableStructToStruct
+                {
+                    Name = "role1"
+                }
+            };
+            user.To<TargetUser_SubNullableStructToStruct>().Should().BeEquivalentTo(new TargetUser_SubNullableStructToStruct
+            {
+                Name = "zhangsan",
+                Role = new TargetRole_SubNullableStructToStruct
+                {
+                    Name = "role1"
+                }
+            });
+        }
+
+        internal class SourceUser_SubNullableStructToStruct
+        {
+            public string Name { get; set; }
+            public SourceRole_SubNullableStructToStruct? Role { get; set; }
+        }
+        internal struct SourceRole_SubNullableStructToStruct
+        {
+            public string Name { get; set; }
+        }
+        internal class TargetUser_SubNullableStructToStruct
+        {
+            public string Name { get; set; }
+            public TargetRole_SubNullableStructToStruct Role { get; set; }
+        }
+        internal struct TargetRole_SubNullableStructToStruct
+        {
+            public string Name { get; set; }
+        }
+        #endregion
+
+        #region SubStructToNullableStruct
+        [Fact]
+        public void ShouldConvertSubStructToNullableStruct()
+        {
+            var user = new SourceUser_SubStructToNullableStruct
+            {
+                Name = "zhangsan",
+                Role = new SourceRole_SubStructToNullableStruct
+                {
+                    Name = "role1"
+                }
+            };
+            user.To<TargetUser_SubStructToNullableStruct>().Should().BeEquivalentTo(new TargetUser_SubStructToNullableStruct
+            {
+                Name = "zhangsan",
+                Role = new TargetRole_SubStructToNullableStruct
+                {
+                    Name = "role1"
+                }
+            });
+        }
+
+        internal class SourceUser_SubStructToNullableStruct
+        {
+            public string Name { get; set; }
+            public SourceRole_SubStructToNullableStruct Role { get; set; }
+        }
+        internal struct SourceRole_SubStructToNullableStruct
+        {
+            public string Name { get; set; }
+        }
+        internal class TargetUser_SubStructToNullableStruct
+        {
+            public string Name { get; set; }
+            public TargetRole_SubStructToNullableStruct? Role { get; set; }
+        }
+        internal struct TargetRole_SubStructToNullableStruct
+        {
+            public string Name { get; set; }
+        }
+        #endregion
+
+        #region SubNullableStructToNullableStruct
+        [Fact]
+        public void ShouldConvertSubNullableStructToNullableStruct()
+        {
+            var user = new SourceUser_SubNullableStructToNullableStruct
+            {
+                Name = "zhangsan",
+                Role = new SourceRole_SubNullableStructToNullableStruct
+                {
+                    Name = "role1"
+                }
+            };
+            user.To<TargetUser_SubNullableStructToNullableStruct>().Should().BeEquivalentTo(new TargetUser_SubNullableStructToNullableStruct
+            {
+                Name = "zhangsan",
+                Role = new TargetRole_SubNullableStructToNullableStruct
+                {
+                    Name = "role1"
+                }
+            });
+        }
+
+        internal class SourceUser_SubNullableStructToNullableStruct
+        {
+            public string Name { get; set; }
+            public SourceRole_SubNullableStructToNullableStruct? Role { get; set; }
+        }
+        internal struct SourceRole_SubNullableStructToNullableStruct
+        {
+            public string Name { get; set; }
+        }
+        internal class TargetUser_SubNullableStructToNullableStruct
+        {
+            public string Name { get; set; }
+            public TargetRole_SubNullableStructToNullableStruct? Role { get; set; }
+        }
+        internal struct TargetRole_SubNullableStructToNullableStruct
         {
             public string Name { get; set; }
         }
@@ -1951,20 +2187,298 @@ namespace FlyTiger.IntegrationTest.Mapper
         }
         #endregion
 
-        //public void ShouldAssignValue()
-        //{ 
+
+        #region AssignValue
+        internal class SourceClass<T>
+        {
+            public T Value { get; set; }
+        }
+        internal class TargetClass<T>
+        {
+            public T Value { get; set; }
+        }
+
+        #region Int32ToInt32
+        [Fact]
+        public void ShouldConvertInt32ToInt32()
+        {
+            var source = new SourceClass<int>()
+            {
+                Value = 100,
+            };
+            source.To<TargetClass<int>>().Should().BeEquivalentTo(new TargetClass<int>
+            {
+                Value = 100
+            });
+        }
+        #endregion
+
+        #region Int32ToInt64 
+        [Fact]
+        public void ShouldConvertInt32ToInt64()
+        {
+            var source = new SourceClass<int>()
+            {
+                Value = 100,
+            };
+            source.To<TargetClass<long>>().Should().BeEquivalentTo(new TargetClass<long>
+            {
+                Value = 100
+            });
+        }
+        #endregion
+
+        #region Int32ToNullableInt32
+        [Fact]
+        public void ShouldConvertInt32ToNullableInt32()
+        {
+            var source = new SourceClass<int>()
+            {
+                Value = 100,
+            };
+            source.To<TargetClass<int?>>().Should().BeEquivalentTo(new TargetClass<int?>
+            {
+                Value = 100
+            });
+        }
+        #endregion
+
+        #region Int32ToNullableInt64
+        [Fact]
+        public void ShouldConvertInt32ToNullableInt64()
+        {
+            var source = new SourceClass<int>()
+            {
+                Value = 100,
+            };
+            source.To<TargetClass<long?>>().Should().BeEquivalentTo(new TargetClass<long?>
+            {
+                Value = 100
+            });
+        }
+        #endregion
+
+        #region Int32ToObject
+        [Fact]
+        public void ShouldConvertInt32ToObject()
+        {
+            var source = new SourceClass<int>()
+            {
+                Value = 100,
+            };
+            source.To<TargetClass<object>>().Should().BeEquivalentTo(new TargetClass<object>
+            {
+                Value = 100
+            });
+        }
+        #endregion
+
+        #region TheSameStruct
+        [Fact]
+        public void ShouldConvertTheSameStruct()
+        {
+            var source = new SourceClass<DateTime>()
+            {
+                Value = new DateTime(2023, 10, 15),
+            };
+            source.To<TargetClass<DateTime>>().Should().BeEquivalentTo(new TargetClass<DateTime>
+            {
+                Value = new DateTime(2023, 10, 15)
+            });
+        }
+        #endregion
+        #region StructToNullableStruct
+        [Fact]
+        public void ShouldConvertStructToNullableStruct()
+        {
+            var source = new SourceClass<DateTime>()
+            {
+                Value = new DateTime(2023, 10, 15),
+            };
+            source.To<TargetClass<DateTime?>>().Should().BeEquivalentTo(new TargetClass<DateTime?>
+            {
+                Value = new DateTime(2023, 10, 15)
+            });
+        }
+        #endregion
+
+
+        #region TheSameSubClass
+        [Fact]
+        public void ShouldConvertTheSameSubClass()
+        {
+            var source = new SourceClass<Value_TheSameSubClass>()
+            {
+                Value = new Value_TheSameSubClass { Value = "abc" }
+            };
+            var target = source.To<TargetClass<Value_TheSameSubClass>>();
+            target.Value.Should().Be(source.Value);
+        }
+        internal class Value_TheSameSubClass
+        {
+            public string Value { get; set; }
+        }
+        #endregion
+
+        #region ClassToBaseClass
+        [Fact]
+        public void ShouldConvertClassToBaseClass()
+        {
+            var source = new SourceClass<Value_ClassToBaseClass>()
+            {
+                Value = new Value_ClassToBaseClass { Value = "abc" }
+            };
+            var target = source.To<TargetClass<ValueParent_ClassToBaseClass>>();
+            target.Value.Should().Be(source.Value);
+        }
+        internal class ValueParent_ClassToBaseClass
+        {
+            public string Value { get; set; }
+        }
+        internal class Value_ClassToBaseClass : ValueParent_ClassToBaseClass
+        {
+        }
+        #endregion
+
+        #region ClassToInterface
+
+        [Fact]
+        public void ShouldConvertClassToInteface()
+        {
+            var source = new SourceClass<Value_ClassToInterface>()
+            {
+                Value = new Value_ClassToInterface { Value = "abc" }
+            };
+            var target = source.To<TargetClass<IValue_ClassToInterface>>();
+            target.Value.Should().Be(source.Value);
+        }
+        internal interface IValue_ClassToInterface
+        { 
         
-        //}
-
-        //internal class SourceClass<T>
-        //{
-        //    public T Value { get; set; }
-        //}
-        //internal class TargetClass
-        //{
-        //    public T Value { get; set; }
-        //}
+        }
+        internal class Value_ClassToInterface: IValue_ClassToInterface
+        {
+            public string Value { get; set; }
+        }
+       
+        #endregion
 
 
+
+        #region TheSameClassArray
+        #endregion
+
+        #region TheSameStructArray
+        #endregion
+
+        #region TheSameStructArrayToList
+        #endregion
+
+        #endregion
+
+        #region Record
+        #region ClassToRecord
+        internal class SourceUser_ClassToRecord
+        {
+            public string Name { get; set; }
+        }
+
+
+        internal record TargetUser_ClassToRecord
+        {
+            public string Name { get; set; }
+        }
+        [Fact]
+        public void ShouldConvertClassToRecord()
+        {
+            var source = new SourceUser_ClassToRecord
+            {
+                Name = "zhangsan"
+            };
+            source.To<TargetUser_ClassToRecord>().Should().BeEquivalentTo(new TargetUser_ClassToRecord
+            {
+                Name = "zhangsan"
+            });
+        }
+        #endregion
+
+        #region RecordToClass
+        internal class SourceUser_RecordToClass
+        {
+            public string Name { get; set; }
+        }
+
+
+        internal record TargetUser_RecordToClass
+        {
+            public string Name { get; set; }
+        }
+        [Fact]
+        public void ShouldConvertRecordToClass()
+        {
+            var source = new SourceUser_RecordToClass
+            {
+                Name = "zhangsan"
+            };
+            source.To<TargetUser_RecordToClass>().Should().BeEquivalentTo(new TargetUser_RecordToClass
+            {
+                Name = "zhangsan"
+            });
+        }
+        #endregion
+        #endregion
+
+        #region InitOnly
+
+        #region ClassToInitOnlyRecord
+        internal class SourceUser_ClassToInitOnlyRecord
+        {
+            public string Name { get; set; }
+        }
+
+
+        internal record TargetUser_ClassToInitOnlyRecord
+        {
+            public string Name { get; init; }
+        }
+        [Fact]
+        public void ShouldConvertClassToInitOnlyRecord()
+        {
+            var source = new SourceUser_ClassToInitOnlyRecord
+            {
+                Name = "zhangsan"
+            };
+            source.To<TargetUser_ClassToInitOnlyRecord>().Should().BeEquivalentTo(new TargetUser_ClassToInitOnlyRecord
+            {
+                Name = "zhangsan"
+            });
+        }
+        #endregion
+
+        #region ClassToInitOnlyClass
+        internal class SourceUser_ClassToInitOnlyClass
+        {
+            public string Name { get; set; }
+        }
+
+
+        internal class TargetUser_ClassToInitOnlyClass
+        {
+            public string Name { get; init; }
+        }
+        [Fact]
+        public void ShouldConvertClassToInitOnlyClass()
+        {
+            var source = new SourceUser_ClassToInitOnlyClass
+            {
+                Name = "zhangsan"
+            };
+            source.To<TargetUser_ClassToInitOnlyClass>().Should().BeEquivalentTo(new TargetUser_ClassToInitOnlyClass
+            {
+                Name = "zhangsan"
+            });
+        }
+        #endregion
+        #endregion
     }
 }

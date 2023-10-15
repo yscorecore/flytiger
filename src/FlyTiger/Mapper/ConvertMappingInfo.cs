@@ -63,7 +63,7 @@ namespace FlyTiger.Mapper
                 .Select(p => Convert.ToInt32(p.Value.Value))
                 .FirstOrDefault();
             var methodName = new string(toType.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)
-                .Where(ch => char.IsLetterOrDigit(ch)).ToArray());
+                .Select(ch => char.IsLetterOrDigit(ch) ? ch : '_').ToArray());
             return new ConvertMappingInfo
             {
                 SourceType = fromType,
