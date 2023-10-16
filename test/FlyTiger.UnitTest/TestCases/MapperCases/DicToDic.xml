@@ -9,7 +9,7 @@ namespace ConsoleApp2
     public class UserInfo
     {
         public string Name { get; set; }
-        public Dictionary<int, AddressInfo> Addresses {get; set;}
+        public Dictionary<long, string> Addresses {get; set;}
     }
     public struct AddressInfo
     {
@@ -19,7 +19,7 @@ namespace ConsoleApp2
     public partial class TUser
     {
         public string Name { get; set; }
-        public Dictionary<int, AddressDto> Addresses {get; set;}
+        public Dictionary<int, string> Addresses {get; set;}
     }
      public class AddressDto
     {

@@ -11,11 +11,11 @@ namespace FlyTiger
         private StringBuilder stringBuilder = new StringBuilder();
 
         private int depthOfNesting = 0;
-        private void IncreaseDepth()
+        public void IncreaseDepth()
         {
             this.depthOfNesting++;
         }
-        private void DecreaseDepth()
+        public void DecreaseDepth()
         {
             this.depthOfNesting = Math.Max(0, this.depthOfNesting - 1);
         }

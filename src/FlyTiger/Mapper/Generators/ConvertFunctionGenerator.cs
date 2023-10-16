@@ -22,7 +22,15 @@ namespace FlyTiger.Mapper.Generators
                 if (ConvertMappingInfo.CanMappingSubObject(convertMappingInfo.SourceType,
                         convertMappingInfo.TargetType))
                 {
-                    AppendConvertToFunctions(new MapperContext(codeWriter, codeBuilder, convertMappingInfo, attributeDatas));
+                    try
+                    {
+                        AppendConvertToFunctions(new MapperContext(codeWriter, codeBuilder, convertMappingInfo, attributeDatas));
+
+                    }
+                    catch (Exception ex)
+                    {
+                        // TOTO report error
+                    }
                 }
                 else
                 {
@@ -436,9 +444,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
 
             return null;
         }
-
-        private void MappingSubObjectProperty(MapperContext convertContext, string sourceRefrenceName,
-            string targetRefrenceName, string propertyName, string lineSplitChar)
+        private void MappingNewSubObject(MapperContext convertContext, string sourceRefrenceName, string targetRefrenceName, string assignCode, string tail)
         {
             var targetPropertyType = convertContext.MappingInfo.TargetType;
             var sourcePropertyType = convertContext.MappingInfo.SourceType;
@@ -446,40 +452,42 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             var sourceIsNullable = sourcePropertyType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
             var targetIsNullable = targetPropertyType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
 
-
-
             var sourceActualType = sourceIsNullable ? ((INamedTypeSymbol)sourcePropertyType).TypeArguments.First() : sourcePropertyType;
             var targetActualType = targetIsNullable ? ((INamedTypeSymbol)targetPropertyType).TypeArguments.First() : targetPropertyType;
 
             var context = (sourceIsNullable || targetIsNullable) ? convertContext.Fork(sourceActualType, targetActualType) : convertContext;
             var codeBuilder = convertContext.CodeBuilder;
             var targetPropertyTypeText = targetActualType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var targetPropertyExpression = FormatRefrence(targetRefrenceName, propertyName);
-            var sourcePropertyExpression = FormatRefrence(sourceRefrenceName, propertyName);
             if (!sourceIsNullable && sourceActualType.IsValueType)
             {
                 if (sourcePropertyType.NullableAnnotation != NullableAnnotation.Annotated)
                 {
-                    codeBuilder.AppendCodeLines($"{targetPropertyExpression} = new {targetPropertyTypeText}");
+                    codeBuilder.AppendCodeLines($"{targetRefrenceName} {assignCode} new {targetPropertyTypeText}");
                 }
             }
             else
             {
                 codeBuilder.AppendCodeLines(
-                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default : new {targetPropertyTypeText}");
+                    $"{targetRefrenceName} {assignCode} {sourceRefrenceName} == null ? default : new {targetPropertyTypeText}");
 
             }
             codeBuilder.BeginSegment();
             if (sourceIsNullable)
             {
-                AppendPropertyAssign(FormatRefrence(sourcePropertyExpression, nameof(Nullable<int>.Value)), null, ",", context);
+                AppendPropertyAssign(FormatRefrence(sourceRefrenceName, nameof(Nullable<int>.Value)), null, ",", context);
             }
             else
             {
-                AppendPropertyAssign(sourcePropertyExpression, null, ",", context);
+                AppendPropertyAssign(sourceRefrenceName, null, ",", context);
             }
-            codeBuilder.EndSegment("}" + lineSplitChar);
+            codeBuilder.EndSegment("}" + tail);
+        }
 
+        //TODO use MappingNewSubObject
+        private void MappingSubObjectProperty(MapperContext convertContext, string sourceRefrenceName,
+            string targetRefrenceName, string propertyName, string lineSplitChar)
+        {
+            MappingNewSubObject(convertContext, FormatRefrence(sourceRefrenceName, propertyName), FormatRefrence(targetRefrenceName, propertyName), "=", lineSplitChar);
 
         }
 
@@ -618,19 +626,15 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 var sourceProp = sourceProps[propName];
                 var targetPropType = targetProp.Type;
                 var sourcePropType = sourceProp.Type;
-                //if (targetProp.IsReadOnly && targetProp.IsWriteOnly)
-                //{
-                //    //init property
-                //    targetProp.IsAutoProperty
-                //    continue;
-
-                //}
                 if (targetProp.IsReadOnly)
                 {
-                    this.ReportReadOnlyPropertyCanNotFilled(convertContext, targetProp, sourceProp);
+                    if (!sourceProp.IsReadOnly)
+                    {
+                        this.ReportReadOnlyPropertyCanNotFilled(convertContext, targetProp, sourceProp);
+                    }
                     continue;
                 }
-                if (targetProp.SetMethod.IsInitOnly)
+                if (targetProp.SetMethod != null && targetProp.SetMethod.IsInitOnly)
                 {
                     //TOTO 
                     this.ReportInitOnlyPropertyCanNotCopyValue(convertContext, targetProp, sourceProp);
@@ -768,6 +772,101 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
 
         }
 
+        private bool CanMappingDictionary(MapperContext context, IPropertySymbol targetProperty, IPropertySymbol sourceProperty)
+        {
+            if (IsDictionary(targetProperty.Type) && IsDictionary(sourceProperty.Type))
+            {
+                var (sKey, sValue) = GetKeyValueType(sourceProperty.Type as INamedTypeSymbol);
+                var (tKey, tValue) = GetKeyValueType(targetProperty.Type as INamedTypeSymbol);
+                if (CanAssign(sKey, tKey, context) || CanMappingSubObjectProperty(sKey, tKey, context))
+                {
+                    return CanAssign(sValue, tValue, context) || CanMappingSubObjectProperty(sValue, tValue, context);
+                }
+            }
+
+            return false;
+
+            bool IsDictionary(ITypeSymbol type)
+            {
+                if (type is INamedTypeSymbol namedSourcePropType)
+                {
+                    if (namedSourcePropType.IsGenericType)
+                    {
+                        var genericType = namedSourcePropType.ConstructUnboundGenericType();
+                        if (genericType.SafeEquals(typeof(IDictionary<,>)))
+                        {
+                            return true;
+                        }
+                        if (genericType.SafeEquals(typeof(Dictionary<,>)))
+                        {
+                            return true;
+                        }
+                        if (genericType.SafeEquals(typeof(ImmutableDictionary<,>)))
+                        {
+                            return true;
+                        }
+                        if (genericType.SafeEquals(typeof(IImmutableDictionary<,>)))
+                        {
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+                return false;
+            }
+            (ITypeSymbol, ITypeSymbol) GetKeyValueType(INamedTypeSymbol type)
+            {
+                return (type.TypeArguments[0], type.TypeArguments[1]);
+            }
+        }
+
+        private void MappingDictionary(MapperContext context, string sourceRefrenceName,
+            string targetRefrenceName, IPropertySymbol targetProperty, IPropertySymbol sourceProperty, string lineSplitChar)
+        {
+            var (sKey, sValue) = GetKeyValueType(sourceProperty.Type as INamedTypeSymbol);
+            var (tKey, tValue) = GetKeyValueType(targetProperty.Type as INamedTypeSymbol);
+            var methodName = ToTargetMethodName();
+
+
+            context.CodeBuilder.AppendCodeLines($"{FormatRefrence(targetRefrenceName, targetProperty.Name)} = {FormatRefrence(sourceRefrenceName, sourceProperty.Name)} == null ? default : {FormatRefrence(sourceRefrenceName, sourceProperty.Name)}.{ToTargetMethodName()}(");
+            context.CodeBuilder.IncreaseDepth();
+            AppendLambda(context.CodeBuilder, nameof(KeyValuePair<int, int>.Key), tKey, sKey, ",");
+            AppendLambda(context.CodeBuilder, nameof(KeyValuePair<int, int>.Value), tValue, sValue, $"){lineSplitChar}");
+            context.CodeBuilder.DecreaseDepth();
+            string ToTargetMethodName()
+            {
+                var arg = (targetProperty.Type as INamedTypeSymbol).ConstructUnboundGenericType();
+                if (arg.SafeEquals(typeof(IImmutableDictionary<,>)) || arg.SafeEquals(typeof(ImmutableDictionary<,>)))
+                {
+                    return nameof(ImmutableDictionary.ToImmutableDictionary);
+                }
+                return nameof(Enumerable.ToDictionary);
+            }
+
+            (ITypeSymbol, ITypeSymbol) GetKeyValueType(INamedTypeSymbol type)
+            {
+                return (type.TypeArguments[0], type.TypeArguments[1]);
+            }
+
+            void AppendLambda(CsharpCodeBuilder codeBuilder, string name, ITypeSymbol targetType, ITypeSymbol sourceType, string tail)
+            {
+                if (targetType.SafeEquals(sourceType))
+                {
+                    codeBuilder.AppendCodeLines($"p => p.{name}{tail}");
+                }
+                else if (CanAssign(sourceType, targetType, context))
+                {
+                    codeBuilder.AppendCodeLines($"p => ({targetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)})p.{name}{tail}");
+                }
+                else
+                {
+                    var newContext = context.Fork(sourceType, targetType);
+                    MappingNewSubObject(newContext, $"p.{name}", "p", "=>", tail);
+
+                }
+            }
+        }
+
         private void AppendPropertyAssign(string sourceRefrenceName, string targetRefrenceName, string lineSplitChar,
             MapperContext convertContext)
         {
@@ -802,7 +901,10 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 var sourcePropType = sourceProp.Type;
                 if (targetProp.IsReadOnly)
                 {
-                    this.ReportReadOnlyPropertyCanNotFilled(convertContext, targetProp, sourceProp);
+                    if (!sourceProp.IsReadOnly)
+                    {
+                        this.ReportReadOnlyPropertyCanNotFilled(convertContext, targetProp, sourceProp);
+                    }
                     continue;
                 }
 
@@ -811,6 +913,11 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                     // default 
                     codeBuilder.AppendCodeLines(
                         $"{FormatRefrence(targetRefrenceName, propName)} = {FormatRefrence(sourceRefrenceName, propName)}{lineSplitChar}");
+                }
+                else if (CanMappingDictionary(convertContext, targetProp, sourceProp))
+                {
+                    MappingDictionary(convertContext, sourceRefrenceName, targetRefrenceName, targetProp, sourceProp, lineSplitChar);
+                    // dictionary
                 }
                 else if (CanMappingCollectionProperty(sourcePropType, targetPropType, convertContext))
                 {
@@ -956,3 +1063,4 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
         }
     }
 }
+

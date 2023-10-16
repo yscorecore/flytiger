@@ -83,12 +83,28 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceClass<Value_TheSameSubClass>), typeof(TargetClass<Value_TheSameSubClass>))]
     [Mapper(typeof(SourceClass<Value_ClassToBaseClass>), typeof(TargetClass<ValueParent_ClassToBaseClass>))]
     [Mapper(typeof(SourceClass<Value_ClassToInterface>), typeof(TargetClass<IValue_ClassToInterface>))]
-    
-    
+
+
     [Mapper(typeof(SourceClass<Value_TheSameClassArray[]>), typeof(TargetClass<Value_TheSameClassArray[]>))]
     [Mapper(typeof(SourceClass<Value_TheSameStructArray[]>), typeof(TargetClass<Value_TheSameStructArray[]>))]
     [Mapper(typeof(SourceClass<Value_TheSameStructArrayToIList[]>), typeof(TargetClass<IList<Value_TheSameStructArrayToIList>>))]
     [Mapper(typeof(SourceClass<Value_TheSameStructArrayToNullableList[]>), typeof(TargetClass<List<Value_TheSameStructArrayToNullableList?>>))]
+
+    [Mapper(typeof(SourceClass<Dictionary<string, string>>), typeof(TargetClass<Dictionary<string, string>>))]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, int>>))]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<IDictionary<int, int>>))]
+    [Mapper(typeof(SourceClass<IDictionary<int, int>>), typeof(TargetClass<IDictionary<int, int>>))]
+    [Mapper(typeof(SourceClass<IDictionary<int, int>>), typeof(TargetClass<Dictionary<int, int>>))]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, int?>>))]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, long>>))]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int?, int>>))]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int?, int?>>))]
+    [Mapper(typeof(SourceClass<Dictionary<int, DateTime>>), typeof(TargetClass<Dictionary<int, DateTime?>>))]
+    [Mapper(typeof(SourceClass<Dictionary<int, SourceRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>), typeof(TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>))]
+    [Mapper(typeof(SourceClass<Dictionary<int, SourceRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>), typeof(TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>))]
+    [Mapper(typeof(SourceClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct>>), typeof(TargetClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct?>>))]
+    [Mapper(typeof(SourceClass<Dictionary<SourceRecord_DictionaryObjectInt32ToDictionaryObject2Int64, int>>), typeof(TargetClass<Dictionary<TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64, long>>))]
+
 
     [Mapper(typeof(SourceUser_ClassToRecord), typeof(TargetUser_ClassToRecord))]
     [Mapper(typeof(SourceUser_RecordToClass), typeof(TargetUser_RecordToClass))]
@@ -2300,6 +2316,8 @@ namespace FlyTiger.IntegrationTest.Mapper
             });
         }
         #endregion
+
+
         #region StructToNullableStruct
         [Fact]
         public void ShouldConvertStructToNullableStruct()
@@ -2314,7 +2332,6 @@ namespace FlyTiger.IntegrationTest.Mapper
             });
         }
         #endregion
-
 
         #region TheSameSubClass
         [Fact]
@@ -2548,6 +2565,300 @@ namespace FlyTiger.IntegrationTest.Mapper
         }
         #endregion
 
+        #region DictionaryStringStringToDictionaryStringString
+        [Fact]
+        public void ShouldConvertDictionaryStringStringToDictionaryStringString()
+        {
+            var source = new SourceClass<Dictionary<string, string>>()
+            {
+                Value = new Dictionary<string, string>
+                {
+                    ["a"] = "value1"
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<string, string>>>();
+            target.Value.Should().BeSameAs(source.Value);
+        }
+        #endregion
+
+        #region DictionaryInt32Int32ToDictionaryInt32Int32
+        [Fact]
+        public void ShouldConvertDictionaryInt32Int32ToDictionaryInt32Int32()
+        {
+            var source = new SourceClass<Dictionary<int, int>>()
+            {
+                Value = new Dictionary<int, int>
+                {
+                    [1] = 1
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<int, int>>>();
+            target.Value.Should().BeSameAs(source.Value);
+        }
+
+        #endregion
+
+        #region IDictionaryInt32Int32ToDictionaryInt32Int32
+        [Fact]
+        public void ShouldConvertIDictionaryInt32Int32ToDictionaryInt32Int32()
+        {
+            var source = new SourceClass<IDictionary<int, int>>()
+            {
+                Value = new Dictionary<int, int>
+                {
+                    [1] = 1
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<int, int>>>();
+            target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, int>>
+            {
+                Value = new Dictionary<int, int>
+                {
+                    [1] = 1
+                }
+            });
+        }
+        #endregion
+
+        #region DictionaryInt32Int32ToIDictionaryInt32Int32
+        [Fact]
+        public void ShouldConvertDictionaryInt32Int32ToIDictionaryInt32Int32()
+        {
+            var source = new SourceClass<Dictionary<int, int>>()
+            {
+                Value = new Dictionary<int, int>
+                {
+                    [1] = 1
+                }
+            };
+            var target = source.To<TargetClass<IDictionary<int, int>>>();
+            target.Value.Should().BeSameAs(source.Value);
+        }
+        #endregion
+
+        #region IDictionaryInt32Int32ToIDictionaryInt32Int32
+        [Fact]
+        public void ShouldConvertIDictionaryInt32Int32ToIDictionaryInt32Int32()
+        {
+            var source = new SourceClass<IDictionary<int, int>>()
+            {
+                Value = new Dictionary<int, int>
+                {
+                    [1] = 1
+                }
+            };
+            var target = source.To<TargetClass<IDictionary<int, int>>>();
+            target.Value.Should().BeSameAs(source.Value);
+        }
+        #endregion
+
+        #region DictionaryInt32Int32ToDictionaryNullableInt32Int32
+        [Fact]
+        public void ShouldConvertDictionaryInt32Int32ToDictionaryNullableInt32Int32()
+        {
+            var source = new SourceClass<Dictionary<int, int>>()
+            {
+                Value = new Dictionary<int, int>
+                {
+                    [1] = 1
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<int?, int>>>();
+            target.Should().BeEquivalentTo(new TargetClass<Dictionary<int?, int>>
+            {
+                Value = new Dictionary<int?, int>
+                {
+                    [1] = 1
+                }
+            });
+        }
+        #endregion
+
+        #region DictionaryInt32Int32ToDictionaryInt32NullableInt32
+        [Fact]
+        public void ShouldConvertDictionaryInt32Int32ToDictionaryInt32NullableInt32()
+        {
+            var source = new SourceClass<Dictionary<int, int>>()
+            {
+                Value = new Dictionary<int, int>
+                {
+                    [1] = 1
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<int, int?>>>();
+            target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, int?>>
+            {
+                Value = new Dictionary<int, int?>
+                {
+                    [1] = 1
+                }
+            });
+        }
+        #endregion
+
+        #region DictionaryInt32Int32ToDictionaryNullableInt32NullableInt32
+        [Fact]
+        public void ShouldConvertDictionaryInt32Int32ToDictionaryNullableInt32NullableInt32()
+        {
+            var source = new SourceClass<Dictionary<int, int>>()
+            {
+                Value = new Dictionary<int, int>
+                {
+                    [1] = 1
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<int?, int?>>>();
+            target.Should().BeEquivalentTo(new TargetClass<Dictionary<int?, int?>>
+            {
+                Value = new Dictionary<int?, int?>
+                {
+                    [1] = 1
+                }
+            });
+        }
+        #endregion
+
+        #region DictionaryInt32DateTimeToDictionaryInt32NullableDateTime
+        [Fact]
+        public void ShouldConvertDictionaryInt32DateTimeToDictionaryInt32NullableDateTime()
+        {
+            var source = new SourceClass<Dictionary<int, DateTime>>()
+            {
+                Value = new Dictionary<int, DateTime>
+                {
+                    [1] = new DateTime(2023, 10, 16)
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<int, DateTime?>>>();
+            target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, DateTime?>>
+            {
+                Value = new Dictionary<int, DateTime?>
+                {
+                    [1] = new DateTime(2023, 10, 16)
+                }
+            });
+        }
+        #endregion
+
+        #region DictionaryInt32ObjectToDictionaryInt32Object2
+        [Fact]
+        public void ShouldConvertDictionaryInt32ObjectToDictionaryInt32Object2()
+        {
+            var source = new SourceClass<Dictionary<int, SourceRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>()
+            {
+                Value = new Dictionary<int, SourceRecord_DictionaryInt32ObjectToDictionaryInt32Object2>
+                {
+                    [1] = new SourceRecord_DictionaryInt32ObjectToDictionaryInt32Object2 { Value = "abc" },
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>>();
+            target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>
+            {
+                Value = new Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2>
+                {
+                    [1] = new TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2 { Value = "abc" }
+                }
+            });
+        }
+        internal record SourceRecord_DictionaryInt32ObjectToDictionaryInt32Object2
+        {
+            public string Value { get; set; }
+        }
+        internal record TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2
+        {
+            public string Value { get; init; }
+        }
+        #endregion
+
+
+        #region DictionaryInt32ObjectToDictionaryInt32Struct
+        [Fact]
+        public void ShouldConvertDictionaryInt32ObjectToDictionaryInt32Struct()
+        {
+            var source = new SourceClass<Dictionary<int, SourceRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>()
+            {
+                Value = new Dictionary<int, SourceRecord_DictionaryInt32ObjectToDictionaryInt32Struct>
+                {
+                    [1] = new SourceRecord_DictionaryInt32ObjectToDictionaryInt32Struct { Value = "abc" },
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>>();
+            target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>
+            {
+                Value = new Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct>
+                {
+                    [1] = new TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct { Value = "abc" }
+                }
+            });
+        }
+        internal record SourceRecord_DictionaryInt32ObjectToDictionaryInt32Struct
+        {
+            public string Value { get; set; }
+        }
+        internal struct TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct
+        {
+            public string Value { get; init; }
+        }
+        #endregion
+
+
+        #region DictionaryInt32StructToDictionaryInt32NullableStruct
+        [Fact]
+        public void ShouldConvertDictionaryInt32StructToDictionaryInt32NullableStruct()
+        {
+            var source = new SourceClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct>>()
+            {
+                Value = new Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct>
+                {
+                    [1] = new Struct_DictionaryInt32StructToDictionaryInt32NullableStruct { Value = "abc" },
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct?>>>();
+            target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct?>>
+            {
+                Value = new Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct?>
+                {
+                    [1] = new Struct_DictionaryInt32StructToDictionaryInt32NullableStruct { Value = "abc" }
+                }
+            });
+        }
+        internal struct Struct_DictionaryInt32StructToDictionaryInt32NullableStruct
+        {
+            public string Value { get; set; }
+        }
+        #endregion
+
+
+        #region DictionaryObjectInt32ToDictionaryObject2Int64
+        [Fact]
+        public void ShouldConvertDictionaryObjectInt32ToDictionaryObject2Int64()
+        {
+            var source = new SourceClass<Dictionary<SourceRecord_DictionaryObjectInt32ToDictionaryObject2Int64, int>>()
+            {
+                Value = new Dictionary<SourceRecord_DictionaryObjectInt32ToDictionaryObject2Int64, int>
+                {
+                    [new SourceRecord_DictionaryObjectInt32ToDictionaryObject2Int64 { Value = "abc" }] = 123,
+                }
+            };
+            var target = source.To<TargetClass<Dictionary<TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64, long>>>();
+            target.Should().BeEquivalentTo(new TargetClass<Dictionary<TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64, long>>
+            {
+                Value = new Dictionary<TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64, long>
+                {
+                    [new TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64 { Value = "abc" }] = 123L,
+                }
+            });
+        }
+        internal record SourceRecord_DictionaryObjectInt32ToDictionaryObject2Int64
+        {
+            public string Value { get; set; }
+        }
+        internal record TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64
+        {
+            public string Value { get; init; }
+        }
+        #endregion
+
         #endregion
 
         #region Record
@@ -2654,5 +2965,7 @@ namespace FlyTiger.IntegrationTest.Mapper
         }
         #endregion
         #endregion
+
+
     }
 }

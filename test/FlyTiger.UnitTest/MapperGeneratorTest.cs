@@ -8,8 +8,8 @@ namespace FlyTiger.Generator.UnitTest
     public class MapperGeneratorTest : BaseGeneratorTest
     {
 
-        //[Theory]
-        //[InlineData("MapperCases/HappyCase.xml")]
+        [Theory]
+        [InlineData("MapperCases/DicToDic.xml")]
         //[InlineData("MapperCases/GlobalNamespace.xml")]
         //[InlineData("MapperCases/ClassifyConversion.xml")]
         //[InlineData("MapperCases/ClassToStruct.xml")]

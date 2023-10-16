@@ -44,6 +44,7 @@ namespace FlyTiger.Mapper
             CsharpCodeBuilder codeBuilder = new CsharpCodeBuilder();
             // using
             codeBuilder.AppendCodeLines("using System;");
+            codeBuilder.AppendCodeLines("using System.Collections.Immutable;");
             codeBuilder.AppendCodeLines("using System.Collections.Generic;");
             codeBuilder.AppendCodeLines("using System.Linq;");
             codeBuilder.AppendCodeLines("using System.Linq.Expressions;");
