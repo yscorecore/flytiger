@@ -180,15 +180,33 @@ namespace FlyTiger
         }
         public static IEnumerable<ISymbol> GetAllMembers(this ITypeSymbol type)
         {
-            var current = type;
-            while (current != null)
+            if (type.TypeKind == TypeKind.Interface)
             {
-                foreach (var member in current.GetMembers())
+                foreach (var member in type.GetMembers())
                 {
                     yield return member;
                 }
-                current = current.BaseType;
+                foreach (var interfaceType in type.AllInterfaces)
+                {
+                    foreach (var member in interfaceType.GetMembers())
+                    {
+                        yield return member;
+                    }
+                }
             }
+            else
+            {
+                var current = type;
+                while (current != null)
+                {
+                    foreach (var member in current.GetMembers())
+                    {
+                        yield return member;
+                    }
+                    current = current.BaseType;
+                }
+            }
+
 
         }
 

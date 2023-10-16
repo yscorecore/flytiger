@@ -151,13 +151,8 @@ namespace FlyTiger
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                var supportNames = new string[] {
-                        nameof(Enumerable.ToList),
-                        nameof(Enumerable.ToArray),
-                        nameof(Enumerable.AsEnumerable),
-                        nameof(Enumerable.Select),
-                    };
-                if (node.Method.DeclaringType == typeof(Enumerable) && supportNames.Contains(node.Method.Name) && node.Arguments[0] is MemberExpression member && memberPathsMap.TryGetValue(member.Member, out var paths))
+              
+                if (node.Method.DeclaringType == typeof(Enumerable) && node.Arguments[0] is MemberExpression member && memberPathsMap.TryGetValue(member.Member, out var paths))
                 {
                     var arguments = node.Arguments.ToArray();
                     arguments[0] = ReplaceExpression(member, paths);
@@ -166,6 +161,31 @@ namespace FlyTiger
 
                 return base.VisitMethodCall(node);
             }
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                var source = node.Expression as MemberExpression;
+                if (source != null && memberPathsMap.TryGetValue(source.Member, out var paths))
+                {
+                    if (node.Member.DeclaringType == typeof(Array))
+                    {
+                        if (node.Member.Name == nameof(Array.Length))
+                        {
+                            return BuildCountExpression(ReplaceExpression(source, paths), CountMethod, paths.ItemType);
+                        }
+                        else if (node.Member.Name == nameof(Array.LongLength))
+                        {
+                            return BuildCountExpression(ReplaceExpression(source, paths), LongCountMethod, paths.ItemType);
+                        }
+                    }
+        
+                    else if (node.Member.Name == nameof(ICollection<int>.Count) && node.Member.DeclaringType.IsGenericType)
+                    {
+                        return BuildCountExpression(ReplaceExpression(source, paths), CountMethod, paths.ItemType);
+                    }
+                }
+                return base.VisitMember(node);
+            }
+
             private Expression ReplaceExpression(MemberExpression expression, MemberIncludePath paths)
             {
                 Expression exp = expression;
@@ -179,6 +199,8 @@ namespace FlyTiger
             }
             static MethodInfo ToArrayMethod = typeof(Enumerable).GetMethod(nameof(Enumerable.ToArray));
             static MethodInfo ToListMethod = typeof(Enumerable).GetMethod(nameof(Enumerable.ToList));
+            static MethodInfo CountMethod = typeof(Enumerable).GetMethods().Single(p => p.Name == nameof(Enumerable.Count) && p.GetParameters().Length == 1);
+            static MethodInfo LongCountMethod = typeof(Enumerable).GetMethods().Single(p => p.Name == nameof(Enumerable.LongCount) && p.GetParameters().Length == 1);
             private Expression ReplaceAndConvertExpression(MemberExpression expression, MemberIncludePath paths)
             {
                 var returnType = expression.Type;
@@ -207,6 +229,11 @@ namespace FlyTiger
                 {
                     return expression;
                 }
+            }
+            private Expression BuildCountExpression(Expression expression, MethodInfo genericCountMethod, Type itemType)
+            {
+                var method = genericCountMethod.MakeGenericMethod(itemType);
+                return Expression.Call(null, method, expression);
             }
         }
         class MemberIncludePath

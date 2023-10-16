@@ -88,9 +88,9 @@ namespace FlyTiger.IntegrationTest.Blogs
         public int Id { get; set; }
         public string Name { get; set; }
 
-        public IList<Post> Posts { get; } = new List<Post>();
+        public IList<Post> Posts { get; set; } = new List<Post>();
 
-        public Blog OwnedBlog { get; set; }
+        public List<Blog> Blogs { get; set; }
     }
 
     public class BlogsContext : DbContext
@@ -106,16 +106,6 @@ namespace FlyTiger.IntegrationTest.Blogs
         public DbSet<Post> Posts { get; set; }
         public DbSet<Person> People { get; set; }
 
-        #region OnModelCreating
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder
-                .Entity<Blog>()
-                .HasOne(e => e.Owner)
-                .WithOne(e => e.OwnedBlog)
-                .OnDelete(DeleteBehavior.ClientCascade);
-        }
-        #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
