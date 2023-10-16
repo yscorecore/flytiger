@@ -504,7 +504,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             else if (CanAssign(sourceItemType, targetItemType, convertContext))
             {
                 codeBuilder.AppendCodeLines(
-                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? null : {sourcePropertyExpression}.Cast<{targetItemTypeText}>().{ToTargetMethodName()}(){lineSplitChar}");
+                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? null : {sourcePropertyExpression}.Select(p => ({targetItemTypeText})p).{ToTargetMethodName()}(){lineSplitChar}");
             }
             else
             {

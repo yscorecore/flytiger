@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using static FlyTiger.IntegrationTest.Mapper.ConvertSingleObjectTest;
 
 namespace FlyTiger.IntegrationTest.Mapper
 {
@@ -70,12 +69,26 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceClass<int>), typeof(TargetClass<int?>))]
     [Mapper(typeof(SourceClass<int>), typeof(TargetClass<long?>))]
     [Mapper(typeof(SourceClass<int>), typeof(TargetClass<object>))]
+    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<int[]>))]
+    [Mapper(typeof(SourceClass<string[]>), typeof(TargetClass<string[]>))]
+    [Mapper(typeof(SourceClass<string[]>), typeof(TargetClass<List<string>>))]
+    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<long[]>))]
+    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<int?[]>))]
+    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<IList<long?>>))]
+
 
     [Mapper(typeof(SourceClass<DateTime>), typeof(TargetClass<DateTime>))]
     [Mapper(typeof(SourceClass<DateTime>), typeof(TargetClass<DateTime?>))]
+
     [Mapper(typeof(SourceClass<Value_TheSameSubClass>), typeof(TargetClass<Value_TheSameSubClass>))]
-    [Mapper(typeof(SourceClass<Value_ClassToBaseClass>),typeof(TargetClass<ValueParent_ClassToBaseClass>))]
+    [Mapper(typeof(SourceClass<Value_ClassToBaseClass>), typeof(TargetClass<ValueParent_ClassToBaseClass>))]
     [Mapper(typeof(SourceClass<Value_ClassToInterface>), typeof(TargetClass<IValue_ClassToInterface>))]
+    
+    
+    [Mapper(typeof(SourceClass<Value_TheSameClassArray[]>), typeof(TargetClass<Value_TheSameClassArray[]>))]
+    [Mapper(typeof(SourceClass<Value_TheSameStructArray[]>), typeof(TargetClass<Value_TheSameStructArray[]>))]
+    [Mapper(typeof(SourceClass<Value_TheSameStructArrayToIList[]>), typeof(TargetClass<IList<Value_TheSameStructArrayToIList>>))]
+    [Mapper(typeof(SourceClass<Value_TheSameStructArrayToNullableList[]>), typeof(TargetClass<List<Value_TheSameStructArrayToNullableList?>>))]
 
     [Mapper(typeof(SourceUser_ClassToRecord), typeof(TargetUser_ClassToRecord))]
     [Mapper(typeof(SourceUser_RecordToClass), typeof(TargetUser_RecordToClass))]
@@ -2353,25 +2366,186 @@ namespace FlyTiger.IntegrationTest.Mapper
             target.Value.Should().Be(source.Value);
         }
         internal interface IValue_ClassToInterface
-        { 
-        
+        {
+            string Value { get; set; }
         }
-        internal class Value_ClassToInterface: IValue_ClassToInterface
+        internal class Value_ClassToInterface : IValue_ClassToInterface
         {
             public string Value { get; set; }
         }
-       
+
         #endregion
 
+        #region Int32ArrayToInt32Array
+        [Fact]
+        public void ShouldConvertInt32ArrayToInt32Array()
+        {
+            var source = new SourceClass<int[]>()
+            {
+                Value = new int[] { 1, 3, 5 }
+            };
+            var target = source.To<TargetClass<int[]>>();
+            target.Value.Should().BeSameAs(source.Value);
+        }
+        #endregion
+
+        #region StringArrayToStringArray
+        [Fact]
+        public void ShouldConvertStringArrayToStringArray()
+        {
+            var source = new SourceClass<string[]>()
+            {
+                Value = new string[] { "a", "b", "c" }
+            };
+            var target = source.To<TargetClass<string[]>>();
+            target.Value.Should().BeSameAs(source.Value);
+        }
+        #endregion
+
+        #region StringArrayToStringList
+        [Fact]
+        public void ShouldConvertStringArrayToStringList()
+        {
+            var source = new SourceClass<string[]>()
+            {
+                Value = new string[] { "a", "b", "c" }
+            };
+            var target = source.To<TargetClass<List<string>>>();
+            target.Should().BeEquivalentTo(new TargetClass<List<string>>
+            {
+                Value = new List<string> { "a", "b", "c" }
+            });
+        }
+        #endregion
+
+        #region Int32ArrayToInt64Array
+        [Fact]
+        public void ShouldConvertInt32ArrayToInt64Array()
+        {
+            var source = new SourceClass<int[]>()
+            {
+                Value = new int[] { 1, 3, 5 }
+            };
+            var target = source.To<TargetClass<long[]>>();
+            target.Should().BeEquivalentTo(new TargetClass<long[]>
+            {
+                Value = new long[] { 1, 3, 5 }
+            });
+        }
+        #endregion
+
+        #region Int32ArrayToNullableInt32Array
+        [Fact]
+        public void ShouldConvertInt32ArrayToNullableInt32Array()
+        {
+            var source = new SourceClass<int[]>()
+            {
+                Value = new int[] { 1, 3, 5 }
+            };
+            var target = source.To<TargetClass<int?[]>>();
+            target.Should().BeEquivalentTo(new TargetClass<int?[]>
+            {
+                Value = new int?[] { 1, 3, 5 }
+            });
+        }
+
+        #endregion
+
+        #region Int32ArrayToNullableInt64IList
+        [Fact]
+        public void ShouldConvertInt32ArrayToNullableInt64IList()
+        {
+            var source = new SourceClass<int[]>()
+            {
+                Value = new int[] { 1, 3, 5 }
+            };
+            var target = source.To<TargetClass<IList<long?>>>();
+            target.Should().BeEquivalentTo(new TargetClass<IList<long?>>
+            {
+                Value = new long?[] { 1, 3, 5 }.ToList()
+            });
+        }
+
+        #endregion
 
 
         #region TheSameClassArray
+        [Fact]
+        public void ShouldConvertTheSameClassArray()
+        {
+            var source = new SourceClass<Value_TheSameClassArray[]>()
+            {
+                Value = new Value_TheSameClassArray[] { }
+            };
+            var target = source.To<TargetClass<Value_TheSameClassArray[]>>();
+            source.Value.Should().BeSameAs(target.Value);
+        }
+        internal class Value_TheSameClassArray
+        {
+            public int Value { get; set; }
+        }
         #endregion
 
         #region TheSameStructArray
+        [Fact]
+        public void ShouldConvertTheSameStructArray()
+        {
+            var source = new SourceClass<Value_TheSameStructArray[]>()
+            {
+                Value = new Value_TheSameStructArray[] { }
+            };
+            var target = source.To<TargetClass<Value_TheSameStructArray[]>>();
+            source.Value.Should().BeSameAs(target.Value);
+        }
+
+        internal struct Value_TheSameStructArray
+        {
+            public int Value { get; set; }
+        }
         #endregion
 
-        #region TheSameStructArrayToList
+        #region TheSameStructArrayToIList
+
+        [Fact]
+        public void ShouldConvertTheSameStructArrayToIList()
+        {
+            var source = new SourceClass<Value_TheSameStructArrayToIList[]>()
+            {
+                Value = new Value_TheSameStructArrayToIList[] { new Value_TheSameStructArrayToIList { Value = 1 } }
+            };
+            var target = source.To<TargetClass<IList<Value_TheSameStructArrayToIList>>>();
+            target.Should().BeEquivalentTo(new TargetClass<IList<Value_TheSameStructArrayToIList>>
+            {
+                Value = new Value_TheSameStructArrayToIList[] { new Value_TheSameStructArrayToIList { Value = 1 } }
+            });
+        }
+
+        internal struct Value_TheSameStructArrayToIList
+        {
+            public int Value { get; set; }
+        }
+        #endregion
+
+        #region TheSameStructArrayToNullableList
+
+        [Fact]
+        public void ShouldConvertTheSameStructArrayToNullableList()
+        {
+            var source = new SourceClass<Value_TheSameStructArrayToNullableList[]>()
+            {
+                Value = new Value_TheSameStructArrayToNullableList[] { new Value_TheSameStructArrayToNullableList { Value = 1 } }
+            };
+            var target = source.To<TargetClass<List<Value_TheSameStructArrayToNullableList?>>>();
+            target.Should().BeEquivalentTo(new TargetClass<List<Value_TheSameStructArrayToNullableList?>>
+            {
+                Value = new List<Value_TheSameStructArrayToNullableList?> { new Value_TheSameStructArrayToNullableList { Value = 1 } }
+            });
+        }
+
+        internal struct Value_TheSameStructArrayToNullableList
+        {
+            public int Value { get; set; }
+        }
         #endregion
 
         #endregion
