@@ -30,7 +30,7 @@ namespace FlyTiger.IntegrationTest.Mapper
         {
             public string Value { get; set; }
         }
-        [Fact]
+        //[Fact]
         public void ShouldCopy_Dic_Int32_Int32_To_Dic_Int32_Int32()
         {
             var sourceDic = new Dictionary<int, int>

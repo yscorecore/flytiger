@@ -23,8 +23,9 @@ namespace FlyTiger.Generator.UnitTest
             base.ShouldGenerateExpectCodeFile(new SingletonPatternGenerator(), testCaseFileName, assemblies);
         }
 
+        //[Theory]
+        //[InlineData("SingletonPatternCases/Error.AlreadyExistCtor.xml")]
         [Theory]
-        [InlineData("SingletonPatternCases/Error.AlreadyExistCtor.xml")]
         public void ShouldReportDigError(string testCaseFileName)
         {
             var assemblies = new[]

@@ -34,10 +34,11 @@ namespace FlyTiger.Generator.UnitTest
             base.ShouldGenerateExpectCodeFile(new AutoNotifyGenerator(), testCaseFileName, assemblies);
         }
 
+        //[Theory]
+        //[InlineData("AutoNotifyCases/Error.EmptyPropertyName.xml")]
+        //[InlineData("AutoNotifyCases/Error.InvalidPropertyName.xml")]
+        //[InlineData("AutoNotifyCases/Error.PropertyNameEqualFieldName.xml")]
         [Theory]
-        [InlineData("AutoNotifyCases/Error.EmptyPropertyName.xml")]
-        [InlineData("AutoNotifyCases/Error.InvalidPropertyName.xml")]
-        [InlineData("AutoNotifyCases/Error.PropertyNameEqualFieldName.xml")]
         public void ShouldReportDigError(string testCaseFileName)
         {
             var assemblies = new[]

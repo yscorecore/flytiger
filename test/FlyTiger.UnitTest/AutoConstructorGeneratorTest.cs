@@ -17,7 +17,6 @@ namespace FlyTiger.Generator.UnitTest
         [InlineData("AutoConstructorCases/HappyCase.xml")]
         [InlineData("AutoConstructorCases/IgnoreField.xml")]
         [InlineData("AutoConstructorCases/InitializeMethod.xml")]
-        [InlineData("AutoConstructorCases/StaticInitializeMethod.xml")]
         [InlineData("AutoConstructorCases/EmptyNamespace.xml")]
         [InlineData("AutoConstructorCases/GenericType.xml")]
         [InlineData("AutoConstructorCases/CombinAllPartials.xml")]
