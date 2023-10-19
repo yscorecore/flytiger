@@ -44,14 +44,14 @@ namespace FlyTiger.Mapper
         }
         public static void ReportTargetPropertyNotFilledBecauseIsGetOnly(this GeneratorExecutionContext context, IPropertySymbol targetProperty, ITypeSymbol source, ITypeSymbol target, DiagnosticSeverity diagnosticSeverity = DiagnosticSeverity.Error)
         {
-            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
-                "FT4004",
-                "Target readonly property can not been filled",
-                "Target readonly property '{0}' in class can not be filled, source class is '{2}'.",
-                Category,
-                diagnosticSeverity,
-                true),
-                FindMemberLocation(targetProperty), targetProperty.Name, target.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat), source.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
+            //context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
+            //    "FT4004",
+            //    "Target readonly property can not been filled",
+            //    "Target readonly property '{0}' in class can not be filled, source class is '{2}'.",
+            //    Category,
+            //    diagnosticSeverity,
+            //    true),
+            //    FindMemberLocation(targetProperty), targetProperty.Name, target.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat), source.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
         }
         public static void ReportSourcePropertyNotMapped(this GeneratorExecutionContext context, IPropertySymbol sourceProperty, ITypeSymbol source, ITypeSymbol target, DiagnosticSeverity diagnosticSeverity = DiagnosticSeverity.Error)
         {
