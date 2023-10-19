@@ -105,9 +105,9 @@ namespace FlyTiger
             }
         }
 
-        void AppendSingletonBody(INamedTypeSymbol classSymbol,string instanceName, CsharpCodeBuilder codeBuilder)
+        void AppendSingletonBody(INamedTypeSymbol classSymbol, string instanceName, CsharpCodeBuilder codeBuilder)
         {
-           
+
 
             var content = $@"private static readonly Lazy<{classSymbol.GetClassSymbolDisplayText()}> LazyInstance = new Lazy<{classSymbol.GetClassSymbolDisplayText()}>(() => new {classSymbol.GetClassSymbolDisplayText()}(), true);
 

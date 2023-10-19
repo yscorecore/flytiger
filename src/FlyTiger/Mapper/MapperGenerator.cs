@@ -10,7 +10,7 @@ namespace FlyTiger.Mapper
     partial class MapperGenerator : ISourceGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
-    
+
         public void Initialize(GeneratorInitializationContext context)
         {
             context.RegisterForPostInitialization((i) =>

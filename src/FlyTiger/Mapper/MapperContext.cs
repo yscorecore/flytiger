@@ -65,7 +65,7 @@ namespace FlyTiger.Mapper
                 }
                 else
                 {
-                   return this.MappingInfo.Fork(source, target);
+                    return this.MappingInfo.Fork(source, target);
                 }
             }
         }

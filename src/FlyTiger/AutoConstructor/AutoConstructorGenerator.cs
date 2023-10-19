@@ -261,8 +261,8 @@ namespace FlyTiger
             // init methods
             var allInitializeMethods = GetAllInitializeMethods().ToList();
             if (allInitializeMethods.Count > 1)
-            { 
-                 writer.Context.InitializeMethodShouldOnlyOne(classSymbol, allInitializeMethods);
+            {
+                writer.Context.InitializeMethodShouldOnlyOne(classSymbol, allInitializeMethods);
             }
             foreach (var method in allInitializeMethods)
             {

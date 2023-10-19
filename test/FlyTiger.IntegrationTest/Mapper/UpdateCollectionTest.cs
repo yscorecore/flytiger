@@ -148,7 +148,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             target.Should().HaveCount(2);
             target.SingleOrDefault(p => p.Id == 5).Should().BeEquivalentTo(new TargetUser1 { Id = 5, Name = "lisi", Age = 15 });
         }
-        
+
 
         [Fact]
         public void ShouldUpdateWhenUseCustomSourceKeyAndTargetKeyAndKeyIsObject()
@@ -174,7 +174,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new TargetUser1 { Id = 4, Name = "wangmazi", Age = 13 },
 
                 }, o => o.WithStrictOrdering());
-            
+
         }
         [Fact]
         public void ShouldUpdateWhenDefinedMultiKeys()
