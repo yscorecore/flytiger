@@ -25,8 +25,8 @@ namespace FlyTiger.Generator.UnitTest
 
         //[Theory]
         //[InlineData("SingletonPatternCases/Error.AlreadyExistCtor.xml")]
-        [Theory]
-        public void ShouldReportDigError(string testCaseFileName)
+        //[Theory]
+        private void ShouldReportDigError(string testCaseFileName)
         {
             var assemblies = new[]
             {

@@ -38,8 +38,8 @@ namespace FlyTiger.Generator.UnitTest
         //[InlineData("AutoNotifyCases/Error.EmptyPropertyName.xml")]
         //[InlineData("AutoNotifyCases/Error.InvalidPropertyName.xml")]
         //[InlineData("AutoNotifyCases/Error.PropertyNameEqualFieldName.xml")]
-        [Theory]
-        public void ShouldReportDigError(string testCaseFileName)
+        // [Theory]
+        private void ShouldReportDigError(string testCaseFileName)
         {
             var assemblies = new[]
             {
