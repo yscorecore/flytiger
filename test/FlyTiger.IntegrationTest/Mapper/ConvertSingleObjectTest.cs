@@ -111,7 +111,15 @@ namespace FlyTiger.IntegrationTest.Mapper
 
     [Mapper(typeof(SourceUser_ClassToInitOnlyRecord), typeof(TargetUser_ClassToInitOnlyRecord))]
     [Mapper(typeof(SourceUser_ClassToInitOnlyClass), typeof(TargetUser_ClassToInitOnlyClass))]
-
+    [Mapper(typeof(SourceUser_WithPostHandler), typeof(TargetUser_WithPostHandler))]
+    [Mapper(typeof(SourceUser_WithCustomMappings), typeof(TargetUser_WithCustomMappings), CustomMappings= new[]
+    {
+        "FullName=$.FirstName + $.LastName"
+    })]
+    [Mapper(typeof(SourceUser_WithIgnoreProperties), typeof(TargetUser_WithIgnoreProperties), IgnoreProperties = new[]
+    {
+        nameof(TargetUser_WithIgnoreProperties.LastName)
+    })]
     public class ConvertSingleObjectTest
     {
         #region ArrayTo
@@ -2913,6 +2921,7 @@ namespace FlyTiger.IntegrationTest.Mapper
         #endregion
         #endregion
 
+
         #region InitOnly
 
         #region ClassToInitOnlyRecord
@@ -2966,6 +2975,90 @@ namespace FlyTiger.IntegrationTest.Mapper
         #endregion
         #endregion
 
+        #region WithPostHandler
+        internal class SourceUser_WithPostHandler
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+        internal class TargetUser_WithPostHandler
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string FullName { get; set; }
+        }
+        [Fact]
+        public void ShouldConvertWithPostHandler()
+        {
+            var source = new SourceUser_WithPostHandler
+            {
+                FirstName = "zhang",
+                LastName = "san"
+            };
+            source.To<TargetUser_WithPostHandler>(t=>{ t.FullName = t.FirstName + t.LastName; }).Should().BeEquivalentTo(new TargetUser_WithPostHandler
+            {
+                FirstName = "zhang",
+                LastName = "san",
+                FullName="zhangsan"
+            });
+        }
+        #endregion
+
+        #region WithCustomMappings
+        internal class SourceUser_WithCustomMappings
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+        internal class TargetUser_WithCustomMappings
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string FullName { get; set; }
+        }
+        [Fact]
+        public void ShouldConvertWithCustomMappings()
+        {
+            var source = new SourceUser_WithCustomMappings
+            {
+                FirstName = "zhang",
+                LastName = "san"
+            };
+            source.To<TargetUser_WithCustomMappings>().Should().BeEquivalentTo(new TargetUser_WithCustomMappings
+            {
+                FirstName = "zhang",
+                LastName = "san",
+                FullName = "zhangsan"
+            });
+        }
+        #endregion
+
+        #region WithIgnoreProperties
+        internal class SourceUser_WithIgnoreProperties
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+        internal class TargetUser_WithIgnoreProperties
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+        [Fact]
+        public void ShouldConvertWithIgnoreProperties()
+        {
+            var source = new SourceUser_WithIgnoreProperties
+            {
+                FirstName = "zhang",
+                LastName = "san"
+            };
+            source.To<TargetUser_WithIgnoreProperties>().Should().BeEquivalentTo(new TargetUser_WithIgnoreProperties
+            {
+                FirstName = "zhang",
+                LastName = null,
+            });
+        }
+        #endregion
 
     }
 }
