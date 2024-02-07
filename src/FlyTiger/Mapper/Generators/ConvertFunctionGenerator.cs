@@ -46,8 +46,8 @@ namespace FlyTiger.Mapper.Generators
             var codeBuilder = context.CodeBuilder;
             var fromType = mappingInfo.SourceType;
             var toType = mappingInfo.TargetType;
-            var toTypeDisplay = mappingInfo.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var fromTypeDisplay = mappingInfo.SourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var toTypeDisplay = mappingInfo.TargetTypeFullDisplay;
+            var fromTypeDisplay = mappingInfo.SourceTypeFullDisplay;
             //convert
             AddToMethodForSingle(); //dto2entity    , all dto readable properties should be use
             //update single

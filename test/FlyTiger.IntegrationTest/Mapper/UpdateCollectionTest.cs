@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
 using Moq;
+using FlyTiger;
 
 namespace FlyTiger.IntegrationTest.Mapper
 {
