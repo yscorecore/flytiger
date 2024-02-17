@@ -3,115 +3,114 @@
 namespace FlyTiger.IntegrationTest.Mapper
 {
 
-    [Mapper(typeof(SourceUser_ArrayToIList), typeof(TargetUser_ArrayToIList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ArrayToICollection), typeof(TargetUser_ArrayToICollection), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ArrayToIEnumerable), typeof(TargetUser_ArrayToIEnumerable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ArrayToList), typeof(TargetUser_ArrayToList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ArrayToIQueryable), typeof(TargetUser_ArrayToIQueryable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ArrayToArray), typeof(TargetUser_ArrayToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ArrayToIList), typeof(TargetUser_ArrayToIList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ArrayToICollection), typeof(TargetUser_ArrayToICollection), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ArrayToIEnumerable), typeof(TargetUser_ArrayToIEnumerable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ArrayToList), typeof(TargetUser_ArrayToList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ArrayToIQueryable), typeof(TargetUser_ArrayToIQueryable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ArrayToArray), typeof(TargetUser_ArrayToArray), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceUser_ListToIList), typeof(TargetUser_ListToIList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ListToICollection), typeof(TargetUser_ListToICollection), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ListToIEnumerable), typeof(TargetUser_ListToIEnumerable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ListToList), typeof(TargetUser_ListToList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ListToIQueryable), typeof(TargetUser_ListToIQueryable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ListToArray), typeof(TargetUser_ListToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ListToIList), typeof(TargetUser_ListToIList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ListToICollection), typeof(TargetUser_ListToICollection), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ListToIEnumerable), typeof(TargetUser_ListToIEnumerable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ListToList), typeof(TargetUser_ListToList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ListToIQueryable), typeof(TargetUser_ListToIQueryable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ListToArray), typeof(TargetUser_ListToArray), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceUser_IListToIList), typeof(TargetUser_IListToIList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IListToICollection), typeof(TargetUser_IListToICollection), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IListToIEnumerable), typeof(TargetUser_IListToIEnumerable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IListToList), typeof(TargetUser_IListToList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IListToIQueryable), typeof(TargetUser_IListToIQueryable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IListToArray), typeof(TargetUser_IListToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IListToIList), typeof(TargetUser_IListToIList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IListToICollection), typeof(TargetUser_IListToICollection), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IListToIEnumerable), typeof(TargetUser_IListToIEnumerable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IListToList), typeof(TargetUser_IListToList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IListToIQueryable), typeof(TargetUser_IListToIQueryable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IListToArray), typeof(TargetUser_IListToArray), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceUser_ICollectionToIList), typeof(TargetUser_ICollectionToIList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ICollectionToICollection), typeof(TargetUser_ICollectionToICollection), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ICollectionToIEnumerable), typeof(TargetUser_ICollectionToIEnumerable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ICollectionToList), typeof(TargetUser_ICollectionToList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ICollectionToIQueryable), typeof(TargetUser_ICollectionToIQueryable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ICollectionToArray), typeof(TargetUser_ICollectionToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ICollectionToIList), typeof(TargetUser_ICollectionToIList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ICollectionToICollection), typeof(TargetUser_ICollectionToICollection), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ICollectionToIEnumerable), typeof(TargetUser_ICollectionToIEnumerable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ICollectionToList), typeof(TargetUser_ICollectionToList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ICollectionToIQueryable), typeof(TargetUser_ICollectionToIQueryable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ICollectionToArray), typeof(TargetUser_ICollectionToArray), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceUser_IEnumerableToIList), typeof(TargetUser_IEnumerableToIList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IEnumerableToICollection), typeof(TargetUser_IEnumerableToICollection), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IEnumerableToIEnumerable), typeof(TargetUser_IEnumerableToIEnumerable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IEnumerableToList), typeof(TargetUser_IEnumerableToList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IEnumerableToIQueryable), typeof(TargetUser_IEnumerableToIQueryable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IEnumerableToArray), typeof(TargetUser_IEnumerableToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IEnumerableToIList), typeof(TargetUser_IEnumerableToIList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IEnumerableToICollection), typeof(TargetUser_IEnumerableToICollection), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IEnumerableToIEnumerable), typeof(TargetUser_IEnumerableToIEnumerable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IEnumerableToList), typeof(TargetUser_IEnumerableToList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IEnumerableToIQueryable), typeof(TargetUser_IEnumerableToIQueryable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IEnumerableToArray), typeof(TargetUser_IEnumerableToArray), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceUser_IQueryableToIList), typeof(TargetUser_IQueryableToIList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IQueryableToICollection), typeof(TargetUser_IQueryableToICollection), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IQueryableToIEnumerable), typeof(TargetUser_IQueryableToIEnumerable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IQueryableToList), typeof(TargetUser_IQueryableToList), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IQueryableToIQueryable), typeof(TargetUser_IQueryableToIQueryable), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_IQueryableToArray), typeof(TargetUser_IQueryableToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IQueryableToIList), typeof(TargetUser_IQueryableToIList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IQueryableToICollection), typeof(TargetUser_IQueryableToICollection), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IQueryableToIEnumerable), typeof(TargetUser_IQueryableToIEnumerable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IQueryableToList), typeof(TargetUser_IQueryableToList), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IQueryableToIQueryable), typeof(TargetUser_IQueryableToIQueryable), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_IQueryableToArray), typeof(TargetUser_IQueryableToArray), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceUser_StructToClass), typeof(TargetUser_StructToClass), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ClassToStruct), typeof(TargetUser_ClassToStruct), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_StructToStruct), typeof(TargetUser_StructToStruct), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ClassToClass), typeof(TargetUser_ClassToClass), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_StructToClass), typeof(TargetUser_StructToClass), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ClassToStruct), typeof(TargetUser_ClassToStruct), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_StructToStruct), typeof(TargetUser_StructToStruct), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ClassToClass), typeof(TargetUser_ClassToClass), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceUser_SubStructToClass), typeof(TargetUser_SubStructToClass), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_SubNullableStructToClass), typeof(TargetUser_SubNullableStructToClass), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_SubClassToStruct), typeof(TargetUser_SubClassToStruct), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_SubClassToNullableStruct), typeof(TargetUser_SubClassToNullableStruct), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_SubStructToStruct), typeof(TargetUser_SubStructToStruct), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_SubNullableStructToStruct), typeof(TargetUser_SubNullableStructToStruct), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_SubStructToNullableStruct), typeof(TargetUser_SubStructToNullableStruct), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_SubNullableStructToNullableStruct), typeof(TargetUser_SubNullableStructToNullableStruct), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_SubClassToClass), typeof(TargetUser_SubClassToClass), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_SubStructToClass), typeof(TargetUser_SubStructToClass), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_SubNullableStructToClass), typeof(TargetUser_SubNullableStructToClass), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_SubClassToStruct), typeof(TargetUser_SubClassToStruct), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_SubClassToNullableStruct), typeof(TargetUser_SubClassToNullableStruct), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_SubStructToStruct), typeof(TargetUser_SubStructToStruct), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_SubNullableStructToStruct), typeof(TargetUser_SubNullableStructToStruct), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_SubStructToNullableStruct), typeof(TargetUser_SubStructToNullableStruct), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_SubNullableStructToNullableStruct), typeof(TargetUser_SubNullableStructToNullableStruct), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_SubClassToClass), typeof(TargetUser_SubClassToClass), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceUser_StructArrayToClassArray), typeof(TargetUser_StructArrayToClassArray), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_StructArrayToStructArray), typeof(TargetUser_StructArrayToStructArray), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ClassArrayToStructArray), typeof(TargetUser_ClassArrayToStructArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_StructArrayToClassArray), typeof(TargetUser_StructArrayToClassArray), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_StructArrayToStructArray), typeof(TargetUser_StructArrayToStructArray), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ClassArrayToStructArray), typeof(TargetUser_ClassArrayToStructArray), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<int>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<long>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<int?>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<long?>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<object>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<int[]>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<string[]>), typeof(TargetClass<string[]>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<string[]>), typeof(TargetClass<List<string>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<long[]>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<int?[]>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<IList<long?>>), MapperType = MapperType.Convert)]
-
-
-    [Mapper(typeof(SourceClass<DateTime>), typeof(TargetClass<DateTime>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<DateTime>), typeof(TargetClass<DateTime?>), MapperType = MapperType.Convert)]
-
-    [Mapper(typeof(SourceClass<Value_TheSameSubClass>), typeof(TargetClass<Value_TheSameSubClass>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Value_ClassToBaseClass>), typeof(TargetClass<ValueParent_ClassToBaseClass>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Value_ClassToInterface>), typeof(TargetClass<IValue_ClassToInterface>), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<int>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<long>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<int?>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<long?>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<int>), typeof(TargetClass<object>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<int[]>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<string[]>), typeof(TargetClass<string[]>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<string[]>), typeof(TargetClass<List<string>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<long[]>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<int?[]>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<int[]>), typeof(TargetClass<IList<long?>>), MapperType = MapperType.Query)]
 
 
-    [Mapper(typeof(SourceClass<Value_TheSameClassArray[]>), typeof(TargetClass<Value_TheSameClassArray[]>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Value_TheSameStructArray[]>), typeof(TargetClass<Value_TheSameStructArray[]>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Value_TheSameStructArrayToIList[]>), typeof(TargetClass<IList<Value_TheSameStructArrayToIList>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Value_TheSameStructArrayToNullableList[]>), typeof(TargetClass<List<Value_TheSameStructArrayToNullableList?>>), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceClass<DateTime>), typeof(TargetClass<DateTime>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<DateTime>), typeof(TargetClass<DateTime?>), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceClass<Dictionary<string, string>>), typeof(TargetClass<Dictionary<string, string>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, int>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<IDictionary<int, int>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<IDictionary<int, int>>), typeof(TargetClass<IDictionary<int, int>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<IDictionary<int, int>>), typeof(TargetClass<Dictionary<int, int>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, int?>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, long>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int?, int>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int?, int?>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<int, DateTime>>), typeof(TargetClass<Dictionary<int, DateTime?>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<int, SourceRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>), typeof(TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<int, SourceRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>), typeof(TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct>>), typeof(TargetClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct?>>), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceClass<Dictionary<SourceRecord_DictionaryObjectInt32ToDictionaryObject2Int64, int>>), typeof(TargetClass<Dictionary<TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64, long>>), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceClass<Value_TheSameSubClass>), typeof(TargetClass<Value_TheSameSubClass>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Value_ClassToBaseClass>), typeof(TargetClass<ValueParent_ClassToBaseClass>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Value_ClassToInterface>), typeof(TargetClass<IValue_ClassToInterface>), MapperType = MapperType.Query)]
 
 
-    [Mapper(typeof(SourceUser_ClassToRecord), typeof(TargetUser_ClassToRecord), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_RecordToClass), typeof(TargetUser_RecordToClass), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceClass<Value_TheSameClassArray[]>), typeof(TargetClass<Value_TheSameClassArray[]>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Value_TheSameStructArray[]>), typeof(TargetClass<Value_TheSameStructArray[]>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Value_TheSameStructArrayToIList[]>), typeof(TargetClass<IList<Value_TheSameStructArrayToIList>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Value_TheSameStructArrayToNullableList[]>), typeof(TargetClass<List<Value_TheSameStructArrayToNullableList?>>), MapperType = MapperType.Query)]
 
-    [Mapper(typeof(SourceUser_ClassToInitOnlyRecord), typeof(TargetUser_ClassToInitOnlyRecord), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ClassToInitOnlyClass), typeof(TargetUser_ClassToInitOnlyClass), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_WithPostHandler), typeof(TargetUser_WithPostHandler), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceClass<Dictionary<string, string>>), typeof(TargetClass<Dictionary<string, string>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, int>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<IDictionary<int, int>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<IDictionary<int, int>>), typeof(TargetClass<IDictionary<int, int>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<IDictionary<int, int>>), typeof(TargetClass<Dictionary<int, int>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, int?>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, long>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int?, int>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int?, int?>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<int, DateTime>>), typeof(TargetClass<Dictionary<int, DateTime?>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<int, SourceRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>), typeof(TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<int, SourceRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>), typeof(TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct>>), typeof(TargetClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct?>>), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceClass<Dictionary<SourceRecord_DictionaryObjectInt32ToDictionaryObject2Int64, int>>), typeof(TargetClass<Dictionary<TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64, long>>), MapperType = MapperType.Query)]
+
+
+    [Mapper(typeof(SourceUser_ClassToRecord), typeof(TargetUser_ClassToRecord), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_RecordToClass), typeof(TargetUser_RecordToClass), MapperType = MapperType.Query)]
+
+    [Mapper(typeof(SourceUser_ClassToInitOnlyRecord), typeof(TargetUser_ClassToInitOnlyRecord), MapperType = MapperType.Query)]
+    [Mapper(typeof(SourceUser_ClassToInitOnlyClass), typeof(TargetUser_ClassToInitOnlyClass), MapperType = MapperType.Query)]
     [Mapper(typeof(SourceUser_WithCustomMappings), typeof(TargetUser_WithCustomMappings), CustomMappings = new[]
     {
         "FullName=$.FirstName + $.LastName"
@@ -120,7 +119,7 @@ namespace FlyTiger.IntegrationTest.Mapper
     {
         nameof(TargetUser_WithIgnoreProperties.LastName)
     })]
-    public class ConvertEnumerableTest
+    public class ConvertQueryableTest
     {
         #region ArrayTo
         #region ArrayToIList
@@ -135,7 +134,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ArrayToIList{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ArrayToIList>().First().Should().BeEquivalentTo(new TargetUser_ArrayToIList
+            AsQueryable(user).To<TargetUser_ArrayToIList>().First().Should().BeEquivalentTo(new TargetUser_ArrayToIList
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ArrayToIList[] {
@@ -176,7 +175,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ArrayToICollection{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ArrayToICollection>().First().Should().BeEquivalentTo(new TargetUser_ArrayToICollection
+            AsQueryable(user).To<TargetUser_ArrayToICollection>().First().Should().BeEquivalentTo(new TargetUser_ArrayToICollection
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ArrayToICollection[] {
@@ -217,7 +216,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ArrayToIEnumerable{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ArrayToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_ArrayToIEnumerable
+            AsQueryable(user).To<TargetUser_ArrayToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_ArrayToIEnumerable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ArrayToIEnumerable[] {
@@ -258,7 +257,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ArrayToList{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ArrayToList>().First().Should().BeEquivalentTo(new TargetUser_ArrayToList
+            AsQueryable(user).To<TargetUser_ArrayToList>().First().Should().BeEquivalentTo(new TargetUser_ArrayToList
             {
                 Name = "zhangsan",
                 Addresses = new List<TargetAddress_ArrayToList> {
@@ -299,7 +298,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ArrayToIQueryable{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ArrayToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_ArrayToIQueryable
+            AsQueryable(user).To<TargetUser_ArrayToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_ArrayToIQueryable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ArrayToIQueryable[] {
@@ -340,7 +339,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ArrayToArray{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ArrayToArray>().First().Should().BeEquivalentTo(new TargetUser_ArrayToArray
+            AsQueryable(user).To<TargetUser_ArrayToArray>().First().Should().BeEquivalentTo(new TargetUser_ArrayToArray
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ArrayToArray[] {
@@ -383,7 +382,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ListToIList{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ListToIList>().First().Should().BeEquivalentTo(new TargetUser_ListToIList
+            AsQueryable(user).To<TargetUser_ListToIList>().First().Should().BeEquivalentTo(new TargetUser_ListToIList
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ListToIList[] {
@@ -424,7 +423,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ListToICollection{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ListToICollection>().First().Should().BeEquivalentTo(new TargetUser_ListToICollection
+            AsQueryable(user).To<TargetUser_ListToICollection>().First().Should().BeEquivalentTo(new TargetUser_ListToICollection
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ListToICollection[] {
@@ -465,7 +464,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ListToIEnumerable{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ListToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_ListToIEnumerable
+            AsQueryable(user).To<TargetUser_ListToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_ListToIEnumerable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ListToIEnumerable[] {
@@ -506,7 +505,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ListToList{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ListToList>().First().Should().BeEquivalentTo(new TargetUser_ListToList
+            AsQueryable(user).To<TargetUser_ListToList>().First().Should().BeEquivalentTo(new TargetUser_ListToList
             {
                 Name = "zhangsan",
                 Addresses = new List<TargetAddress_ListToList> {
@@ -547,7 +546,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ListToIQueryable{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ListToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_ListToIQueryable
+            AsQueryable(user).To<TargetUser_ListToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_ListToIQueryable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ListToIQueryable[] {
@@ -588,7 +587,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ListToArray{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ListToArray>().First().Should().BeEquivalentTo(new TargetUser_ListToArray
+            AsQueryable(user).To<TargetUser_ListToArray>().First().Should().BeEquivalentTo(new TargetUser_ListToArray
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ListToArray[] {
@@ -631,7 +630,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IListToIList{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IListToIList>().First().Should().BeEquivalentTo(new TargetUser_IListToIList
+            AsQueryable(user).To<TargetUser_IListToIList>().First().Should().BeEquivalentTo(new TargetUser_IListToIList
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IListToIList[] {
@@ -672,7 +671,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IListToICollection{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IListToICollection>().First().Should().BeEquivalentTo(new TargetUser_IListToICollection
+            AsQueryable(user).To<TargetUser_IListToICollection>().First().Should().BeEquivalentTo(new TargetUser_IListToICollection
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IListToICollection[] {
@@ -713,7 +712,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IListToIEnumerable{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IListToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_IListToIEnumerable
+            AsQueryable(user).To<TargetUser_IListToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_IListToIEnumerable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IListToIEnumerable[] {
@@ -754,7 +753,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IListToList{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IListToList>().First().Should().BeEquivalentTo(new TargetUser_IListToList
+            AsQueryable(user).To<TargetUser_IListToList>().First().Should().BeEquivalentTo(new TargetUser_IListToList
             {
                 Name = "zhangsan",
                 Addresses = new List<TargetAddress_IListToList> {
@@ -795,7 +794,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IListToIQueryable{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IListToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_IListToIQueryable
+            AsQueryable(user).To<TargetUser_IListToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_IListToIQueryable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IListToIQueryable[] {
@@ -836,7 +835,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IListToArray{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IListToArray>().First().Should().BeEquivalentTo(new TargetUser_IListToArray
+            AsQueryable(user).To<TargetUser_IListToArray>().First().Should().BeEquivalentTo(new TargetUser_IListToArray
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IListToArray[] {
@@ -879,7 +878,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ICollectionToIList{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ICollectionToIList>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToIList
+            AsQueryable(user).To<TargetUser_ICollectionToIList>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToIList
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ICollectionToIList[] {
@@ -920,7 +919,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ICollectionToICollection{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ICollectionToICollection>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToICollection
+            AsQueryable(user).To<TargetUser_ICollectionToICollection>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToICollection
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ICollectionToICollection[] {
@@ -961,7 +960,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ICollectionToIEnumerable{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ICollectionToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToIEnumerable
+            AsQueryable(user).To<TargetUser_ICollectionToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToIEnumerable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ICollectionToIEnumerable[] {
@@ -1002,7 +1001,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ICollectionToList{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ICollectionToList>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToList
+            AsQueryable(user).To<TargetUser_ICollectionToList>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToList
             {
                 Name = "zhangsan",
                 Addresses = new List<TargetAddress_ICollectionToList> {
@@ -1043,7 +1042,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ICollectionToIQueryable{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ICollectionToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToIQueryable
+            AsQueryable(user).To<TargetUser_ICollectionToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToIQueryable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ICollectionToIQueryable[] {
@@ -1084,7 +1083,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ICollectionToArray{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ICollectionToArray>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToArray
+            AsQueryable(user).To<TargetUser_ICollectionToArray>().First().Should().BeEquivalentTo(new TargetUser_ICollectionToArray
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ICollectionToArray[] {
@@ -1127,7 +1126,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IEnumerableToIList{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IEnumerableToIList>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToIList
+            AsQueryable(user).To<TargetUser_IEnumerableToIList>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToIList
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IEnumerableToIList[] {
@@ -1168,7 +1167,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IEnumerableToICollection{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IEnumerableToICollection>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToICollection
+            AsQueryable(user).To<TargetUser_IEnumerableToICollection>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToICollection
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IEnumerableToICollection[] {
@@ -1209,7 +1208,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IEnumerableToIEnumerable{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IEnumerableToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToIEnumerable
+            AsQueryable(user).To<TargetUser_IEnumerableToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToIEnumerable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IEnumerableToIEnumerable[] {
@@ -1250,7 +1249,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IEnumerableToList{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IEnumerableToList>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToList
+            AsQueryable(user).To<TargetUser_IEnumerableToList>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToList
             {
                 Name = "zhangsan",
                 Addresses = new List<TargetAddress_IEnumerableToList> {
@@ -1291,7 +1290,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IEnumerableToIQueryable{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IEnumerableToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToIQueryable
+            AsQueryable(user).To<TargetUser_IEnumerableToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToIQueryable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IEnumerableToIQueryable[] {
@@ -1332,7 +1331,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IEnumerableToArray{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_IEnumerableToArray>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToArray
+            AsQueryable(user).To<TargetUser_IEnumerableToArray>().First().Should().BeEquivalentTo(new TargetUser_IEnumerableToArray
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IEnumerableToArray[] {
@@ -1375,7 +1374,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IQueryableToIList{ City = "xi'an" }
                 }.AsQueryable()
             };
-            AsEnumerable(user).To<TargetUser_IQueryableToIList>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToIList
+            AsQueryable(user).To<TargetUser_IQueryableToIList>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToIList
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IQueryableToIList[] {
@@ -1416,7 +1415,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IQueryableToICollection{ City = "xi'an" }
                 }.AsQueryable()
             };
-            AsEnumerable(user).To<TargetUser_IQueryableToICollection>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToICollection
+            AsQueryable(user).To<TargetUser_IQueryableToICollection>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToICollection
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IQueryableToICollection[] {
@@ -1457,7 +1456,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IQueryableToIEnumerable{ City = "xi'an" }
                 }.AsQueryable()
             };
-            AsEnumerable(user).To<TargetUser_IQueryableToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToIEnumerable
+            AsQueryable(user).To<TargetUser_IQueryableToIEnumerable>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToIEnumerable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IQueryableToIEnumerable[] {
@@ -1498,7 +1497,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IQueryableToList{ City = "xi'an" }
                 }.AsQueryable()
             };
-            AsEnumerable(user).To<TargetUser_IQueryableToList>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToList
+            AsQueryable(user).To<TargetUser_IQueryableToList>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToList
             {
                 Name = "zhangsan",
                 Addresses = new List<TargetAddress_IQueryableToList> {
@@ -1539,7 +1538,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IQueryableToIQueryable{ City = "xi'an" }
                 }.AsQueryable()
             };
-            AsEnumerable(user).To<TargetUser_IQueryableToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToIQueryable
+            AsQueryable(user).To<TargetUser_IQueryableToIQueryable>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToIQueryable
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IQueryableToIQueryable[] {
@@ -1580,7 +1579,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_IQueryableToArray{ City = "xi'an" }
                 }.AsQueryable()
             };
-            AsEnumerable(user).To<TargetUser_IQueryableToArray>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToArray
+            AsQueryable(user).To<TargetUser_IQueryableToArray>().First().Should().BeEquivalentTo(new TargetUser_IQueryableToArray
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_IQueryableToArray[] {
@@ -1618,7 +1617,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Name = "zhangsan",
             };
-            AsEnumerable(user).To<TargetUser_StructToClass>().First().Should().BeEquivalentTo(new TargetUser_StructToClass
+            AsQueryable(user).To<TargetUser_StructToClass>().First().Should().BeEquivalentTo(new TargetUser_StructToClass
             {
                 Name = "zhangsan",
             });
@@ -1645,7 +1644,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Name = "zhangsan",
             };
-            AsEnumerable(user).To<TargetUser_ClassToStruct>().First().Should().BeEquivalentTo(new TargetUser_ClassToStruct
+            AsQueryable(user).To<TargetUser_ClassToStruct>().First().Should().BeEquivalentTo(new TargetUser_ClassToStruct
             {
                 Name = "zhangsan",
             });
@@ -1673,7 +1672,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Name = "zhangsan",
             };
-            AsEnumerable(user).To<TargetUser_StructToStruct>().First().Should().BeEquivalentTo(new TargetUser_StructToStruct
+            AsQueryable(user).To<TargetUser_StructToStruct>().First().Should().BeEquivalentTo(new TargetUser_StructToStruct
             {
                 Name = "zhangsan",
             });
@@ -1701,7 +1700,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Name = "zhangsan",
             };
-            AsEnumerable(user).To<TargetUser_ClassToClass>().First().Should().BeEquivalentTo(new TargetUser_ClassToClass
+            AsQueryable(user).To<TargetUser_ClassToClass>().First().Should().BeEquivalentTo(new TargetUser_ClassToClass
             {
                 Name = "zhangsan",
             });
@@ -1733,7 +1732,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     Name = "role1"
                 }
             };
-            AsEnumerable(user).To<TargetUser_SubStructToClass>().First().Should().BeEquivalentTo(new TargetUser_SubStructToClass
+            AsQueryable(user).To<TargetUser_SubStructToClass>().First().Should().BeEquivalentTo(new TargetUser_SubStructToClass
             {
                 Name = "zhangsan",
                 Role = new TargetRole_SubStructToClass
@@ -1776,7 +1775,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     Name = "role1"
                 }
             };
-            AsEnumerable(user).To<TargetUser_SubNullableStructToClass>().First().Should().BeEquivalentTo(new TargetUser_SubNullableStructToClass
+            AsQueryable(user).To<TargetUser_SubNullableStructToClass>().First().Should().BeEquivalentTo(new TargetUser_SubNullableStructToClass
             {
                 Name = "zhangsan",
                 Role = new TargetRole_SubNullableStructToClass
@@ -1819,7 +1818,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     Name = "role1"
                 }
             };
-            AsEnumerable(user).To<TargetUser_SubClassToStruct>().First().Should().BeEquivalentTo(new TargetUser_SubClassToStruct
+            AsQueryable(user).To<TargetUser_SubClassToStruct>().First().Should().BeEquivalentTo(new TargetUser_SubClassToStruct
             {
                 Name = "zhangsan",
                 Role = new TargetRole_SubClassToStruct
@@ -1861,7 +1860,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     Name = "role1"
                 }
             };
-            AsEnumerable(user).To<TargetUser_SubClassToNullableStruct>().First().Should().BeEquivalentTo(new TargetUser_SubClassToNullableStruct
+            AsQueryable(user).To<TargetUser_SubClassToNullableStruct>().First().Should().BeEquivalentTo(new TargetUser_SubClassToNullableStruct
             {
                 Name = "zhangsan",
                 Role = new TargetRole_SubClassToNullableStruct
@@ -1903,7 +1902,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     Name = "role1"
                 }
             };
-            AsEnumerable(user).To<TargetUser_SubStructToStruct>().First().Should().BeEquivalentTo(new TargetUser_SubStructToStruct
+            AsQueryable(user).To<TargetUser_SubStructToStruct>().First().Should().BeEquivalentTo(new TargetUser_SubStructToStruct
             {
                 Name = "zhangsan",
                 Role = new TargetRole_SubStructToStruct
@@ -1945,7 +1944,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     Name = "role1"
                 }
             };
-            AsEnumerable(user).To<TargetUser_SubNullableStructToStruct>().First().Should().BeEquivalentTo(new TargetUser_SubNullableStructToStruct
+            AsQueryable(user).To<TargetUser_SubNullableStructToStruct>().First().Should().BeEquivalentTo(new TargetUser_SubNullableStructToStruct
             {
                 Name = "zhangsan",
                 Role = new TargetRole_SubNullableStructToStruct
@@ -1987,7 +1986,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     Name = "role1"
                 }
             };
-            AsEnumerable(user).To<TargetUser_SubStructToNullableStruct>().First().Should().BeEquivalentTo(new TargetUser_SubStructToNullableStruct
+            AsQueryable(user).To<TargetUser_SubStructToNullableStruct>().First().Should().BeEquivalentTo(new TargetUser_SubStructToNullableStruct
             {
                 Name = "zhangsan",
                 Role = new TargetRole_SubStructToNullableStruct
@@ -2029,7 +2028,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     Name = "role1"
                 }
             };
-            AsEnumerable(user).To<TargetUser_SubNullableStructToNullableStruct>().First().Should().BeEquivalentTo(new TargetUser_SubNullableStructToNullableStruct
+            AsQueryable(user).To<TargetUser_SubNullableStructToNullableStruct>().First().Should().BeEquivalentTo(new TargetUser_SubNullableStructToNullableStruct
             {
                 Name = "zhangsan",
                 Role = new TargetRole_SubNullableStructToNullableStruct
@@ -2071,7 +2070,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     Name = "role1"
                 }
             };
-            AsEnumerable(user).To<TargetUser_SubClassToClass>().First().Should().BeEquivalentTo(new TargetUser_SubClassToClass
+            AsQueryable(user).To<TargetUser_SubClassToClass>().First().Should().BeEquivalentTo(new TargetUser_SubClassToClass
             {
                 Name = "zhangsan",
                 Role = new TargetRole_SubClassToClass
@@ -2113,7 +2112,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_StructArrayToClassArray{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_StructArrayToClassArray>().First().Should().BeEquivalentTo(new TargetUser_StructArrayToClassArray
+            AsQueryable(user).To<TargetUser_StructArrayToClassArray>().First().Should().BeEquivalentTo(new TargetUser_StructArrayToClassArray
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_StructArrayToClassArray[] {
@@ -2154,7 +2153,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_StructArrayToStructArray{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_StructArrayToStructArray>().First().Should().BeEquivalentTo(new TargetUser_StructArrayToStructArray
+            AsQueryable(user).To<TargetUser_StructArrayToStructArray>().First().Should().BeEquivalentTo(new TargetUser_StructArrayToStructArray
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_StructArrayToStructArray[] {
@@ -2195,7 +2194,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     new SourceAddress_ClassArrayToStructArray{ City = "xi'an" }
                 }
             };
-            AsEnumerable(user).To<TargetUser_ClassArrayToStructArray>().First().Should().BeEquivalentTo(new TargetUser_ClassArrayToStructArray
+            AsQueryable(user).To<TargetUser_ClassArrayToStructArray>().First().Should().BeEquivalentTo(new TargetUser_ClassArrayToStructArray
             {
                 Name = "zhangsan",
                 Addresses = new TargetAddress_ClassArrayToStructArray[] {
@@ -2243,7 +2242,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = 100,
             };
-            AsEnumerable(source).To<TargetClass<int>>().First().Should().BeEquivalentTo(new TargetClass<int>
+            AsQueryable(source).To<TargetClass<int>>().First().Should().BeEquivalentTo(new TargetClass<int>
             {
                 Value = 100
             });
@@ -2258,7 +2257,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = 100,
             };
-            AsEnumerable(source).To<TargetClass<long>>().First().Should().BeEquivalentTo(new TargetClass<long>
+            AsQueryable(source).To<TargetClass<long>>().First().Should().BeEquivalentTo(new TargetClass<long>
             {
                 Value = 100
             });
@@ -2273,7 +2272,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = 100,
             };
-            AsEnumerable(source).To<TargetClass<int?>>().First().Should().BeEquivalentTo(new TargetClass<int?>
+            AsQueryable(source).To<TargetClass<int?>>().First().Should().BeEquivalentTo(new TargetClass<int?>
             {
                 Value = 100
             });
@@ -2288,7 +2287,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = 100,
             };
-            AsEnumerable(source).To<TargetClass<long?>>().First().Should().BeEquivalentTo(new TargetClass<long?>
+            AsQueryable(source).To<TargetClass<long?>>().First().Should().BeEquivalentTo(new TargetClass<long?>
             {
                 Value = 100
             });
@@ -2303,7 +2302,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = 100,
             };
-            AsEnumerable(source).To<TargetClass<object>>().First().Should().BeEquivalentTo(new TargetClass<object>
+            AsQueryable(source).To<TargetClass<object>>().First().Should().BeEquivalentTo(new TargetClass<object>
             {
                 Value = 100
             });
@@ -2318,7 +2317,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new DateTime(2023, 10, 15),
             };
-            AsEnumerable(source).To<TargetClass<DateTime>>().First().Should().BeEquivalentTo(new TargetClass<DateTime>
+            AsQueryable(source).To<TargetClass<DateTime>>().First().Should().BeEquivalentTo(new TargetClass<DateTime>
             {
                 Value = new DateTime(2023, 10, 15)
             });
@@ -2334,7 +2333,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new DateTime(2023, 10, 15),
             };
-            AsEnumerable(source).To<TargetClass<DateTime?>>().First().Should().BeEquivalentTo(new TargetClass<DateTime?>
+            AsQueryable(source).To<TargetClass<DateTime?>>().First().Should().BeEquivalentTo(new TargetClass<DateTime?>
             {
                 Value = new DateTime(2023, 10, 15)
             });
@@ -2349,7 +2348,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new Value_TheSameSubClass { Value = "abc" }
             };
-            var target = AsEnumerable(source).To<TargetClass<Value_TheSameSubClass>>().First();
+            var target = AsQueryable(source).To<TargetClass<Value_TheSameSubClass>>().First();
             target.Value.Should().Be(source.Value);
         }
         internal class Value_TheSameSubClass
@@ -2366,7 +2365,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new Value_ClassToBaseClass { Value = "abc" }
             };
-            var target = AsEnumerable(source).To<TargetClass<ValueParent_ClassToBaseClass>>().First();
+            var target = AsQueryable(source).To<TargetClass<ValueParent_ClassToBaseClass>>().FirstOrDefault();
             target.Value.Should().Be(source.Value);
         }
         internal class ValueParent_ClassToBaseClass
@@ -2387,7 +2386,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new Value_ClassToInterface { Value = "abc" }
             };
-            var target = AsEnumerable(source).To<TargetClass<IValue_ClassToInterface>>().First();
+            var target = AsQueryable(source).To<TargetClass<IValue_ClassToInterface>>().First();
             target.Value.Should().Be(source.Value);
         }
         internal interface IValue_ClassToInterface
@@ -2409,7 +2408,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new int[] { 1, 3, 5 }
             };
-            var target = AsEnumerable(source).To<TargetClass<int[]>>().First();
+            var target = AsQueryable(source).To<TargetClass<int[]>>().First();
             target.Value.Should().BeSameAs(source.Value);
         }
         #endregion
@@ -2422,7 +2421,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new string[] { "a", "b", "c" }
             };
-            var target = AsEnumerable(source).To<TargetClass<string[]>>().First();
+            var target = AsQueryable(source).To<TargetClass<string[]>>().First();
             target.Value.Should().BeSameAs(source.Value);
         }
         #endregion
@@ -2435,7 +2434,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new string[] { "a", "b", "c" }
             };
-            var target = AsEnumerable(source).To<TargetClass<List<string>>>().First();
+            var target = AsQueryable(source).To<TargetClass<List<string>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<List<string>>
             {
                 Value = new List<string> { "a", "b", "c" }
@@ -2451,7 +2450,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new int[] { 1, 3, 5 }
             };
-            var target = AsEnumerable(source).To<TargetClass<long[]>>().First();
+            var target = AsQueryable(source).To<TargetClass<long[]>>().First();
             target.Should().BeEquivalentTo(new TargetClass<long[]>
             {
                 Value = new long[] { 1, 3, 5 }
@@ -2467,7 +2466,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new int[] { 1, 3, 5 }
             };
-            var target = AsEnumerable(source).To<TargetClass<int?[]>>().First();
+            var target = AsQueryable(source).To<TargetClass<int?[]>>().First();
             target.Should().BeEquivalentTo(new TargetClass<int?[]>
             {
                 Value = new int?[] { 1, 3, 5 }
@@ -2484,7 +2483,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new int[] { 1, 3, 5 }
             };
-            var target = AsEnumerable(source).To<TargetClass<IList<long?>>>().First();
+            var target = AsQueryable(source).To<TargetClass<IList<long?>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<IList<long?>>
             {
                 Value = new long?[] { 1, 3, 5 }.ToList()
@@ -2502,7 +2501,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new Value_TheSameClassArray[] { }
             };
-            var target = AsEnumerable(source).To<TargetClass<Value_TheSameClassArray[]>>().First();
+            var target = AsQueryable(source).To<TargetClass<Value_TheSameClassArray[]>>().First();
             source.Value.Should().BeSameAs(target.Value);
         }
         internal class Value_TheSameClassArray
@@ -2519,7 +2518,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new Value_TheSameStructArray[] { }
             };
-            var target = AsEnumerable(source).To<TargetClass<Value_TheSameStructArray[]>>().First();
+            var target = AsQueryable(source).To<TargetClass<Value_TheSameStructArray[]>>().First();
             source.Value.Should().BeSameAs(target.Value);
         }
 
@@ -2538,7 +2537,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new Value_TheSameStructArrayToIList[] { new Value_TheSameStructArrayToIList { Value = 1 } }
             };
-            var target = AsEnumerable(source).To<TargetClass<IList<Value_TheSameStructArrayToIList>>>().First();
+            var target = AsQueryable(source).To<TargetClass<IList<Value_TheSameStructArrayToIList>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<IList<Value_TheSameStructArrayToIList>>
             {
                 Value = new Value_TheSameStructArrayToIList[] { new Value_TheSameStructArrayToIList { Value = 1 } }
@@ -2560,7 +2559,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Value = new Value_TheSameStructArrayToNullableList[] { new Value_TheSameStructArrayToNullableList { Value = 1 } }
             };
-            var target = AsEnumerable(source).To<TargetClass<List<Value_TheSameStructArrayToNullableList?>>>().First();
+            var target = AsQueryable(source).To<TargetClass<List<Value_TheSameStructArrayToNullableList?>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<List<Value_TheSameStructArrayToNullableList?>>
             {
                 Value = new List<Value_TheSameStructArrayToNullableList?> { new Value_TheSameStructArrayToNullableList { Value = 1 } }
@@ -2584,7 +2583,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     ["a"] = "value1"
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<string, string>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<string, string>>>().First();
             target.Value.Should().BeSameAs(source.Value);
         }
         #endregion
@@ -2600,7 +2599,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = 1
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<int, int>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<int, int>>>().First();
             target.Value.Should().BeSameAs(source.Value);
         }
 
@@ -2617,7 +2616,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = 1
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<int, int>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<int, int>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, int>>
             {
                 Value = new Dictionary<int, int>
@@ -2639,7 +2638,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = 1
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<IDictionary<int, int>>>().First();
+            var target = AsQueryable(source).To<TargetClass<IDictionary<int, int>>>().First();
             target.Value.Should().BeSameAs(source.Value);
         }
         #endregion
@@ -2655,7 +2654,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = 1
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<IDictionary<int, int>>>().First();
+            var target = AsQueryable(source).To<TargetClass<IDictionary<int, int>>>().First();
             target.Value.Should().BeSameAs(source.Value);
         }
         #endregion
@@ -2671,7 +2670,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = 1
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<int?, int>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<int?, int>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<Dictionary<int?, int>>
             {
                 Value = new Dictionary<int?, int>
@@ -2693,7 +2692,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = 1
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<int, int?>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<int, int?>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, int?>>
             {
                 Value = new Dictionary<int, int?>
@@ -2715,7 +2714,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = 1
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<int?, int?>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<int?, int?>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<Dictionary<int?, int?>>
             {
                 Value = new Dictionary<int?, int?>
@@ -2737,7 +2736,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = new DateTime(2023, 10, 16)
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<int, DateTime?>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<int, DateTime?>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, DateTime?>>
             {
                 Value = new Dictionary<int, DateTime?>
@@ -2759,7 +2758,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = new SourceRecord_DictionaryInt32ObjectToDictionaryInt32Object2 { Value = "abc" },
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2>>
             {
                 Value = new Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Object2>
@@ -2790,7 +2789,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = new SourceRecord_DictionaryInt32ObjectToDictionaryInt32Struct { Value = "abc" },
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct>>
             {
                 Value = new Dictionary<int, TargetRecord_DictionaryInt32ObjectToDictionaryInt32Struct>
@@ -2821,7 +2820,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = new Struct_DictionaryInt32StructToDictionaryInt32NullableStruct { Value = "abc" },
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct?>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct?>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct?>>
             {
                 Value = new Dictionary<int, Struct_DictionaryInt32StructToDictionaryInt32NullableStruct?>
@@ -2848,7 +2847,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [new SourceRecord_DictionaryObjectInt32ToDictionaryObject2Int64 { Value = "abc" }] = 123,
                 }
             };
-            var target = AsEnumerable(source).To<TargetClass<Dictionary<TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64, long>>>().First();
+            var target = AsQueryable(source).To<TargetClass<Dictionary<TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64, long>>>().First();
             target.Should().BeEquivalentTo(new TargetClass<Dictionary<TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64, long>>
             {
                 Value = new Dictionary<TargetRecord_DictionaryObjectInt32ToDictionaryObject2Int64, long>
@@ -2888,7 +2887,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Name = "zhangsan"
             };
-            AsEnumerable(source).To<TargetUser_ClassToRecord>().First().Should().BeEquivalentTo(new TargetUser_ClassToRecord
+            AsQueryable(source).To<TargetUser_ClassToRecord>().First().Should().BeEquivalentTo(new TargetUser_ClassToRecord
             {
                 Name = "zhangsan"
             });
@@ -2913,7 +2912,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Name = "zhangsan"
             };
-            AsEnumerable(source).To<TargetUser_RecordToClass>().First().Should().BeEquivalentTo(new TargetUser_RecordToClass
+            AsQueryable(source).To<TargetUser_RecordToClass>().First().Should().BeEquivalentTo(new TargetUser_RecordToClass
             {
                 Name = "zhangsan"
             });
@@ -2942,7 +2941,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Name = "zhangsan"
             };
-            AsEnumerable(source).To<TargetUser_ClassToInitOnlyRecord>().First().Should().BeEquivalentTo(new TargetUser_ClassToInitOnlyRecord
+            AsQueryable(source).To<TargetUser_ClassToInitOnlyRecord>().First().Should().BeEquivalentTo(new TargetUser_ClassToInitOnlyRecord
             {
                 Name = "zhangsan"
             });
@@ -2967,7 +2966,7 @@ namespace FlyTiger.IntegrationTest.Mapper
             {
                 Name = "zhangsan"
             };
-            AsEnumerable(source).To<TargetUser_ClassToInitOnlyClass>().First().Should().BeEquivalentTo(new TargetUser_ClassToInitOnlyClass
+            AsQueryable(source).To<TargetUser_ClassToInitOnlyClass>().First().Should().BeEquivalentTo(new TargetUser_ClassToInitOnlyClass
             {
                 Name = "zhangsan"
             });
@@ -2975,34 +2974,6 @@ namespace FlyTiger.IntegrationTest.Mapper
         #endregion
         #endregion
 
-        #region WithPostHandler
-        internal class SourceUser_WithPostHandler
-        {
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-        }
-        internal class TargetUser_WithPostHandler
-        {
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public string FullName { get; set; }
-        }
-        [Fact]
-        public void ShouldConvertWithPostHandler()
-        {
-            var source = new SourceUser_WithPostHandler
-            {
-                FirstName = "zhang",
-                LastName = "san"
-            };
-            AsEnumerable(source).To<TargetUser_WithPostHandler>(t => { t.FullName = t.FirstName + t.LastName; }).First().Should().BeEquivalentTo(new TargetUser_WithPostHandler
-            {
-                FirstName = "zhang",
-                LastName = "san",
-                FullName = "zhangsan"
-            });
-        }
-        #endregion
 
         #region WithCustomMappings
         internal class SourceUser_WithCustomMappings
@@ -3024,7 +2995,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                 FirstName = "zhang",
                 LastName = "san"
             };
-            AsEnumerable(source).To<TargetUser_WithCustomMappings>().First().Should().BeEquivalentTo(new TargetUser_WithCustomMappings
+            AsQueryable(source).To<TargetUser_WithCustomMappings>().First().Should().BeEquivalentTo(new TargetUser_WithCustomMappings
             {
                 FirstName = "zhang",
                 LastName = "san",
@@ -3052,18 +3023,18 @@ namespace FlyTiger.IntegrationTest.Mapper
                 FirstName = "zhang",
                 LastName = "san"
             };
-            AsEnumerable(source).To<TargetUser_WithIgnoreProperties>().First().Should().BeEquivalentTo(new TargetUser_WithIgnoreProperties
+            AsQueryable(source).To<TargetUser_WithIgnoreProperties>().First().Should().BeEquivalentTo(new TargetUser_WithIgnoreProperties
             {
                 FirstName = "zhang",
                 LastName = null,
             });
         }
         #endregion
-        static IEnumerable<T> AsEnumerable<T>(T obj)
+        static IQueryable<T> AsQueryable<T>(T obj)
         {
-            return new List<T> { obj };
+            return new List<T> { obj }.AsQueryable();
         }
     }
 
-   
+
 }
