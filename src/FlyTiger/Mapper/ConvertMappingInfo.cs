@@ -20,6 +20,10 @@ namespace FlyTiger.Mapper
         public Dictionary<string, string> CustomerMappings { get; private set; }
         public bool CheckTargetPropertiesFullFilled { get; private set; }
         public bool CheckSourcePropertiesFullUsed { get; private set; }
+
+        public bool MapQuery { get; private set; }
+        public bool MapConvert { get; private set; }
+        public bool MapUpdate { get; private set; }
         public string ConvertToMethodName { get; private set; }
         public AttributeData FromAttribute { get; private set; }
 
@@ -36,6 +40,10 @@ namespace FlyTiger.Mapper
                 CustomerMappings = new Dictionary<string, string>(),
                 IgnoreProperties = new HashSet<string>(),
                 FromAttribute = this.FromAttribute,
+                MapQuery= this.MapQuery,
+                MapUpdate = this.MapUpdate,
+                MapConvert = this.MapConvert
+                
             };
         }
         public static ConvertMappingInfo FromAttributeData(AttributeData attributeData)
@@ -62,6 +70,15 @@ namespace FlyTiger.Mapper
                 .Where(p => p.Value.IsNull == false)
                 .Select(p => Convert.ToInt32(p.Value.Value))
                 .FirstOrDefault();
+            var mapperType = attributeData.NamedArguments
+                .Where(p => p.Key == MapperGenerator.MapperTypeName)
+                .Where(p => p.Value.IsNull == false)
+                .Select(p => Convert.ToInt32(p.Value.Value))
+                .FirstOrDefault();
+            if (mapperType == 0)
+            {
+                mapperType = 7;//convert,update,query
+            }
             var methodName = new string(toType.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)
                 .Select(ch => char.IsLetterOrDigit(ch) ? ch : '_').ToArray());
             return new ConvertMappingInfo
@@ -75,6 +92,9 @@ namespace FlyTiger.Mapper
                 ConvertToMethodName = $"To{methodName}",
                 CheckSourcePropertiesFullUsed = (checkType & 1) == 1,
                 CheckTargetPropertiesFullFilled = (checkType & 2) == 2,
+                MapQuery = (mapperType & 1) == 1,
+                MapConvert = (mapperType & 2) == 2,
+                MapUpdate = (mapperType & 4) == 4,
                 FromAttribute = attributeData
             };
         }

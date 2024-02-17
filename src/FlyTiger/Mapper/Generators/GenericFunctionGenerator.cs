@@ -4,9 +4,29 @@ using Microsoft.CodeAnalysis;
 
 namespace FlyTiger.Mapper.Generators
 {
+
     internal class GenericFunctionGenerator
     {
-        public void AppendFunctions(CodeWriter codeWriter,
+        
+        public void AppendFunctions(CodeWriter _,
+          CsharpCodeBuilder codeBuilder, List<ConvertMappingInfo> rootConvertMappingInfos)
+        {
+            if (rootConvertMappingInfos.Any())
+            {
+                AppendCacheFunctions(codeBuilder);
+            }
+            var sources = rootConvertMappingInfos.ToLookup(p => (p.SourceType, p.SourceTypeFullDisplay));
+            foreach (var item in sources)
+            {
+                AppendGenericFunctions(item.Key, item.ToList(), codeBuilder);
+            }
+            if (rootConvertMappingInfos.Any())
+            {
+                AppendInternalClass(codeBuilder);
+            }
+        }
+        [System.Obsolete]
+        public void AppendFunctions(CodeWriter _,
            CsharpCodeBuilder codeBuilder, IList<AttributeData> attributeDatas)
         {
             var allSources = attributeDatas.Where(p => p.AttributeClass.Is(MapperGenerator.AttributeFullName))
@@ -78,164 +98,193 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
             CsharpCodeBuilder codeBuilder)
         {
             var methodName = "To";
+            var toConvertMappings = mappingInfos.Where(p => p.MapConvert).ToList();
+            //ignore value type
+            var toUpdateMappings = mappingInfos.Where(p => p.MapUpdate).Where(p => !p.TargetType.IsValueType).ToList();
+            var toQueryMappings = mappingInfos.Where(p => p.MapQuery).ToList();
+
             //convert
-            AddToMethodForSingle();
-            AddToMethodForSingleWithPostAction();
-            AddToMethodForEnumable();
-            AddToMethodForEnumableWithPostAction();
+            if (toConvertMappings.Any())
+            {
+                AppendConvertFunctions(toConvertMappings);
+            }
+
             //update
-            AddCopyToMethodForSingle();
-            AddCopyToMethodForCollection();
-            AddCopyToMethodForCollection2();
-            AddCopyToMethodForCollection3();
+            if (toUpdateMappings.Any())
+            {
+                AppendUpdateFunctions(toUpdateMappings);
+            }
+
             //query
-            AddToMethodForQueryable();
-
-            void AddToMethodForSingle()
+            if (toQueryMappings.Any())
             {
-                codeBuilder.AppendCodeLines(
-                    $"public static T {methodName}<T>(this {fromType.Display} source) where T : new()");
-                codeBuilder.BeginSegment();
-                if (!fromType.Type.IsValueType)
-                {
-                    codeBuilder.AppendCodeLines("if (source == null) return default;");
-                }
+                AppendQueryFunctions(toQueryMappings);
+            }
+            void AppendConvertFunctions(List<ConvertMappingInfo> mappings)
+            {
+                AddToMethodForSingle();
+                AddToMethodForSingleWithPostAction();
+                AddToMethodForEnumable();
+                AddToMethodForEnumableWithPostAction();
 
-                foreach (var mapping in mappingInfos)
+                void AddToMethodForSingle()
                 {
-                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
+                    codeBuilder.AppendCodeLines(
+                        $"public static T {methodName}<T>(this {fromType.Display} source) where T : new()");
                     codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"return (T)(object){mapping.ConvertToMethodName}(source);");
+                    if (!fromType.Type.IsValueType)
+                    {
+                        codeBuilder.AppendCodeLines("if (source == null) return default;");
+                    }
+
+                    foreach (var mapping in mappings)
+                    {
+                        codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
+                        codeBuilder.BeginSegment();
+                        codeBuilder.AppendCodeLines($"return (T)(object){mapping.ConvertToMethodName}(source);");
+                        codeBuilder.EndSegment();
+                    }
+
+                    AppendNotSupportedExceptionAndEndSegment();
+                }
+                void AddToMethodForSingleWithPostAction()
+                {
+                    codeBuilder.AppendCodeLines(
+                       $"public static T {methodName}<T>(this {fromType.Display} source, Action<T> postHandler) where T : class, new()");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines($"var result = source.{methodName}<T>();");
+                    codeBuilder.AppendCodeLines("postHandler?.Invoke(result);");
+                    codeBuilder.AppendCodeLines("return result;");
                     codeBuilder.EndSegment();
                 }
-
-                AppendNotSupportedExceptionAndEndSegment();
-            }
-            void AddToMethodForSingleWithPostAction()
-            {
-                codeBuilder.AppendCodeLines(
-                   $"public static T {methodName}<T>(this {fromType.Display} source, Action<T> postHandler) where T : class, new()");
-                codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines($"var result = source.{methodName}<T>();");
-                codeBuilder.AppendCodeLines("postHandler?.Invoke(result);");
-                codeBuilder.AppendCodeLines("return result;");
-                codeBuilder.EndSegment();
-            }
-
-            void AddCopyToMethodForSingle()
-            {
-                codeBuilder.AppendCodeLines(
-                    $"public static void {methodName}<T>(this {fromType.Display} source, T target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class");
-                codeBuilder.BeginSegment();
-                if (!fromType.Type.IsValueType)
+                void AddToMethodForEnumable()
                 {
-                    codeBuilder.AppendCodeLines("_ = source ?? throw new ArgumentNullException(nameof(source));");
-                }
-                codeBuilder.AppendCodeLines("_ = target ?? throw new ArgumentNullException(nameof(target));");
-                foreach (var mapping in mappingInfos.Where(p => !p.TargetType.IsValueType))
-                {
-                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
+                    codeBuilder.AppendCodeLines(
+                        $"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromType.Display}> source) where T : new()");
                     codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, ({mapping.TargetTypeFullDisplay})(object)target, onRemoveItem, onAddItem);");
-                    codeBuilder.AppendCodeLines($"return;");
+                    foreach (var mapping in mappings)
+                    {
+                        codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
+                        codeBuilder.BeginSegment();
+                        codeBuilder.AppendCodeLines($"return (IEnumerable<T>)source?.Select(p => p.{mapping.ConvertToMethodName}());");
+                        codeBuilder.EndSegment();
+                    }
+
+                    AppendNotSupportedExceptionAndEndSegment();
+                }
+                void AddToMethodForEnumableWithPostAction()
+                {
+
+                    codeBuilder.AppendCodeLines($"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromType.Display}> source, Action<T> postHandler) where T : class, new()");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines("return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);");
                     codeBuilder.EndSegment();
                 }
-
-                AppendNotSupportedExceptionAndEndSegment();
             }
-            void AddCopyToMethodForCollection()
+
+            void AppendUpdateFunctions(List<ConvertMappingInfo> mappings) 
             {
-                codeBuilder.AppendCodeLines(
-               $"public static void {methodName}<T, K>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Func<{fromType.Display}, K> sourceItemKeySelector, Func<T, K> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
-                codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines(@"_ = source ?? throw new ArgumentNullException(nameof(source));
+                AddCopyToMethodForSingle();
+                AddCopyToMethodForCollection();
+                AddCopyToMethodForCollection2();
+                AddCopyToMethodForCollection3();
+
+                void AddCopyToMethodForSingle()
+                {
+                    codeBuilder.AppendCodeLines(
+                        $"public static void {methodName}<T>(this {fromType.Display} source, T target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class");
+                    codeBuilder.BeginSegment();
+                    if (!fromType.Type.IsValueType)
+                    {
+                        codeBuilder.AppendCodeLines("_ = source ?? throw new ArgumentNullException(nameof(source));");
+                    }
+                    codeBuilder.AppendCodeLines("_ = target ?? throw new ArgumentNullException(nameof(target));");
+                    foreach (var mapping in mappings)
+                    {
+                        codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
+                        codeBuilder.BeginSegment();
+                        codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, ({mapping.TargetTypeFullDisplay})(object)target, onRemoveItem, onAddItem);");
+                        codeBuilder.AppendCodeLines($"return;");
+                        codeBuilder.EndSegment();
+                    }
+
+                    AppendNotSupportedExceptionAndEndSegment();
+                }
+                void AddCopyToMethodForCollection()
+                {
+                    codeBuilder.AppendCodeLines(
+                   $"public static void {methodName}<T, K>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Func<{fromType.Display}, K> sourceItemKeySelector, Func<T, K> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines(@"_ = source ?? throw new ArgumentNullException(nameof(source));
 _ = target ?? throw new ArgumentNullException(nameof(target));
 _ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
 _ = targetItemKeySelector ?? throw new ArgumentNullException(nameof(targetItemKeySelector));");
-                foreach (var mapping in mappingInfos.Where(p => !p.TargetType.IsValueType))
-                {
-                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
-                    codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, (ICollection<{mapping.TargetTypeFullDisplay}>)target, updateMode, sourceItemKeySelector, (Func<{mapping.TargetTypeFullDisplay}, K>)targetItemKeySelector, onRemoveItem, onAddItem);");
-                    codeBuilder.AppendCodeLines("return;");
-                    codeBuilder.EndSegment();
+                    foreach (var mapping in mappings)
+                    {
+                        codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
+                        codeBuilder.BeginSegment();
+                        codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, (ICollection<{mapping.TargetTypeFullDisplay}>)target, updateMode, sourceItemKeySelector, (Func<{mapping.TargetTypeFullDisplay}, K>)targetItemKeySelector, onRemoveItem, onAddItem);");
+                        codeBuilder.AppendCodeLines("return;");
+                        codeBuilder.EndSegment();
+                    }
+                    AppendNotSupportedExceptionAndEndSegment();
                 }
-                AppendNotSupportedExceptionAndEndSegment();
-            }
-            void AddCopyToMethodForCollection2()
-            {
-                codeBuilder.AppendCodeLines(
-               $"public static void {methodName}<T, K>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Expression<Func<{fromType.Display}, K>> sourceItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
-                codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines($@"_ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
+                void AddCopyToMethodForCollection2()
+                {
+                    codeBuilder.AppendCodeLines(
+                   $"public static void {methodName}<T, K>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Expression<Func<{fromType.Display}, K>> sourceItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines($@"_ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
 var sourceFunc = GetSourceKeySelectorFunc(sourceItemKeySelector);
 var targetFunc = GetTargetKeySelectorFunc<{fromType.Display}, T, K>(sourceItemKeySelector);
 source.To(target, updateMode, sourceFunc, targetFunc, onRemoveItem, onAddItem);");
-                codeBuilder.EndSegment();
+                    codeBuilder.EndSegment();
+                }
+                void AddCopyToMethodForCollection3()
+                {
+                    var keyPropertys = EntityKeyFinder.GetEntityKey(fromType.Type);
+                    if (keyPropertys != null)
+                    {
+                        codeBuilder.AppendCodeLines(
+                 $"public static void {methodName}<T>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
+                        codeBuilder.BeginSegment();
+                        codeBuilder.AppendCodeLines($@"source.To(target, updateMode, {BuildKeySelectExpression(keyPropertys)}, onRemoveItem, onAddItem);");
+                        codeBuilder.EndSegment();
+                    }
+                    string BuildKeySelectExpression(IPropertySymbol[] keys)
+                    {
+                        if (keys.Length == 1)
+                        {
+                            return $"p => p.{keys.First().Name}";
+                        }
+                        else
+                        {
+                            return $"p => new {{ {string.Join(", ", keys.Select(k => $"p.{k.Name}"))} }}";
+                        }
+                    }
+
+                }
             }
-            void AddCopyToMethodForCollection3()
+
+            void AppendQueryFunctions(List<ConvertMappingInfo> mappings)
             {
-                var keyPropertys = EntityKeyFinder.GetEntityKey(fromType.Type);
-                if (keyPropertys != null)
+                AddToMethodForQueryable();
+                void AddToMethodForQueryable()
                 {
                     codeBuilder.AppendCodeLines(
-             $"public static void {methodName}<T>(this IEnumerable<{fromType.Display}> source, ICollection<T> target, CollectionUpdateMode updateMode, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
+                        $"public static IQueryable<T> {methodName}<T>(this IQueryable<{fromType.Display}> source) where T : new()");
                     codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($@"source.To(target, updateMode, {BuildKeySelectExpression(keyPropertys)}, onRemoveItem, onAddItem);");
-                    codeBuilder.EndSegment();
-                }
-                string BuildKeySelectExpression(IPropertySymbol[] keys)
-                {
-                    if (keys.Length == 1)
+                    foreach (var mapping in mappings)
                     {
-                        return $"p => p.{keys.First().Name}";
+                        codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
+                        codeBuilder.BeginSegment();
+                        codeBuilder.AppendCodeLines($"return (IQueryable<T>){mapping.ConvertToMethodName}(source);");
+                        codeBuilder.EndSegment();
                     }
-                    else
-                    {
-                        return $"p => new {{ {string.Join(", ", keys.Select(k => $"p.{k.Name}"))} }}";
-                    }
+                    AppendNotSupportedExceptionAndEndSegment();
                 }
-
             }
-
-            void AddToMethodForEnumable()
-            {
-                codeBuilder.AppendCodeLines(
-                    $"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromType.Display}> source) where T : new()");
-                codeBuilder.BeginSegment();
-                foreach (var mapping in mappingInfos)
-                {
-                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
-                    codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"return (IEnumerable<T>)source?.Select(p => p.{mapping.ConvertToMethodName}());");
-                    codeBuilder.EndSegment();
-                }
-
-                AppendNotSupportedExceptionAndEndSegment();
-            }
-            void AddToMethodForEnumableWithPostAction()
-            {
-
-                codeBuilder.AppendCodeLines($"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromType.Display}> source, Action<T> postHandler) where T : class, new()");
-                codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines("return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);");
-                codeBuilder.EndSegment();
-            }
-
-            void AddToMethodForQueryable()
-            {
-                codeBuilder.AppendCodeLines(
-                    $"public static IQueryable<T> {methodName}<T>(this IQueryable<{fromType.Display}> source) where T : new()");
-                codeBuilder.BeginSegment();
-                foreach (var mapping in mappingInfos)
-                {
-                    codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
-                    codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"return (IQueryable<T>){mapping.ConvertToMethodName}(source);");
-                    codeBuilder.EndSegment();
-                }
-                AppendNotSupportedExceptionAndEndSegment();
-            }
+           
             void AppendNotSupportedExceptionAndEndSegment()
             {
                 codeBuilder.AppendCodeLines($"throw new NotSupportedException($\"Can not convert '{{typeof({fromType.Display})}}' to '{{typeof(T)}}'.\");");

@@ -56,10 +56,12 @@ namespace FlyTiger.Mapper
             codeBuilder.BeginSegment();
             // common
             new CommonFunctionGenerator().AppendFunctions(codeBuilder);
+
+            var rootMappingInfos = attributeDatas.Select(ConvertMappingInfo.FromAttributeData).ToList();
             // convert
-            new ConvertFunctionGenerator().AppendFunctions(codeWriter, codeBuilder, attributeDatas);
+            new ConvertFunctionGenerator().AppendFunctions(codeWriter, codeBuilder, rootMappingInfos, attributeDatas);
             // generic
-            new GenericFunctionGenerator().AppendFunctions(codeWriter, codeBuilder, attributeDatas);
+            new GenericFunctionGenerator().AppendFunctions(codeWriter, codeBuilder, rootMappingInfos);
             codeBuilder.EndAllSegments();
             return codeBuilder.ToString();
         }

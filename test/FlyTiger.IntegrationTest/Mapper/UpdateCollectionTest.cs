@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
 using Moq;
-using FlyTiger;
 
 namespace FlyTiger.IntegrationTest.Mapper
 {
-    [Mapper(typeof(User1), typeof(TargetUser1))]
-    [Mapper(typeof(User2), typeof(TargetUser2))]
+    [Mapper(typeof(User1), typeof(TargetUser1), MapperType = MapperType.BatchUpdate)]
+    [Mapper(typeof(User2), typeof(TargetUser2), MapperType = MapperType.BatchUpdate)]
     public class UpdateCollectionTest
     {
         [Fact]

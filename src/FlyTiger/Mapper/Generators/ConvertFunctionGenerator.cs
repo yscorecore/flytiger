@@ -13,18 +13,17 @@ namespace FlyTiger.Mapper.Generators
     {
 
         public void AppendFunctions(CodeWriter codeWriter,
-            CsharpCodeBuilder codeBuilder, IList<AttributeData> attributeDatas)
+            CsharpCodeBuilder codeBuilder, List<ConvertMappingInfo> rootMappingInfos, IList<AttributeData> attributeDatas)
         {
             //System.Diagnostics.Debugger.Launch();
-            foreach (var convertToAttr in attributeDatas)
+            foreach (var rootMappingInfo in rootMappingInfos)
             {
-                var convertMappingInfo = ConvertMappingInfo.FromAttributeData(convertToAttr);
-                if (ConvertMappingInfo.CanMappingSubObject(convertMappingInfo.SourceType,
-                        convertMappingInfo.TargetType))
+                if (ConvertMappingInfo.CanMappingSubObject(rootMappingInfo.SourceType,
+                        rootMappingInfo.TargetType))
                 {
                     try
                     {
-                        AppendConvertToFunctions(new MapperContext(codeWriter, codeBuilder, convertMappingInfo, attributeDatas));
+                        AppendConvertToFunctions(new MapperContext(codeWriter, codeBuilder, rootMappingInfo, attributeDatas));
 
                     }
                     catch (Exception ex)
@@ -49,16 +48,17 @@ namespace FlyTiger.Mapper.Generators
             var toTypeDisplay = mappingInfo.TargetTypeFullDisplay;
             var fromTypeDisplay = mappingInfo.SourceTypeFullDisplay;
             //convert
-            AddToMethodForSingle(); //dto2entity    , all dto readable properties should be use
+            AddToMethodForSingle(); //dto2entity
             //update single
             AddCopyToMethodForSingle();
             // update collection
-            AddCopyToMethodForCollection(); //dto2entity, all dto readable properties should be use
+            AddCopyToMethodForCollection(); //dto2entity
             //query
-            AddToMethodForQueryable(); //entity2dto, all dto writeable properties should be mapped 
+            AddToMethodForQueryable(); //entity2dto
 
             void AddToMethodForSingle()
             {
+                if (!mappingInfo.MapConvert) return;
                 codeBuilder.AppendCodeLines(
                     $"private static {toTypeDisplay} {mappingInfo.ConvertToMethodName}(this {fromTypeDisplay} source)");
                 codeBuilder.BeginSegment();
@@ -76,6 +76,7 @@ namespace FlyTiger.Mapper.Generators
 
             void AddCopyToMethodForSingle()
             {
+                if (!mappingInfo.MapUpdate) return;
                 if (toType.IsValueType)
                 {
                     this.ReportTargetIsValueTypeCanNotCopy(context);
@@ -86,7 +87,7 @@ namespace FlyTiger.Mapper.Generators
                     $"private static void {mappingInfo.ConvertToMethodName}(this {fromTypeDisplay} source, {toTypeDisplay} target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
                 codeBuilder.BeginSegment();
                 codeBuilder.AppendCodeLines($"{BuildCopyObjectMethodName(context.MappingInfo.SourceType, context.MappingInfo.TargetType)}(source, target);");
-                CopyToQueue queue = new CopyToQueue(context);
+                var queue = new CopyToQueue(context);
                 while (queue.HasItem)
                 {
                     var method = queue.Dequeue();
@@ -103,6 +104,7 @@ namespace FlyTiger.Mapper.Generators
             }
             void AddCopyToMethodForCollection()
             {
+                if (!mappingInfo.MapUpdate) return;
                 if (toType.IsValueType)
                 {
                     this.ReportTargetIsValueTypeCanNotCopy(context);
@@ -155,6 +157,7 @@ source.Where(p => !targetKeys.Contains(sourceItemKeySelector(p))).Select(p => p.
 
             void AddToMethodForQueryable()
             {
+                if (!mappingInfo.MapQuery) return;
                 codeBuilder.AppendCodeLines(
                     $"private static IQueryable<{toTypeDisplay}> {mappingInfo.ConvertToMethodName}(this IQueryable<{fromTypeDisplay}> source)");
                 codeBuilder.BeginSegment();
