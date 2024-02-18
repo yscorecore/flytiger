@@ -8,10 +8,11 @@ namespace FlyTiger.Mapper
 
     internal class CopyToMethodInfo : IEquatable<CopyToMethodInfo>
     {
-        public CopyToMethodInfo(bool isCollection, MapperContext context)
+        public CopyToMethodInfo(bool isDictionary, bool isCollection, MapperContext context)
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
             IsCollection = isCollection;
+            IsDictionary = isDictionary;
             Context = context;
             this.CopyToMethodName = BuildCopyObjectMethodName(context.MappingInfo.SourceType, context.MappingInfo.TargetType);
 
@@ -26,6 +27,7 @@ namespace FlyTiger.Mapper
         }
 
         public bool IsCollection { get; private set; }
+        public bool IsDictionary { get; private set; }
         public ITypeSymbol SourceType { get => Context.MappingInfo.SourceType; }
         public ITypeSymbol TargetType { get => Context.MappingInfo.TargetType; }
         public string CopyToMethodName { get; private set; }

@@ -113,6 +113,8 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
                 AddToMethodForSingleWithPostAction();
                 AddToMethodForEnumable();
                 AddToMethodForEnumableWithPostAction();
+                AddToMethodForDictionary();
+                AddToMethodForDictonaryWithPostAction();
 
                 void AddToMethodForSingle()
                 {
@@ -164,9 +166,35 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
 
                     codeBuilder.AppendCodeLines($"public static IEnumerable<T> {methodName}<T>(this IEnumerable<{fromType.Display}> source, Action<T> postHandler) where T : class, new()");
                     codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines("return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);");
+                    codeBuilder.AppendCodeLines($"return source == null || postHandler == null ? source.{methodName}<T>() : source.To<T>().EachItem(postHandler);");
                     codeBuilder.EndSegment();
                 }
+
+                void AddToMethodForDictionary()
+                {
+                    codeBuilder.AppendCodeLines(
+                        $"public static IDictionary<Key, T> {methodName}<Key, T>(this IDictionary<Key, {fromType.Display}> source) where T : new()");
+                    codeBuilder.BeginSegment();
+                    foreach (var mapping in mappings)
+                    {
+                        codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
+                        codeBuilder.BeginSegment();
+                        codeBuilder.AppendCodeLines($"return (IDictionary<Key, T>)(source?.ToDictionary(p => p.Key, p => p.Value.{mapping.ConvertToMethodName}()));");
+                        codeBuilder.EndSegment();
+                    }
+                    AppendNotSupportedExceptionAndEndSegment();
+                }
+                void AddToMethodForDictonaryWithPostAction()
+                {
+
+                    codeBuilder.AppendCodeLines($"public static IDictionary<Key, T> {methodName}<Key, T>(this IDictionary<Key, {fromType.Display}> source, Action<T> postHandler) where T : class, new()");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines($"var res = source?.{methodName}<Key, T>();");
+                    codeBuilder.AppendCodeLines($"res?.ForEach(p => postHandler?.Invoke(p.Value));");
+                    codeBuilder.AppendCodeLines($"return res;");
+                    codeBuilder.EndSegment();
+                }
+
             }
 
             void AppendUpdateFunctions(List<ConvertMappingInfo> mappings)
