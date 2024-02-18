@@ -7,7 +7,7 @@ namespace FlyTiger.Mapper.Generators
 
     internal class GenericFunctionGenerator
     {
-        
+
         public void AppendFunctions(CodeWriter _,
           CsharpCodeBuilder codeBuilder, List<ConvertMappingInfo> rootConvertMappingInfos)
         {
@@ -25,26 +25,7 @@ namespace FlyTiger.Mapper.Generators
                 AppendInternalClass(codeBuilder);
             }
         }
-        [System.Obsolete]
-        public void AppendFunctions(CodeWriter _,
-           CsharpCodeBuilder codeBuilder, IList<AttributeData> attributeDatas)
-        {
-            var allSources = attributeDatas.Where(p => p.AttributeClass.Is(MapperGenerator.AttributeFullName))
-                .Select(p => ConvertMappingInfo.FromAttributeData(p))
-                .ToLookup(p => (p.SourceType, p.SourceTypeFullDisplay));
-            if (allSources.Any())
-            {
-                AppendCacheFunctions(codeBuilder);
-            }
-            foreach (var item in allSources)
-            {
-                AppendGenericFunctions(item.Key, item.ToList(), codeBuilder);
-            }
-            if (allSources.Any())
-            {
-                AppendInternalClass(codeBuilder);
-            }
-        }
+
         private void AppendCacheFunctions(CsharpCodeBuilder codeBuilder)
         {
             codeBuilder.AppendCodeLines(@"private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, Delegate> sourceKeySelectorCache = new System.Collections.Concurrent.ConcurrentDictionary<int, Delegate>();
@@ -99,8 +80,9 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
         {
             var methodName = "To";
             var toConvertMappings = mappingInfos.Where(p => p.MapConvert).ToList();
-            //ignore value type
+            //TODO temp ignore value type
             var toUpdateMappings = mappingInfos.Where(p => p.MapUpdate).Where(p => !p.TargetType.IsValueType).ToList();
+            var toBatchUpdateMappings = mappingInfos.Where(p => p.MapUpdate && p.MapConvert).Where(p => !p.TargetType.IsValueType).ToList();
             var toQueryMappings = mappingInfos.Where(p => p.MapQuery).ToList();
 
             //convert
@@ -113,6 +95,11 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
             if (toUpdateMappings.Any())
             {
                 AppendUpdateFunctions(toUpdateMappings);
+            }
+            //batch update
+            if (toBatchUpdateMappings.Any())
+            {
+                AppendBatchUpdateFunctions(toBatchUpdateMappings);
             }
 
             //query
@@ -182,12 +169,9 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
                 }
             }
 
-            void AppendUpdateFunctions(List<ConvertMappingInfo> mappings) 
+            void AppendUpdateFunctions(List<ConvertMappingInfo> mappings)
             {
                 AddCopyToMethodForSingle();
-                AddCopyToMethodForCollection();
-                AddCopyToMethodForCollection2();
-                AddCopyToMethodForCollection3();
 
                 void AddCopyToMethodForSingle()
                 {
@@ -210,6 +194,15 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
 
                     AppendNotSupportedExceptionAndEndSegment();
                 }
+            }
+
+            void AppendBatchUpdateFunctions(List<ConvertMappingInfo> mappings)
+            {
+                AddCopyToMethodForDictionary();
+                AddCopyToMethodForCollection();
+                AddCopyToMethodForCollection2();
+                AddCopyToMethodForCollection3();
+
                 void AddCopyToMethodForCollection()
                 {
                     codeBuilder.AppendCodeLines(
@@ -224,6 +217,23 @@ _ = targetItemKeySelector ?? throw new ArgumentNullException(nameof(targetItemKe
                         codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
                         codeBuilder.BeginSegment();
                         codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, (ICollection<{mapping.TargetTypeFullDisplay}>)target, updateMode, sourceItemKeySelector, (Func<{mapping.TargetTypeFullDisplay}, K>)targetItemKeySelector, onRemoveItem, onAddItem);");
+                        codeBuilder.AppendCodeLines("return;");
+                        codeBuilder.EndSegment();
+                    }
+                    AppendNotSupportedExceptionAndEndSegment();
+                }
+                void AddCopyToMethodForDictionary()
+                {
+                    codeBuilder.AppendCodeLines(
+                   $"public static void {methodName}<Key, T>(this IDictionary<Key, {fromType.Display}> source, IDictionary<Key, T> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()");
+                    codeBuilder.BeginSegment();
+                    codeBuilder.AppendCodeLines(@"_ = source ?? throw new ArgumentNullException(nameof(source));
+_ = target ?? throw new ArgumentNullException(nameof(target));");
+                    foreach (var mapping in mappings)
+                    {
+                        codeBuilder.AppendCodeLines($"if (typeof(T) == typeof({mapping.TargetTypeFullDisplay}))");
+                        codeBuilder.BeginSegment();
+                        codeBuilder.AppendCodeLines($"{mapping.ConvertToMethodName}(source, (IDictionary<Key, {mapping.TargetTypeFullDisplay}>)target, onRemoveItem, onAddItem);");
                         codeBuilder.AppendCodeLines("return;");
                         codeBuilder.EndSegment();
                     }
@@ -284,7 +294,7 @@ source.To(target, updateMode, sourceFunc, targetFunc, onRemoveItem, onAddItem);"
                     AppendNotSupportedExceptionAndEndSegment();
                 }
             }
-           
+
             void AppendNotSupportedExceptionAndEndSegment()
             {
                 codeBuilder.AppendCodeLines($"throw new NotSupportedException($\"Can not convert '{{typeof({fromType.Display})}}' to '{{typeof(T)}}'.\");");

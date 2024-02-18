@@ -53,6 +53,8 @@ namespace FlyTiger.Mapper.Generators
             AddCopyToMethodForSingle();
             // update collection
             AddCopyToMethodForCollection(); //dto2entity
+            
+            AddCopyToMethodForDictionary();
             //query
             AddToMethodForQueryable(); //entity2dto
 
@@ -104,7 +106,7 @@ namespace FlyTiger.Mapper.Generators
             }
             void AddCopyToMethodForCollection()
             {
-                if (!mappingInfo.MapUpdate) return;
+                if (!mappingInfo.MapUpdate || !mappingInfo.MapConvert) return;
                 if (toType.IsValueType)
                 {
                     this.ReportTargetIsValueTypeCanNotCopy(context);
@@ -154,6 +156,43 @@ source.Where(p => !targetKeys.Contains(sourceItemKeySelector(p))).Select(p => p.
                 codeBuilder.EndSegment();
             }
 
+            void AddCopyToMethodForDictionary()
+            {
+                if (!mappingInfo.MapUpdate || !mappingInfo.MapConvert) return;
+                if (toType.IsValueType)
+                {
+                    this.ReportTargetIsValueTypeCanNotCopy(context);
+                    return;
+                }
+
+                codeBuilder.AppendCodeLines(
+                    $"private static void {mappingInfo.ConvertToMethodName}<T>(this IDictionary<T, {fromTypeDisplay}> source, IDictionary<T, {toTypeDisplay}> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
+                codeBuilder.BeginSegment();
+                codeBuilder.AppendCodeLines($@"var sourceKeys = source.Keys;
+var targetKeys = target.Keys;
+// modify item
+sourceKeys.Intersect(targetKeys).ForEach(key =>
+{{
+    {mappingInfo.ConvertToMethodName}(source[key], target[key], onRemoveItem, onAddItem);
+}});
+// remove item
+targetKeys.Except(sourceKeys).ForEach(key =>
+{{
+    var item = target[key];
+    target.Remove(key);
+    onRemoveItem?.Invoke(item);
+}});
+// add item
+sourceKeys.Except(targetKeys).ForEach(key =>
+{{
+    var item = source[key].{mappingInfo.ConvertToMethodName}();
+    target.Add(key, item);
+    onAddItem?.Invoke(item);
+}});");
+
+                codeBuilder.EndSegment();
+
+            }
 
             void AddToMethodForQueryable()
             {
@@ -285,6 +324,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             }
             return CanMappingSubObjectProperty(sourceType, targetType, convertContext);
         }
+
         private bool CanCopyingCollectionProperty(ITypeSymbol sourcePropType, ITypeSymbol targetPropType, MapperContext convertContext)
         {
             if (SourceTypeIsEnumerable() && TargetTypeIsGenericCollection())
@@ -561,27 +601,15 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             }
         }
 
-
-
-
-        private bool CanAssign(ITypeSymbol source, ITypeSymbol target, Compilation compilation)
-        {
-            var conversion = compilation.ClassifyConversion(source, target);
-            return conversion.IsImplicit || conversion.IsBoxing;
-        }
         private bool CanAssign(ITypeSymbol source, ITypeSymbol target, MapperContext context)
         {
-            return CanAssign(source, target, context.Compilation);
+            var conversion = context.Compilation.ClassifyConversion(source, target);
+            return conversion.IsImplicit || conversion.IsBoxing;
         }
 
         private string FormatRefrence(string refrenceName, string expression)
         {
-            if (string.IsNullOrEmpty(refrenceName))
-            {
-                return expression;
-            }
-
-            return $"{refrenceName}.{expression}";
+            return string.IsNullOrEmpty(refrenceName) ? expression : $"{refrenceName}.{expression}";
         }
 
 
