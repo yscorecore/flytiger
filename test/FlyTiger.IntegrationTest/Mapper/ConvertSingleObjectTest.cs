@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Immutable;
+using FluentAssertions;
 
 namespace FlyTiger.IntegrationTest.Mapper
 {
@@ -9,6 +10,9 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceUser_ArrayToList), typeof(TargetUser_ArrayToList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_ArrayToIQueryable), typeof(TargetUser_ArrayToIQueryable), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_ArrayToArray), typeof(TargetUser_ArrayToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ArrayToImmutableArray), typeof(TargetUser_ArrayToImmutableArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ArrayToImmutableList), typeof(TargetUser_ArrayToImmutableList), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ArrayToIImmutableList), typeof(TargetUser_ArrayToIImmutableList), MapperType = MapperType.Convert)]
 
     [Mapper(typeof(SourceUser_ListToIList), typeof(TargetUser_ListToIList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_ListToICollection), typeof(TargetUser_ListToICollection), MapperType = MapperType.Convert)]
@@ -16,6 +20,10 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceUser_ListToList), typeof(TargetUser_ListToList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_ListToIQueryable), typeof(TargetUser_ListToIQueryable), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_ListToArray), typeof(TargetUser_ListToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ListToImmutableArray), typeof(TargetUser_ListToImmutableArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ListToImmutableList), typeof(TargetUser_ListToImmutableList), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ListToIImmutableList), typeof(TargetUser_ListToIImmutableList), MapperType = MapperType.Convert)]
+
 
     [Mapper(typeof(SourceUser_IListToIList), typeof(TargetUser_IListToIList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_IListToICollection), typeof(TargetUser_IListToICollection), MapperType = MapperType.Convert)]
@@ -23,6 +31,10 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceUser_IListToList), typeof(TargetUser_IListToList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_IListToIQueryable), typeof(TargetUser_IListToIQueryable), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_IListToArray), typeof(TargetUser_IListToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IListToImmutableArray), typeof(TargetUser_IListToImmutableArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IListToImmutableList), typeof(TargetUser_IListToImmutableList), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IListToIImmutableList), typeof(TargetUser_IListToIImmutableList), MapperType = MapperType.Convert)]
+
 
     [Mapper(typeof(SourceUser_ICollectionToIList), typeof(TargetUser_ICollectionToIList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_ICollectionToICollection), typeof(TargetUser_ICollectionToICollection), MapperType = MapperType.Convert)]
@@ -30,6 +42,9 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceUser_ICollectionToList), typeof(TargetUser_ICollectionToList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_ICollectionToIQueryable), typeof(TargetUser_ICollectionToIQueryable), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_ICollectionToArray), typeof(TargetUser_ICollectionToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ICollectionToImmutableArray), typeof(TargetUser_ICollectionToImmutableArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ICollectionToImmutableList), typeof(TargetUser_ICollectionToImmutableList), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_ICollectionToIImmutableList), typeof(TargetUser_ICollectionToIImmutableList), MapperType = MapperType.Convert)]
 
     [Mapper(typeof(SourceUser_IEnumerableToIList), typeof(TargetUser_IEnumerableToIList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_IEnumerableToICollection), typeof(TargetUser_IEnumerableToICollection), MapperType = MapperType.Convert)]
@@ -37,6 +52,9 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceUser_IEnumerableToList), typeof(TargetUser_IEnumerableToList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_IEnumerableToIQueryable), typeof(TargetUser_IEnumerableToIQueryable), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_IEnumerableToArray), typeof(TargetUser_IEnumerableToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IEnumerableToImmutableArray), typeof(TargetUser_IEnumerableToImmutableArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IEnumerableToImmutableList), typeof(TargetUser_IEnumerableToImmutableList), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IEnumerableToIImmutableList), typeof(TargetUser_IEnumerableToIImmutableList), MapperType = MapperType.Convert)]
 
     [Mapper(typeof(SourceUser_IQueryableToIList), typeof(TargetUser_IQueryableToIList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_IQueryableToICollection), typeof(TargetUser_IQueryableToICollection), MapperType = MapperType.Convert)]
@@ -44,6 +62,9 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceUser_IQueryableToList), typeof(TargetUser_IQueryableToList), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_IQueryableToIQueryable), typeof(TargetUser_IQueryableToIQueryable), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_IQueryableToArray), typeof(TargetUser_IQueryableToArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IQueryableToImmutableArray), typeof(TargetUser_IQueryableToImmutableArray), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IQueryableToImmutableList), typeof(TargetUser_IQueryableToImmutableList), MapperType = MapperType.Convert)]
+    [Mapper(typeof(SourceUser_IQueryableToIImmutableList), typeof(TargetUser_IQueryableToIImmutableList), MapperType = MapperType.Convert)]
 
     [Mapper(typeof(SourceUser_StructToClass), typeof(TargetUser_StructToClass), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_ClassToStruct), typeof(TargetUser_ClassToStruct), MapperType = MapperType.Convert)]
@@ -112,7 +133,7 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceUser_ClassToInitOnlyRecord), typeof(TargetUser_ClassToInitOnlyRecord), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_ClassToInitOnlyClass), typeof(TargetUser_ClassToInitOnlyClass), MapperType = MapperType.Convert)]
     [Mapper(typeof(SourceUser_WithPostHandler), typeof(TargetUser_WithPostHandler), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_WithCustomMappings), typeof(TargetUser_WithCustomMappings), CustomMappings= new[]
+    [Mapper(typeof(SourceUser_WithCustomMappings), typeof(TargetUser_WithCustomMappings), CustomMappings = new[]
     {
         "FullName=$.FirstName + $.LastName"
     })]
@@ -368,6 +389,129 @@ namespace FlyTiger.IntegrationTest.Mapper
             public string City { get; set; }
         }
         #endregion
+
+        #region ArrayToImmutableArray
+        [Fact]
+        public void ShouldConvertArrayToImmutableArray()
+        {
+            var user = new SourceUser_ArrayToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_ArrayToImmutableArray[]
+                {
+                    new SourceAddress_ArrayToImmutableArray{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_ArrayToImmutableArray>().Should().BeEquivalentTo(new TargetUser_ArrayToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableArray.Create(
+                    new TargetAddress_ArrayToImmutableArray { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_ArrayToImmutableArray
+        {
+            public string Name { get; set; }
+            public SourceAddress_ArrayToImmutableArray[] Addresses { get; set; }
+        }
+        internal class SourceAddress_ArrayToImmutableArray
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_ArrayToImmutableArray
+        {
+            public string Name { get; set; }
+            public ImmutableArray<TargetAddress_ArrayToImmutableArray> Addresses { get; set; }
+        }
+        internal class TargetAddress_ArrayToImmutableArray
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region ArrayToImmutableList
+        [Fact]
+        public void ShouldConvertArrayToImmutableList()
+        {
+            var user = new SourceUser_ArrayToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_ArrayToImmutableList[]
+                {
+                    new SourceAddress_ArrayToImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_ArrayToImmutableList>().Should().BeEquivalentTo(new TargetUser_ArrayToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_ArrayToImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_ArrayToImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_ArrayToImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_ArrayToImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_ArrayToImmutableList
+        {
+            public string Name { get; set; }
+            public ImmutableList<TargetAddress_ArrayToImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_ArrayToImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region ArrayToIImmutableList
+        [Fact]
+        public void ShouldConvertArrayToIImmutableList()
+        {
+            var user = new SourceUser_ArrayToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_ArrayToIImmutableList[]
+                {
+                    new SourceAddress_ArrayToIImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_ArrayToIImmutableList>().Should().BeEquivalentTo(new TargetUser_ArrayToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_ArrayToIImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_ArrayToIImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_ArrayToIImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_ArrayToIImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_ArrayToIImmutableList
+        {
+            public string Name { get; set; }
+            public IImmutableList<TargetAddress_ArrayToIImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_ArrayToIImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
         #endregion
 
         #region ListTo
@@ -615,7 +759,130 @@ namespace FlyTiger.IntegrationTest.Mapper
         {
             public string City { get; set; }
         }
-        #endregion 
+        #endregion
+
+        #region ListToImmutableArray
+        [Fact]
+        public void ShouldConvertListToImmutableArray()
+        {
+            var user = new SourceUser_ListToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_ListToImmutableArray[]
+                {
+                    new SourceAddress_ListToImmutableArray{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_ListToImmutableArray>().Should().BeEquivalentTo(new TargetUser_ListToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableArray.Create(
+                    new TargetAddress_ListToImmutableArray { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_ListToImmutableArray
+        {
+            public string Name { get; set; }
+            public SourceAddress_ListToImmutableArray[] Addresses { get; set; }
+        }
+        internal class SourceAddress_ListToImmutableArray
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_ListToImmutableArray
+        {
+            public string Name { get; set; }
+            public ImmutableArray<TargetAddress_ListToImmutableArray> Addresses { get; set; }
+        }
+        internal class TargetAddress_ListToImmutableArray
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region ListToImmutableList
+        [Fact]
+        public void ShouldConvertListToImmutableList()
+        {
+            var user = new SourceUser_ListToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_ListToImmutableList[]
+                {
+                    new SourceAddress_ListToImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_ListToImmutableList>().Should().BeEquivalentTo(new TargetUser_ListToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_ListToImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_ListToImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_ListToImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_ListToImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_ListToImmutableList
+        {
+            public string Name { get; set; }
+            public ImmutableList<TargetAddress_ListToImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_ListToImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region ListToIImmutableList
+        [Fact]
+        public void ShouldConvertListToIImmutableList()
+        {
+            var user = new SourceUser_ListToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_ListToIImmutableList[]
+                {
+                    new SourceAddress_ListToIImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_ListToIImmutableList>().Should().BeEquivalentTo(new TargetUser_ListToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_ListToIImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_ListToIImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_ListToIImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_ListToIImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_ListToIImmutableList
+        {
+            public string Name { get; set; }
+            public IImmutableList<TargetAddress_ListToIImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_ListToIImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
         #endregion
 
         #region IListTo
@@ -863,7 +1130,131 @@ namespace FlyTiger.IntegrationTest.Mapper
         {
             public string City { get; set; }
         }
-        #endregion 
+        #endregion
+
+        #region IListToImmutableArray
+        [Fact]
+        public void ShouldConvertIListToImmutableArray()
+        {
+            var user = new SourceUser_IListToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_IListToImmutableArray[]
+                {
+                    new SourceAddress_IListToImmutableArray{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_IListToImmutableArray>().Should().BeEquivalentTo(new TargetUser_IListToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableArray.Create(
+                    new TargetAddress_IListToImmutableArray { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_IListToImmutableArray
+        {
+            public string Name { get; set; }
+            public SourceAddress_IListToImmutableArray[] Addresses { get; set; }
+        }
+        internal class SourceAddress_IListToImmutableArray
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_IListToImmutableArray
+        {
+            public string Name { get; set; }
+            public ImmutableArray<TargetAddress_IListToImmutableArray> Addresses { get; set; }
+        }
+        internal class TargetAddress_IListToImmutableArray
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region IListToImmutableList
+        [Fact]
+        public void ShouldConvertIListToImmutableList()
+        {
+            var user = new SourceUser_IListToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_IListToImmutableList[]
+                {
+                    new SourceAddress_IListToImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_IListToImmutableList>().Should().BeEquivalentTo(new TargetUser_IListToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_IListToImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_IListToImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_IListToImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_IListToImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_IListToImmutableList
+        {
+            public string Name { get; set; }
+            public ImmutableList<TargetAddress_IListToImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_IListToImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region IListToIImmutableList
+        [Fact]
+        public void ShouldConvertIListToIImmutableList()
+        {
+            var user = new SourceUser_IListToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_IListToIImmutableList[]
+                {
+                    new SourceAddress_IListToIImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_IListToIImmutableList>().Should().BeEquivalentTo(new TargetUser_IListToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_IListToIImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_IListToIImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_IListToIImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_IListToIImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_IListToIImmutableList
+        {
+            public string Name { get; set; }
+            public IImmutableList<TargetAddress_IListToIImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_IListToIImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
         #endregion
 
         #region ICollectionTo
@@ -1111,7 +1502,130 @@ namespace FlyTiger.IntegrationTest.Mapper
         {
             public string City { get; set; }
         }
-        #endregion 
+        #endregion
+
+        #region ICollectionToImmutableArray
+        [Fact]
+        public void ShouldConvertICollectionToImmutableArray()
+        {
+            var user = new SourceUser_ICollectionToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_ICollectionToImmutableArray[]
+                {
+                    new SourceAddress_ICollectionToImmutableArray{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_ICollectionToImmutableArray>().Should().BeEquivalentTo(new TargetUser_ICollectionToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableArray.Create(
+                    new TargetAddress_ICollectionToImmutableArray { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_ICollectionToImmutableArray
+        {
+            public string Name { get; set; }
+            public SourceAddress_ICollectionToImmutableArray[] Addresses { get; set; }
+        }
+        internal class SourceAddress_ICollectionToImmutableArray
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_ICollectionToImmutableArray
+        {
+            public string Name { get; set; }
+            public ImmutableArray<TargetAddress_ICollectionToImmutableArray> Addresses { get; set; }
+        }
+        internal class TargetAddress_ICollectionToImmutableArray
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region ICollectionToImmutableList
+        [Fact]
+        public void ShouldConvertICollectionToImmutableList()
+        {
+            var user = new SourceUser_ICollectionToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_ICollectionToImmutableList[]
+                {
+                    new SourceAddress_ICollectionToImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_ICollectionToImmutableList>().Should().BeEquivalentTo(new TargetUser_ICollectionToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_ICollectionToImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_ICollectionToImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_ICollectionToImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_ICollectionToImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_ICollectionToImmutableList
+        {
+            public string Name { get; set; }
+            public ImmutableList<TargetAddress_ICollectionToImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_ICollectionToImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region ICollectionToIImmutableList
+        [Fact]
+        public void ShouldConvertICollectionToIImmutableList()
+        {
+            var user = new SourceUser_ICollectionToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_ICollectionToIImmutableList[]
+                {
+                    new SourceAddress_ICollectionToIImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_ICollectionToIImmutableList>().Should().BeEquivalentTo(new TargetUser_ICollectionToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_ICollectionToIImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_ICollectionToIImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_ICollectionToIImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_ICollectionToIImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_ICollectionToIImmutableList
+        {
+            public string Name { get; set; }
+            public IImmutableList<TargetAddress_ICollectionToIImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_ICollectionToIImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
         #endregion
 
         #region IEnumerableTo
@@ -1359,7 +1873,130 @@ namespace FlyTiger.IntegrationTest.Mapper
         {
             public string City { get; set; }
         }
-        #endregion 
+        #endregion
+
+        #region IEnumerableToImmutableArray
+        [Fact]
+        public void ShouldConvertIEnumerableToImmutableArray()
+        {
+            var user = new SourceUser_IEnumerableToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_IEnumerableToImmutableArray[]
+                {
+                    new SourceAddress_IEnumerableToImmutableArray{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_IEnumerableToImmutableArray>().Should().BeEquivalentTo(new TargetUser_IEnumerableToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableArray.Create(
+                    new TargetAddress_IEnumerableToImmutableArray { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_IEnumerableToImmutableArray
+        {
+            public string Name { get; set; }
+            public SourceAddress_IEnumerableToImmutableArray[] Addresses { get; set; }
+        }
+        internal class SourceAddress_IEnumerableToImmutableArray
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_IEnumerableToImmutableArray
+        {
+            public string Name { get; set; }
+            public ImmutableArray<TargetAddress_IEnumerableToImmutableArray> Addresses { get; set; }
+        }
+        internal class TargetAddress_IEnumerableToImmutableArray
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region IEnumerableToImmutableList
+        [Fact]
+        public void ShouldConvertIEnumerableToImmutableList()
+        {
+            var user = new SourceUser_IEnumerableToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_IEnumerableToImmutableList[]
+                {
+                    new SourceAddress_IEnumerableToImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_IEnumerableToImmutableList>().Should().BeEquivalentTo(new TargetUser_IEnumerableToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_IEnumerableToImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_IEnumerableToImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_IEnumerableToImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_IEnumerableToImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_IEnumerableToImmutableList
+        {
+            public string Name { get; set; }
+            public ImmutableList<TargetAddress_IEnumerableToImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_IEnumerableToImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region IEnumerableToIImmutableList
+        [Fact]
+        public void ShouldConvertIEnumerableToIImmutableList()
+        {
+            var user = new SourceUser_IEnumerableToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_IEnumerableToIImmutableList[]
+                {
+                    new SourceAddress_IEnumerableToIImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_IEnumerableToIImmutableList>().Should().BeEquivalentTo(new TargetUser_IEnumerableToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_IEnumerableToIImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_IEnumerableToIImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_IEnumerableToIImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_IEnumerableToIImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_IEnumerableToIImmutableList
+        {
+            public string Name { get; set; }
+            public IImmutableList<TargetAddress_IEnumerableToIImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_IEnumerableToIImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
         #endregion
 
         #region IQueryableTo
@@ -1604,6 +2241,129 @@ namespace FlyTiger.IntegrationTest.Mapper
             public TargetAddress_IQueryableToArray[] Addresses { get; set; }
         }
         internal class TargetAddress_IQueryableToArray
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region IQueryableToImmutableArray
+        [Fact]
+        public void ShouldConvertIQueryableToImmutableArray()
+        {
+            var user = new SourceUser_IQueryableToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_IQueryableToImmutableArray[]
+                {
+                    new SourceAddress_IQueryableToImmutableArray{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_IQueryableToImmutableArray>().Should().BeEquivalentTo(new TargetUser_IQueryableToImmutableArray
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableArray.Create(
+                    new TargetAddress_IQueryableToImmutableArray { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_IQueryableToImmutableArray
+        {
+            public string Name { get; set; }
+            public SourceAddress_IQueryableToImmutableArray[] Addresses { get; set; }
+        }
+        internal class SourceAddress_IQueryableToImmutableArray
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_IQueryableToImmutableArray
+        {
+            public string Name { get; set; }
+            public ImmutableArray<TargetAddress_IQueryableToImmutableArray> Addresses { get; set; }
+        }
+        internal class TargetAddress_IQueryableToImmutableArray
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region IQueryableToImmutableList
+        [Fact]
+        public void ShouldConvertIQueryableToImmutableList()
+        {
+            var user = new SourceUser_IQueryableToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_IQueryableToImmutableList[]
+                {
+                    new SourceAddress_IQueryableToImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_IQueryableToImmutableList>().Should().BeEquivalentTo(new TargetUser_IQueryableToImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_IQueryableToImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_IQueryableToImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_IQueryableToImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_IQueryableToImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_IQueryableToImmutableList
+        {
+            public string Name { get; set; }
+            public ImmutableList<TargetAddress_IQueryableToImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_IQueryableToImmutableList
+        {
+            public string City { get; set; }
+        }
+        #endregion
+
+        #region IQueryableToIImmutableList
+        [Fact]
+        public void ShouldConvertIQueryableToIImmutableList()
+        {
+            var user = new SourceUser_IQueryableToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = new SourceAddress_IQueryableToIImmutableList[]
+                {
+                    new SourceAddress_IQueryableToIImmutableList{ City = "xi'an" }
+                }
+            };
+            user.To<TargetUser_IQueryableToIImmutableList>().Should().BeEquivalentTo(new TargetUser_IQueryableToIImmutableList
+            {
+                Name = "zhangsan",
+                Addresses = ImmutableList.Create(
+                    new TargetAddress_IQueryableToIImmutableList { City = "xi'an" }
+                )
+            });
+        }
+        internal class SourceUser_IQueryableToIImmutableList
+        {
+            public string Name { get; set; }
+            public SourceAddress_IQueryableToIImmutableList[] Addresses { get; set; }
+        }
+        internal class SourceAddress_IQueryableToIImmutableList
+        {
+            public string City { get; set; }
+        }
+
+        internal class TargetUser_IQueryableToIImmutableList
+        {
+            public string Name { get; set; }
+            public IImmutableList<TargetAddress_IQueryableToIImmutableList> Addresses { get; set; }
+        }
+        internal class TargetAddress_IQueryableToIImmutableList
         {
             public string City { get; set; }
         }
@@ -2995,11 +3755,11 @@ namespace FlyTiger.IntegrationTest.Mapper
                 FirstName = "zhang",
                 LastName = "san"
             };
-            source.To<TargetUser_WithPostHandler>(t=>{ t.FullName = t.FirstName + t.LastName; }).Should().BeEquivalentTo(new TargetUser_WithPostHandler
+            source.To<TargetUser_WithPostHandler>(t => { t.FullName = t.FirstName + t.LastName; }).Should().BeEquivalentTo(new TargetUser_WithPostHandler
             {
                 FirstName = "zhang",
                 LastName = "san",
-                FullName="zhangsan"
+                FullName = "zhangsan"
             });
         }
         #endregion
@@ -3060,5 +3820,28 @@ namespace FlyTiger.IntegrationTest.Mapper
         }
         #endregion
 
+
+
+        //private static T To<T>(global::FlyTiger.IntegrationTest.Mapper.ConvertSingleObjectTest.SourceUser_ArrayToImmutableArray source) where T : new()
+        //{
+        //    if (source == null) return default;
+        //    if (typeof(T) == typeof(global::FlyTiger.IntegrationTest.Mapper.ConvertSingleObjectTest.TargetUser_ArrayToImmutableArray))
+        //    {
+        //        return (T)(object)ToFlyTiger_IntegrationTest_Mapper_ConvertSingleObjectTest_TargetUser_ArrayToImmutableArray(source);
+        //    }
+        //    throw new NotSupportedException($"Can not convert '{typeof(global::FlyTiger.IntegrationTest.Mapper.ConvertSingleObjectTest.SourceUser_ArrayToImmutableArray)}' to '{typeof(T)}'.");
+        //}
+        //private static global::FlyTiger.IntegrationTest.Mapper.ConvertSingleObjectTest.TargetUser_ArrayToImmutableArray ToFlyTiger_IntegrationTest_Mapper_ConvertSingleObjectTest_TargetUser_ArrayToImmutableArray(this global::FlyTiger.IntegrationTest.Mapper.ConvertSingleObjectTest.SourceUser_ArrayToImmutableArray source)
+        //{
+        //    if (source == null) return default;
+        //    return new global::FlyTiger.IntegrationTest.Mapper.ConvertSingleObjectTest.TargetUser_ArrayToImmutableArray
+        //    {
+        //        Name = source.Name,
+        //        Addresses = source.Addresses == null ? default : source.Addresses.Select(p => p == null ? default(global::FlyTiger.IntegrationTest.Mapper.ConvertSingleObjectTest.TargetAddress_ArrayToImmutableArray) : new global::FlyTiger.IntegrationTest.Mapper.ConvertSingleObjectTest.TargetAddress_ArrayToImmutableArray
+        //        {
+        //            City = p.City,
+        //        }).ToImmutableArray(),
+        //    };
+        //}
     }
 }

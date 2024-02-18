@@ -425,7 +425,10 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                             targetUnboundGenericType.SafeEquals(typeof(List<>)) ||
                             targetUnboundGenericType.SafeEquals(typeof(IEnumerable<>)) ||
                             targetUnboundGenericType.SafeEquals(typeof(IQueryable<>)) ||
-                            targetUnboundGenericType.SafeEquals(typeof(ICollection<>));
+                            targetUnboundGenericType.SafeEquals(typeof(ICollection<>)) ||
+                            targetUnboundGenericType.SafeEquals(typeof(IImmutableList<>)) ||
+                            targetUnboundGenericType.SafeEquals(typeof(ImmutableList<>)) ||
+                            targetUnboundGenericType.SafeEquals(typeof(ImmutableArray<>));
                     }
                 }
 
@@ -499,24 +502,24 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             if (sourceItemType.SafeEquals(targetItemType))
             {
                 codeBuilder.AppendCodeLines(
-                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? null : {sourcePropertyExpression}.{ToTargetMethodName()}(){lineSplitChar}");
+                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default : {sourcePropertyExpression}.{ToTargetMethodName()}(){lineSplitChar}");
             }
             else if (CanAssign(sourceItemType, targetItemType, convertContext))
             {
                 codeBuilder.AppendCodeLines(
-                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? null : {sourcePropertyExpression}.Select(p => ({targetItemTypeText})p).{ToTargetMethodName()}(){lineSplitChar}");
+                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default : {sourcePropertyExpression}.Select(p => ({targetItemTypeText})p).{ToTargetMethodName()}(){lineSplitChar}");
             }
             else
             {
                 if (sourceItemType.IsValueType)
                 {
                     codeBuilder.AppendCodeLines(
-                        $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? null : {sourcePropertyExpression}.Select(p => new {targetItemTypeText}");
+                        $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default : {sourcePropertyExpression}.Select(p => new {targetItemTypeText}");
                 }
                 else
                 {
                     codeBuilder.AppendCodeLines(
-                        $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? null : {sourcePropertyExpression}.Select(p => p == null ? default({targetItemTypeText}) : new {targetItemTypeText}");
+                        $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default : {sourcePropertyExpression}.Select(p => p == null ? default({targetItemTypeText}) : new {targetItemTypeText}");
                 }
 
                 codeBuilder.BeginSegment();
@@ -539,13 +542,17 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                     {
                         return nameof(Queryable.AsQueryable);
                     }
+                    if (genericType.SafeEquals(typeof(ImmutableArray<>)))
+                    {
+                        return nameof(ImmutableArray.ToImmutableArray);
+                    }
                     if (genericType.SafeEquals(typeof(IImmutableList<>)))
                     {
-                        return nameof(System.Collections.Immutable.ImmutableList.ToImmutableList);
+                        return nameof(ImmutableList.ToImmutableList);
                     }
                     if (genericType.SafeEquals(typeof(ImmutableList<>)))
                     {
-                        return nameof(System.Collections.Immutable.ImmutableList.ToImmutableList);
+                        return nameof(ImmutableList.ToImmutableList);
                     }
                 }
 
