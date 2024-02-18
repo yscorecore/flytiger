@@ -15,20 +15,12 @@ namespace FlyTiger.Mapper
         }
         public void AddObjectCopyMethod(MapperContext mapperContext)
         {
-            this.TryAddInternal(new CopyToMethodInfo
-            {
-                IsCollection = false,
-                Context = mapperContext
-            });
+            this.TryAddInternal(new CopyToMethodInfo(false,mapperContext));
 
         }
         public void AddCollectionCopyMethod(MapperContext mapperContext)
         {
-            this.TryAddInternal(new CopyToMethodInfo
-            {
-                Context = mapperContext,
-                IsCollection = true,
-            });
+            this.TryAddInternal(new CopyToMethodInfo(true,mapperContext));
         }
         private void TryAddInternal(CopyToMethodInfo methodInfo)
         {

@@ -190,9 +190,9 @@ source.Where(p => !targetKeys.Contains(sourceItemKeySelector(p))).Select(p => p.
             var codeBuilder = context.CodeBuilder;
             var fromType = method.SourceType;
             var toType = method.TargetType;
-            var fromTypeDisplay = fromType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var toTypeDisplay = toType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var methodName = BuildCopyCollectionMethodName(mappingInfo.SourceType, mappingInfo.TargetType);
+            var fromTypeDisplay = method.Context.MappingInfo.SourceTypeFullDisplay;
+            var toTypeDisplay = method.Context.MappingInfo.TargetTypeFullDisplay;
+            var methodName = method.CopyToMethodName;
 
 
             var sourceItemType = GetItemType(fromType);
@@ -486,16 +486,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             codeBuilder.EndSegment("}" + tail);
         }
 
-        //TODO use MappingNewSubObject
-        private void MappingSubObjectProperty(MapperContext convertContext, string sourceRefrenceName,
-            string targetRefrenceName, string propertyName, string lineSplitChar)
-        {
-            MappingNewSubObject(convertContext, FormatRefrence(sourceRefrenceName, propertyName), FormatRefrence(targetRefrenceName, propertyName), "=", lineSplitChar);
-
-        }
-
-        private void MappingCollectionProperty(MapperContext convertContext,
-            string sourceRefrenceName, string targetRefrenceName, string propertyName, string lineSplitChar)
+        private void MappingNewCollection(MapperContext convertContext, string sourcePropertyExpression, string targetPropertyExpression, string lineSplitChar)
         {
             var codeBuilder = convertContext.CodeBuilder;
             var targetPropertyType = convertContext.MappingInfo.TargetType;
@@ -504,8 +495,6 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             var sourceItemType = GetItemType(sourcePropertyType);
             var targetItemTypeText = targetItemType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-            var targetPropertyExpression = FormatRefrence(targetRefrenceName, propertyName);
-            var sourcePropertyExpression = FormatRefrence(sourceRefrenceName, propertyName);
 
             if (sourceItemType.SafeEquals(targetItemType))
             {
@@ -543,15 +532,30 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                     return nameof(Enumerable.ToArray);
                 }
 
-                if ((targetPropertyType as INamedTypeSymbol).ConstructUnboundGenericType()
-                    .SafeEquals(typeof(IQueryable<>)))
+                if (targetPropertyType is INamedTypeSymbol namedType)
                 {
-                    return nameof(Queryable.AsQueryable);
+                    var genericType = namedType.ConstructUnboundGenericType();
+                    if (genericType.SafeEquals(typeof(IQueryable<>)))
+                    {
+                        return nameof(Queryable.AsQueryable);
+                    }
+                    if (genericType.SafeEquals(typeof(IImmutableList<>)))
+                    {
+                        return nameof(System.Collections.Immutable.ImmutableList.ToImmutableList);
+                    }
+                    if (genericType.SafeEquals(typeof(ImmutableList<>)))
+                    {
+                        return nameof(System.Collections.Immutable.ImmutableList.ToImmutableList);
+                    }
                 }
 
                 return nameof(Enumerable.ToList);
+
             }
         }
+
+
+
 
         private bool CanAssign(ITypeSymbol source, ITypeSymbol target, Compilation compilation)
         {
@@ -650,7 +654,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 {
                     // collection copy
                     var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                    AppendCollectionCopyAssign(sourceRefrenceName, targetRefrenceName, propName, propName, newConvertContext);
+                    AppendCollectionCopyAssign(FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), newConvertContext);
                     queue.AddCollectionCopyMethod(newConvertContext);
 
                 }
@@ -658,8 +662,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 {
                     // collection new object
                     var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                    MappingCollectionProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, propName,
-                        lineSplitChar);
+                    MappingNewCollection(newConvertContext, FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), lineSplitChar);
                 }
                 else if (CanCopyingSubObjectProperty(sourcePropType, targetPropType, convertContext))
                 {
@@ -677,8 +680,8 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 else if (CanMappingSubObjectProperty(sourcePropType, targetPropType, convertContext))
                 {
                     var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                    MappingSubObjectProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, propName,
-                        lineSplitChar);
+                    MappingNewSubObject(newConvertContext, FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), "=", lineSplitChar);
+
                 }
                 else
                 {
@@ -728,7 +731,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                     codeBuilder.AppendCodeLines($"if ({FormatRefrence(targetRefrenceName, targetPropName)} == null)");
                     codeBuilder.BeginSegment();
                     //创建新对象
-                    MappingSubObjectProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, sourcePropName, ";");
+                    MappingNewSubObject(newConvertContext, FormatRefrence(sourceRefrenceName, sourcePropName), FormatRefrence(targetRefrenceName, targetPropName), "=", ";");
                     codeBuilder.EndSegment();
                     codeBuilder.AppendCodeLines("else");
                     codeBuilder.BeginSegment();
@@ -749,7 +752,8 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                     codeBuilder.AppendCodeLines($"if ({FormatRefrence(targetRefrenceName, targetPropName)} == null)");
                     codeBuilder.BeginSegment();
                     //创建新的对象
-                    MappingSubObjectProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, sourcePropName, ";");
+                    MappingNewSubObject(newConvertContext, FormatRefrence(sourceRefrenceName, sourcePropName), FormatRefrence(targetRefrenceName, targetPropName), "=", ";");
+
                     codeBuilder.EndSegment();
                     codeBuilder.AppendCodeLines("else");
                     codeBuilder.BeginSegment();
@@ -758,19 +762,18 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 }
             }
         }
-        private void AppendCollectionCopyAssign(string sourceRefrenceName, string targetRefrenceName, string sourcePropName, string targetPropName, MapperContext newConvertContext)
+        private void AppendCollectionCopyAssign(string sourceRefrenceName, string targetRefrenceName, MapperContext newConvertContext)
         {
             var mappingInfo = newConvertContext.MappingInfo;
             var codeBuilder = newConvertContext.CodeBuilder;
-            codeBuilder.AppendCodeLines($"if ({FormatRefrence(sourceRefrenceName, sourcePropName)} == null || {FormatRefrence(targetRefrenceName, targetPropName)} == null)");
+            codeBuilder.AppendCodeLines($"if ({sourceRefrenceName} == null || {targetRefrenceName} == null)");
             codeBuilder.BeginSegment();
             //直接给集合赋值
-            MappingCollectionProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, targetPropName,
-                            ";");
+            MappingNewCollection(newConvertContext, sourceRefrenceName, targetRefrenceName, ";");
             codeBuilder.EndSegment();
             codeBuilder.AppendCodeLines("else");
             codeBuilder.BeginSegment();
-            codeBuilder.AppendCodeLines($"{BuildCopyCollectionMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({FormatRefrence(sourceRefrenceName, sourcePropName)}, {FormatRefrence(targetRefrenceName, targetPropName)});");
+            codeBuilder.AppendCodeLines($"{BuildCopyCollectionMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({sourceRefrenceName}, {targetRefrenceName});");
             codeBuilder.EndSegment();
 
         }
@@ -926,15 +929,14 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 {
                     // collection
                     var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                    MappingCollectionProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, propName,
-                        lineSplitChar);
+                    MappingNewCollection(newConvertContext, FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), lineSplitChar);
                 }
                 else if (CanMappingSubObjectProperty(sourcePropType, targetPropType, convertContext))
                 {
                     // sub object 
                     var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                    MappingSubObjectProperty(newConvertContext, sourceRefrenceName, targetRefrenceName, propName,
-                        lineSplitChar);
+                    MappingNewSubObject(newConvertContext, FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), "=", lineSplitChar);
+
                 }
                 else
                 {
