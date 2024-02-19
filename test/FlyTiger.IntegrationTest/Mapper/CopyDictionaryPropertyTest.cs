@@ -2,19 +2,20 @@
 
 namespace FlyTiger.IntegrationTest.Mapper
 {
-    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<int, int>))]
-    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<int, long>))]
-    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<int, int?>))]
-    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<int, long?>))]
-    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<int, object>))]
-    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<long, int>))]
-    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<long?, int>))]
-    [Mapper(typeof(SourceClass<int, DateTime>), typeof(TargetClass<int, DateTime>))]
-    [Mapper(typeof(SourceClass<int, DateTime>), typeof(TargetClass<int, DateTime?>))]
-    [Mapper(typeof(SourceClass<int, DateTime>), typeof(TargetClass<int, object>))]
-    [Mapper(typeof(SourceClass<int, SourceValue>), typeof(TargetClass<int, SourceValue>))]
-    [Mapper(typeof(SourceClass<int, SourceValue>), typeof(TargetClass<int, TargetValue>))]
-    public class CopyDictionaryTest
+    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<int, int>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<int, long>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<int, int?>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<int, long?>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<int, object>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<long, int>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, int>), typeof(TargetClass<long?, int>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, DateTime>), typeof(TargetClass<int, DateTime>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, DateTime>), typeof(TargetClass<int, DateTime?>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, DateTime>), typeof(TargetClass<int, object>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, SourceValue>), typeof(TargetClass<int, SourceValue>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, SourceValue>), typeof(TargetClass<int, TargetValue>), MapperType = MapperType.Update)]
+    [Mapper(typeof(SourceClass<int, SourceValue>), typeof(TargetClass<int?, TargetValue>), MapperType = MapperType.Update)]
+    public class CopyDictionaryPropertyTest
     {
         internal class SourceClass<T, V>
         {
@@ -526,6 +527,39 @@ namespace FlyTiger.IntegrationTest.Mapper
                     [1] = new TargetValue { Value = "11" },
                     [2] = new TargetValue { Value = "22" },
                     [4] = null,
+                });
+        }
+        #endregion
+
+        #region Copy_Dic_Nullable_Int32_SourceValue_To_Nullable_Int32_TargetValue
+        [Fact]
+        public void Should_Copy_Dic_Nullable_Int32_SourceValue_To_Nullable_Int32_TargetValue()
+        {
+            var sourceDic = new Dictionary<int, SourceValue>
+            {
+                [1] = new SourceValue { Value = "11" },
+                [2] = new SourceValue { Value = "22" },
+            };
+            var targetDic = new Dictionary<int?, TargetValue>
+            {
+                [2] = new TargetValue { Value = "222" },
+                [3] = new TargetValue { Value = "333" }
+            };
+            var sourceClass = new SourceClass<int, SourceValue>
+            {
+                Dic = sourceDic
+            };
+            var targetClass = new TargetClass<int?, TargetValue>
+            {
+                Dic = targetDic
+            };
+            sourceClass.To(targetClass);
+            targetClass.Dic.Should().BeSameAs(targetDic)
+                .And.BeEquivalentTo(new Dictionary<int?, object>
+                {
+
+                    [1] = new TargetValue { Value = "11" },
+                    [2] = new TargetValue { Value = "22" },
                 });
         }
         #endregion

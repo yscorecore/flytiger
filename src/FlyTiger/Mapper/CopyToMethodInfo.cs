@@ -8,13 +8,15 @@ namespace FlyTiger.Mapper
 
     internal class CopyToMethodInfo : IEquatable<CopyToMethodInfo>
     {
-        public CopyToMethodInfo(bool isDictionary, bool isCollection, MapperContext context)
+     
+        public CopyToMethodInfo(CopyToMethodType methodType, MapperContext context)
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
-            IsCollection = isCollection;
-            IsDictionary = isDictionary;
+            CopyMethodType = methodType;
             Context = context;
-            this.CopyToMethodName = BuildCopyObjectMethodName(context.MappingInfo.SourceType, context.MappingInfo.TargetType);
+            this.InlineMethodName = methodType == CopyToMethodType.ConvertSingle ?
+                BuildConvertObjectMethodName(context.MappingInfo.SourceType, context.MappingInfo.TargetType):
+                BuildCopyObjectMethodName(context.MappingInfo.SourceType, context.MappingInfo.TargetType);
 
         }
         private static string BuildCopyObjectMethodName(ITypeSymbol source, ITypeSymbol target)
@@ -25,20 +27,36 @@ namespace FlyTiger.Mapper
                 .Where(ch => char.IsLetterOrDigit(ch)).ToArray());
             return $"Copy{sourceName}To{targetName}";
         }
+        private static string BuildConvertObjectMethodName(ITypeSymbol source, ITypeSymbol target)
+        {
+            var sourceName = new string(source.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)
+                .Where(ch => char.IsLetterOrDigit(ch)).ToArray());
+            var targetName = new string(target.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)
+                .Where(ch => char.IsLetterOrDigit(ch)).ToArray());
+            return $"Convert{sourceName}To{targetName}";
+        }
 
         public bool IsCollection { get; private set; }
         public bool IsDictionary { get; private set; }
+        public CopyToMethodType CopyMethodType { get; private set; }
         public ITypeSymbol SourceType { get => Context.MappingInfo.SourceType; }
         public ITypeSymbol TargetType { get => Context.MappingInfo.TargetType; }
-        public string CopyToMethodName { get; private set; }
+        public string InlineMethodName { get; private set; }
         public MapperContext Context { get; private set; }
 
         public bool Equals(CopyToMethodInfo other)
         {
-            return this.IsCollection == other.IsCollection && this.IsDictionary == other.IsDictionary
+            return this.CopyMethodType == other.CopyMethodType
                  && this.SourceType.Equals(other.SourceType, SymbolEqualityComparer.Default)
                  && this.TargetType.Equals(other.TargetType, SymbolEqualityComparer.Default);
         }
+    }
+    internal enum CopyToMethodType
+    {
+        CopySingle,
+        CopyCollection,
+        CopyDictionary,
+        ConvertSingle,
     }
 
 }

@@ -9,33 +9,28 @@ namespace FlyTiger.Mapper
     {
         Queue<CopyToMethodInfo> queue = new Queue<CopyToMethodInfo>();
         List<CopyToMethodInfo> all = new List<CopyToMethodInfo>();
-        public CopyToQueue(MapperContext mapperContext)
+        public CopyToQueue()
         {
-            this.AddObjectCopyMethod(mapperContext);
         }
-        public void AddObjectCopyMethod(MapperContext mapperContext)
+        public CopyToMethodInfo AddMethod(CopyToMethodType type, MapperContext context)
         {
-            this.TryAddInternal(new CopyToMethodInfo(false,false,mapperContext));
-
+            return this.TryAddInternal(type, context);
         }
-        public void AddCollectionCopyMethod(MapperContext mapperContext)
+        private CopyToMethodInfo TryAddInternal(CopyToMethodType type, MapperContext context)
         {
-            this.TryAddInternal(new CopyToMethodInfo(false, true,mapperContext));
-        }
-        public void AddDictionaryCopyMethod(MapperContext mapperContext)
-        {
-            this.TryAddInternal(new CopyToMethodInfo(true, true, mapperContext));
-        }
-        private void TryAddInternal(CopyToMethodInfo methodInfo)
-        {
-            if (all.Any(p => p.Equals(methodInfo)))
+            var first = all.FirstOrDefault(t => t.CopyMethodType == type
+                && t.SourceType.Equals(context.MappingInfo.SourceType, SymbolEqualityComparer.Default)
+                && t.TargetType.Equals(context.MappingInfo.TargetType, SymbolEqualityComparer.Default));
+            if (first != null)
             {
-                return;
+                return first;
             }
             else
             {
+                var methodInfo = new CopyToMethodInfo(type, context);
                 all.Add(methodInfo);
                 queue.Enqueue(methodInfo);
+                return methodInfo;
             }
         }
         public bool HasItem { get => queue.Count > 0; }
