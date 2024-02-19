@@ -45,7 +45,7 @@ namespace FlyTiger.IntegrationTest.Mapper
                 ["2"] = new SourceUser_ConvertDictionaryToDictionaryWithPostAction { Name = "user2" }
             };
 
-            var res = source.To<string, TargetUser_ConvertDictionaryToDictionaryWithPostAction>(t => t.Name = t.Name + "...");
+            var res = source.To<string, TargetUser_ConvertDictionaryToDictionaryWithPostAction>(t => t.Name += "...");
             res.Should().HaveCount(2);
             res["2"].Name.Should().Be("user2...");
             res["1"].Name.Should().Be("user1...");

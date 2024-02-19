@@ -6,7 +6,7 @@ namespace FlyTiger.IntegrationTest.Mapper
 {
     [Mapper(typeof(User1), typeof(TargetUser1), MapperType = MapperType.BatchUpdate)]
     [Mapper(typeof(User2), typeof(TargetUser2), MapperType = MapperType.BatchUpdate)]
-    public class UpdateCollectionTest
+    public class CopyCollectionTest
     {
         [Fact]
         public void ShouldAppendUserArrayToTarget()

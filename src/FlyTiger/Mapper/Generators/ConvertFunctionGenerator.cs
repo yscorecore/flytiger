@@ -53,7 +53,7 @@ namespace FlyTiger.Mapper.Generators
             AddCopyToMethodForSingle();
             // update collection
             AddCopyToMethodForCollection(); //dto2entity
-            
+
             AddCopyToMethodForDictionary();
             //query
             AddToMethodForQueryable(); //entity2dto
@@ -93,13 +93,18 @@ namespace FlyTiger.Mapper.Generators
                 while (queue.HasItem)
                 {
                     var method = queue.Dequeue();
-                    if (method.IsCollection)
+                    if (method.IsDictionary)
+                    {
+                        AddCopyDictionaryMethodInternal(queue, method);
+                    }
+                    else if (method.IsCollection)
                     {
                         AddCopyCollectionMethodInternal(queue, method);
                     }
                     else
                     {
                         AddCopyObjectMethodInternal(queue, method);
+                        AddConvertObjectMethodInternal(queue, method);
                     }
                 }
                 codeBuilder.EndSegment();
@@ -216,11 +221,95 @@ sourceKeys.Except(targetKeys).ForEach(key =>
                 .Where(ch => char.IsLetterOrDigit(ch)).ToArray());
             return $"Copy{sourceName}To{targetName}";
         }
-        private static string BuildCopyCollectionMethodName(ITypeSymbol source, ITypeSymbol target)
+        private static string BuildConvertObjectMethodName(ITypeSymbol source, ITypeSymbol target)
         {
-            return BuildCopyObjectMethodName(source, target);
+            var sourceName = new string(source.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)
+                .Where(ch => char.IsLetterOrDigit(ch)).ToArray());
+            var targetName = new string(target.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)
+                .Where(ch => char.IsLetterOrDigit(ch)).ToArray());
+            return $"Convert{sourceName}To{targetName}";
         }
+        void AddCopyDictionaryMethodInternal(CopyToQueue queue, CopyToMethodInfo method)
+        {
+            var context = method.Context;
+            var mappingInfo = context.MappingInfo;
+            var codeBuilder = context.CodeBuilder;
+            var methodName = method.CopyToMethodName;
+            codeBuilder.AppendCodeLines($"void {methodName}({method.Context.MappingInfo.SourceTypeFullDisplay} source, {method.Context.MappingInfo.TargetTypeFullDisplay} target)");
+            codeBuilder.BeginSegment();
+            var (sKey, sValue) = GetKeyValueType(method.SourceType as INamedTypeSymbol);
+            var (tKey, tValue) = GetKeyValueType(method.TargetType as INamedTypeSymbol);
 
+            if (CanCopyingSubObjectProperty(sValue, tValue, method.Context))
+            {
+                var newContext = method.Context.Fork(sValue, tValue);
+                //加入队列
+                queue.AddObjectCopyMethod(newContext);
+                codeBuilder.AppendCodeLines($@"var sourceKeys = source.Keys.ToHashSet();
+var targetKeys = target.Keys.ToHashSet();
+// modify item
+sourceKeys.Where(p => targetKeys.Contains(p)).ForEach(key =>
+{{
+    if (source[key] == null || target[key] == null) 
+    {{
+        target[key] = {BuildConvertObjectMethodName(sValue, tValue)}(source[key]);    
+    }}
+    else
+    {{
+        {BuildCopyObjectMethodName(sValue, tValue)}(source[key], target[key]);
+    }}
+}});
+// remove item                                            
+targetKeys.Except(sourceKeys.Select(p => ({tKey.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)})p)).ForEach(p =>
+{{
+    var item = target[p];
+    target.Remove(p);
+    onRemoveItem?.Invoke(item);
+}});
+// add item
+sourceKeys.Where(p => !targetKeys.Contains(p)).Select(p => new");
+                codeBuilder.BeginSegment();
+                codeBuilder.AppendCodeLines($"Key = p,");
+                codeBuilder.AppendCodeLines($"Value = {BuildConvertObjectMethodName(sValue, tValue)}(source[p])");
+                codeBuilder.EndSegment(@"}).ForEach(p =>
+{
+    target.Add(p.Key, p.Value);
+    onAddItem?.Invoke(p.Value);
+});");
+            }
+            else
+            {
+                //可以直接赋值,不用调用onAdditem，onRemoveItem
+                codeBuilder.AppendCodeLines($@"var sourceKeys = source.Keys.ToHashSet();
+var targetKeys = target.Keys.ToHashSet();
+// modify item
+sourceKeys.Where(p => targetKeys.Contains(p)).ForEach(p =>
+{{
+    target[p] = source[p];
+}});
+// remove item                                            
+targetKeys.Except(sourceKeys.Select(p => ({tKey.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)})p)).ForEach(p =>
+{{
+    var item = target[p];
+    target.Remove(p);
+    onRemoveItem?.Invoke(item);
+}});
+// add item
+sourceKeys.Where(p => !targetKeys.Contains(p)).ForEach(p => 
+{{
+    var item = ({tValue.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)})source[p];
+    target[p] = item;
+    onAddItem?.Invoke(item);
+}});");
+            }
+
+
+            codeBuilder.EndSegment();
+            (ITypeSymbol, ITypeSymbol) GetKeyValueType(INamedTypeSymbol type)
+            {
+                return (type.TypeArguments[0], type.TypeArguments[1]);
+            }
+        }
 
         void AddCopyCollectionMethodInternal(CopyToQueue queue, CopyToMethodInfo method)
         {
@@ -240,7 +329,6 @@ sourceKeys.Except(targetKeys).ForEach(key =>
             var newContext = method.Context.Fork(sourceItemType, targetItemType);
             //生成对象
             queue.AddObjectCopyMethod(newContext);
-
             var targetItemDisplay = targetItemType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             codeBuilder.AppendCodeLines($"void {methodName}({fromTypeDisplay} source, {toTypeDisplay} target)");
@@ -296,8 +384,8 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
 
 
 
-            var toTypeDisplay = mappingInfo.TargetType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var fromTypeDisplay = mappingInfo.SourceType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var toTypeDisplay = mappingInfo.TargetTypeFullDisplay;
+            var fromTypeDisplay = mappingInfo.SourceTypeFullDisplay;
             codeBuilder.AppendCodeLines($"void {BuildCopyObjectMethodName(fromType, toType)}({fromTypeDisplay} source, {toTypeDisplay} target)");
             codeBuilder.BeginSegment();
             if (!fromType.IsValueType)
@@ -309,6 +397,27 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 codeBuilder.AppendCodeLines("if (target == null) return;");
             }
             AppendObjectPropertyCopyAssign("source", "target", context, queue);
+            codeBuilder.EndSegment();
+        }
+        void AddConvertObjectMethodInternal(CopyToQueue queue, CopyToMethodInfo method)
+        {
+            var context = method.Context;
+            var mappingInfo = context.MappingInfo;
+            var codeBuilder = context.CodeBuilder;
+            var fromType = mappingInfo.SourceType;
+            var toType = mappingInfo.TargetType;
+            var toTypeDisplay = mappingInfo.TargetTypeFullDisplay;
+            var fromTypeDisplay = mappingInfo.SourceTypeFullDisplay;
+            codeBuilder.AppendCodeLines($"{toTypeDisplay} {BuildConvertObjectMethodName(fromType, toType)}({fromTypeDisplay} source)");
+            codeBuilder.BeginSegment();
+            if (!fromType.IsValueType)
+            {
+                codeBuilder.AppendCodeLines("if (source == null) return default;");
+            }
+            codeBuilder.AppendCodeLines($"return new {toTypeDisplay}");
+            codeBuilder.BeginSegment();
+            AppendPropertyAssign("source", null, ",", context);
+            codeBuilder.EndSegment("};");
             codeBuilder.EndSegment();
         }
 
@@ -324,7 +433,23 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             }
             return CanMappingSubObjectProperty(sourceType, targetType, convertContext);
         }
-
+        private bool CanCopyingDictionaryProperty(ITypeSymbol sourcePropType, ITypeSymbol targetPropertyType, MapperContext context)
+        {
+            if (IsDictionary(sourcePropType) && IsDictionary(targetPropertyType))
+            {
+                var (sKey, sValue) = GetKeyValueType(sourcePropType as INamedTypeSymbol);
+                var (tKey, tValue) = GetKeyValueType(targetPropertyType as INamedTypeSymbol);
+                if (CanAssign(sKey, tKey, context))
+                {
+                    return CanAssign(sValue, tValue, context) || CanCopyingSubObjectProperty(sValue, tValue, context);
+                }
+            }
+            return false;
+            (ITypeSymbol, ITypeSymbol) GetKeyValueType(INamedTypeSymbol type)
+            {
+                return (type.TypeArguments[0], type.TypeArguments[1]);
+            }
+        }
         private bool CanCopyingCollectionProperty(ITypeSymbol sourcePropType, ITypeSymbol targetPropType, MapperContext convertContext)
         {
             if (SourceTypeIsEnumerable() && TargetTypeIsGenericCollection())
@@ -682,10 +807,13 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                     this.ReportInitOnlyPropertyCanNotCopyValue(convertContext, targetProp, sourceProp);
                     continue;
                 }
-
-
-
-                if (CanCopyingCollectionProperty(sourcePropType, targetPropType, convertContext))
+                if (CanCopyingDictionaryProperty(sourcePropType, targetPropType, convertContext))
+                {
+                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
+                    AppendDictionaryCopyAssign(FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), newConvertContext);
+                    queue.AddDictionaryCopyMethod(newConvertContext);
+                }
+                else if (CanCopyingCollectionProperty(sourcePropType, targetPropType, convertContext))
                 {
                     // collection copy
                     var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
@@ -808,11 +936,52 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             codeBuilder.EndSegment();
             codeBuilder.AppendCodeLines("else");
             codeBuilder.BeginSegment();
-            codeBuilder.AppendCodeLines($"{BuildCopyCollectionMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({sourceRefrenceName}, {targetRefrenceName});");
+            codeBuilder.AppendCodeLines($"{BuildCopyObjectMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({sourceRefrenceName}, {targetRefrenceName});");
             codeBuilder.EndSegment();
 
         }
-
+        private void AppendDictionaryCopyAssign(string sourceRefrenceName, string targetRefrenceName, MapperContext newConvertContext)
+        {
+            var mappingInfo = newConvertContext.MappingInfo;
+            var codeBuilder = newConvertContext.CodeBuilder;
+            codeBuilder.AppendCodeLines($"if ({sourceRefrenceName} == null || {targetRefrenceName} == null)");
+            codeBuilder.BeginSegment();
+            //直接给集合赋值
+            MappingNewDictionary(newConvertContext, sourceRefrenceName, targetRefrenceName, ";");
+            codeBuilder.EndSegment();
+            codeBuilder.AppendCodeLines("else");
+            codeBuilder.BeginSegment();
+            codeBuilder.AppendCodeLines($"{BuildCopyObjectMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({sourceRefrenceName}, {targetRefrenceName});");
+            codeBuilder.EndSegment();
+        }
+        private bool IsDictionary(ITypeSymbol type)
+        {
+            if (type is INamedTypeSymbol namedSourcePropType)
+            {
+                if (namedSourcePropType.IsGenericType)
+                {
+                    var genericType = namedSourcePropType.ConstructUnboundGenericType();
+                    if (genericType.SafeEquals(typeof(IDictionary<,>)))
+                    {
+                        return true;
+                    }
+                    if (genericType.SafeEquals(typeof(Dictionary<,>)))
+                    {
+                        return true;
+                    }
+                    if (genericType.SafeEquals(typeof(ImmutableDictionary<,>)))
+                    {
+                        return true;
+                    }
+                    if (genericType.SafeEquals(typeof(IImmutableDictionary<,>)))
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            return false;
+        }
         private bool CanMappingDictionary(MapperContext context, IPropertySymbol targetProperty, IPropertySymbol sourceProperty)
         {
             if (IsDictionary(targetProperty.Type) && IsDictionary(sourceProperty.Type))
@@ -827,56 +996,29 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
 
             return false;
 
-            bool IsDictionary(ITypeSymbol type)
-            {
-                if (type is INamedTypeSymbol namedSourcePropType)
-                {
-                    if (namedSourcePropType.IsGenericType)
-                    {
-                        var genericType = namedSourcePropType.ConstructUnboundGenericType();
-                        if (genericType.SafeEquals(typeof(IDictionary<,>)))
-                        {
-                            return true;
-                        }
-                        if (genericType.SafeEquals(typeof(Dictionary<,>)))
-                        {
-                            return true;
-                        }
-                        if (genericType.SafeEquals(typeof(ImmutableDictionary<,>)))
-                        {
-                            return true;
-                        }
-                        if (genericType.SafeEquals(typeof(IImmutableDictionary<,>)))
-                        {
-                            return true;
-                        }
-                        return false;
-                    }
-                }
-                return false;
-            }
+
             (ITypeSymbol, ITypeSymbol) GetKeyValueType(INamedTypeSymbol type)
             {
                 return (type.TypeArguments[0], type.TypeArguments[1]);
             }
         }
 
-        private void MappingDictionary(MapperContext context, string sourceRefrenceName,
-            string targetRefrenceName, IPropertySymbol targetProperty, IPropertySymbol sourceProperty, string lineSplitChar)
+
+        private void MappingNewDictionary(MapperContext context, string sourceRefrenceExpression, string targetRefrenceExpression, string lineSplitChar)
         {
-            var (sKey, sValue) = GetKeyValueType(sourceProperty.Type as INamedTypeSymbol);
-            var (tKey, tValue) = GetKeyValueType(targetProperty.Type as INamedTypeSymbol);
+            var (sKey, sValue) = GetKeyValueType(context.MappingInfo.SourceType as INamedTypeSymbol);
+            var (tKey, tValue) = GetKeyValueType(context.MappingInfo.TargetType as INamedTypeSymbol);
             var methodName = ToTargetMethodName();
 
 
-            context.CodeBuilder.AppendCodeLines($"{FormatRefrence(targetRefrenceName, targetProperty.Name)} = {FormatRefrence(sourceRefrenceName, sourceProperty.Name)} == null ? default : {FormatRefrence(sourceRefrenceName, sourceProperty.Name)}.{ToTargetMethodName()}(");
+            context.CodeBuilder.AppendCodeLines($"{targetRefrenceExpression} = {sourceRefrenceExpression} == null ? default : {sourceRefrenceExpression}.{methodName}(");
             context.CodeBuilder.IncreaseDepth();
             AppendLambda(context.CodeBuilder, nameof(KeyValuePair<int, int>.Key), tKey, sKey, ",");
             AppendLambda(context.CodeBuilder, nameof(KeyValuePair<int, int>.Value), tValue, sValue, $"){lineSplitChar}");
             context.CodeBuilder.DecreaseDepth();
             string ToTargetMethodName()
             {
-                var arg = (targetProperty.Type as INamedTypeSymbol).ConstructUnboundGenericType();
+                var arg = (context.MappingInfo.TargetType as INamedTypeSymbol).ConstructUnboundGenericType();
                 if (arg.SafeEquals(typeof(IImmutableDictionary<,>)) || arg.SafeEquals(typeof(ImmutableDictionary<,>)))
                 {
                     return nameof(ImmutableDictionary.ToImmutableDictionary);
@@ -903,7 +1045,6 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 {
                     var newContext = context.Fork(sourceType, targetType);
                     MappingNewSubObject(newContext, $"p.{name}", "p", "=>", tail);
-
                 }
             }
         }
@@ -957,8 +1098,10 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 }
                 else if (CanMappingDictionary(convertContext, targetProp, sourceProp))
                 {
-                    MappingDictionary(convertContext, sourceRefrenceName, targetRefrenceName, targetProp, sourceProp, lineSplitChar);
+                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
+                    MappingNewDictionary(newConvertContext, FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), lineSplitChar);
                     // dictionary
+                    //MappingNewDictionary(convertContext, sourceRefrenceName, targetRefrenceName, targetProp, sourceProp, lineSplitChar);
                 }
                 else if (CanMappingCollectionProperty(sourcePropType, targetPropType, convertContext))
                 {
