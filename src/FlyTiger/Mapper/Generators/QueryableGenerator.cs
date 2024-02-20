@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FlyTiger.Mapper.Generators
+﻿namespace FlyTiger.Mapper.Generators
 {
     internal class QueryableGenerator : ConvertObjectGenerator
     {
@@ -10,16 +6,12 @@ namespace FlyTiger.Mapper.Generators
         {
             var mappingInfo = context.MappingInfo;
             var codeBuilder = context.CodeBuilder;
-            var fromType = mappingInfo.SourceType;
-            var toType = mappingInfo.TargetType;
-            var toTypeDisplay = mappingInfo.TargetTypeFullDisplay;
-            var fromTypeDisplay = mappingInfo.SourceTypeFullDisplay;
 
             if (!mappingInfo.MapQuery) return;
             codeBuilder.AppendCodeLines(
-                $"private static IQueryable<{toTypeDisplay}> {mappingInfo.ConvertToMethodName}(this IQueryable<{fromTypeDisplay}> source)");
+                $"private static IQueryable<{mappingInfo.TargetTypeFullDisplay}> {mappingInfo.ConvertToMethodName}(this IQueryable<{mappingInfo.SourceTypeFullDisplay}> source)");
             codeBuilder.BeginSegment();
-            codeBuilder.AppendCodeLines($"return source?.Select(p => new {toTypeDisplay}");
+            codeBuilder.AppendCodeLines($"return source?.Select(p => new {mappingInfo.TargetTypeFullDisplay}");
             codeBuilder.BeginSegment();
             AppendPropertyAssign("p", null, ",", context);
             codeBuilder.EndSegment("}).RebuildWithIncludeForEfCore();");

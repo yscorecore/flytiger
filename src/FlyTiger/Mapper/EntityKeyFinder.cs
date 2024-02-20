@@ -66,7 +66,7 @@ namespace FlyTiger.Mapper
             return null;
         }
     }
-    public class KeyMap
+    internal class KeyMap
     {
         public IPropertySymbol[] SourceKey { get; set; }
         public IPropertySymbol[] TargetKey { get; set; }

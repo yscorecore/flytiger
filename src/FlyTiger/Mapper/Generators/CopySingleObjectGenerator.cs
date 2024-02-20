@@ -14,7 +14,6 @@ namespace FlyTiger.Mapper.Generators
         {
             var mappingInfo = context.MappingInfo;
             var codeBuilder = context.CodeBuilder;
-            var fromType = mappingInfo.SourceType;
             var toType = mappingInfo.TargetType;
             var toTypeDisplay = mappingInfo.TargetTypeFullDisplay;
             var fromTypeDisplay = mappingInfo.SourceTypeFullDisplay;
@@ -59,12 +58,11 @@ namespace FlyTiger.Mapper.Generators
         void AddCopyDictionaryMethodInternal(CopyToQueue queue, CopyToMethodInfo method)
         {
             var context = method.Context;
-            var mappingInfo = context.MappingInfo;
             var codeBuilder = context.CodeBuilder;
             var methodName = method.InlineMethodName;
             codeBuilder.AppendCodeLines($"void {methodName}({method.Context.MappingInfo.SourceTypeFullDisplay} source, {method.Context.MappingInfo.TargetTypeFullDisplay} target)");
             codeBuilder.BeginSegment();
-            var (sKey, sValue) = GetKeyValueType(method.SourceType as INamedTypeSymbol);
+            var (_, sValue) = GetKeyValueType(method.SourceType as INamedTypeSymbol);
             var (tKey, tValue) = GetKeyValueType(method.TargetType as INamedTypeSymbol);
 
             if (CanCopyingSubObjectProperty(sValue, tValue, method.Context))
@@ -210,8 +208,6 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             var fromType = mappingInfo.SourceType;
             var toType = mappingInfo.TargetType;
 
-
-
             var toTypeDisplay = mappingInfo.TargetTypeFullDisplay;
             var fromTypeDisplay = mappingInfo.SourceTypeFullDisplay;
             codeBuilder.AppendCodeLines($"void {method.InlineMethodName}({fromTypeDisplay} source, {toTypeDisplay} target)");
@@ -227,7 +223,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             AppendObjectPropertyCopyAssign("source", "target", context, queue);
             codeBuilder.EndSegment();
         }
-        void AddConvertObjectMethodInternal(CopyToQueue queue, CopyToMethodInfo method)
+        void AddConvertObjectMethodInternal(CopyToQueue _, CopyToMethodInfo method)
         {
             var context = method.Context;
             var mappingInfo = context.MappingInfo;
@@ -308,16 +304,14 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 }
                 if (CanCopyingDictionaryProperty(sourcePropType, targetPropType, convertContext))
                 {
-                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                    AppendDictionaryCopyAssign(FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), newConvertContext);
-                    queue.AddMethod(CopyToMethodType.CopyDictionary, newConvertContext);
+                    var copyDicMethod = queue.AddMethod(CopyToMethodType.CopyDictionary, convertContext.Fork(sourcePropType, targetPropType));
+                    AppendDictionaryCopyAssign(FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), copyDicMethod);
                 }
                 else if (CanCopyingCollectionProperty(sourcePropType, targetPropType, convertContext))
                 {
                     // collection copy
-                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                    AppendCollectionCopyAssign(FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), newConvertContext);
-                    queue.AddMethod(CopyToMethodType.CopyCollection, newConvertContext);
+                    var copyCollectionMethod = queue.AddMethod(CopyToMethodType.CopyCollection, convertContext.Fork(sourcePropType, targetPropType));
+                    AppendCollectionCopyAssign(FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), copyCollectionMethod);
 
                 }
                 else if (CanMappingCollectionProperty(sourcePropType, targetPropType, convertContext))
@@ -329,9 +323,8 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 else if (CanCopyingSubObjectProperty(sourcePropType, targetPropType, convertContext))
                 {
                     // sub object copy
-                    var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
-                    AppendSubObjectCopyAssign(sourceRefrenceName, targetRefrenceName, propName, propName, newConvertContext);
-                    queue.AddMethod(CopyToMethodType.CopySingle, newConvertContext);
+                    var copyObjectMethod = queue.AddMethod(CopyToMethodType.CopySingle, convertContext.Fork(sourcePropType, targetPropType));
+                    AppendSubObjectCopyAssign(FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), copyObjectMethod);
                 }
                 else if (CanAssign(sourcePropType, targetPropType, convertContext))
                 {
@@ -442,62 +435,63 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
 
             return false;
         }
-        private void AppendDictionaryCopyAssign(string sourceRefrenceName, string targetRefrenceName, MapperContext newConvertContext)
+        private void AppendDictionaryCopyAssign(string sourceRefrenceName, string targetRefrenceName, CopyToMethodInfo copyToMethod)
         {
-            var mappingInfo = newConvertContext.MappingInfo;
-            var codeBuilder = newConvertContext.CodeBuilder;
+            var context = copyToMethod.Context;
+            var codeBuilder = context.CodeBuilder;
             codeBuilder.AppendCodeLines($"if ({sourceRefrenceName} == null || {targetRefrenceName} == null)");
             codeBuilder.BeginSegment();
             //直接给集合赋值
-            MappingNewDictionary(newConvertContext, sourceRefrenceName, targetRefrenceName, ";");
+            MappingNewDictionary(context, sourceRefrenceName, targetRefrenceName, ";");
             codeBuilder.EndSegment();
             codeBuilder.AppendCodeLines("else");
             codeBuilder.BeginSegment();
-            codeBuilder.AppendCodeLines($"{BuildCopyObjectMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({sourceRefrenceName}, {targetRefrenceName});");
+            codeBuilder.AppendCodeLines($"{copyToMethod.InlineMethodName}({sourceRefrenceName}, {targetRefrenceName});");
             codeBuilder.EndSegment();
         }
-        private void AppendCollectionCopyAssign(string sourceRefrenceName, string targetRefrenceName, MapperContext newConvertContext)
+        private void AppendCollectionCopyAssign(string sourceRefrenceName, string targetRefrenceName, CopyToMethodInfo copyToMethod)
         {
-            var mappingInfo = newConvertContext.MappingInfo;
-            var codeBuilder = newConvertContext.CodeBuilder;
+            var context = copyToMethod.Context;
+            var codeBuilder = context.CodeBuilder;
             codeBuilder.AppendCodeLines($"if ({sourceRefrenceName} == null || {targetRefrenceName} == null)");
             codeBuilder.BeginSegment();
             //直接给集合赋值
-            MappingNewCollection(newConvertContext, sourceRefrenceName, targetRefrenceName, ";");
+            MappingNewCollection(context, sourceRefrenceName, targetRefrenceName, ";");
             codeBuilder.EndSegment();
             codeBuilder.AppendCodeLines("else");
             codeBuilder.BeginSegment();
-            codeBuilder.AppendCodeLines($"{BuildCopyObjectMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({sourceRefrenceName}, {targetRefrenceName});");
+            codeBuilder.AppendCodeLines($"{copyToMethod.InlineMethodName}({sourceRefrenceName}, {targetRefrenceName});");
             codeBuilder.EndSegment();
 
         }
-        private void AppendSubObjectCopyAssign(string sourceRefrenceName, string targetRefrenceName, string sourcePropName, string targetPropName, MapperContext newConvertContext)
+        private void AppendSubObjectCopyAssign(string sourceRefrenceName, string targetRefrenceName, CopyToMethodInfo copyToMethod)
         {
-            var codeBuilder = newConvertContext.CodeBuilder;
-            var mappingInfo = newConvertContext.MappingInfo;
+            var context = copyToMethod.Context;
+            var codeBuilder = context.CodeBuilder;
+            var mappingInfo = context.MappingInfo;
             if (!mappingInfo.SourceType.IsValueType)
             {
-                codeBuilder.AppendCodeLines($"if ({FormatRefrence(sourceRefrenceName, sourcePropName)} == null)");
+                codeBuilder.AppendCodeLines($"if ({sourceRefrenceName} == null)");
                 codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines($"{FormatRefrence(targetRefrenceName, targetPropName)} = default;");
+                codeBuilder.AppendCodeLines($"{targetRefrenceName} = default;");
                 codeBuilder.EndSegment();
                 codeBuilder.AppendCodeLines("else");
                 codeBuilder.BeginSegment();
                 if (mappingInfo.TargetType.IsValueType)
                 {
-                    codeBuilder.AppendCodeLines($"{BuildCopyObjectMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({FormatRefrence(sourceRefrenceName, sourcePropName)}, ref {FormatRefrence(targetRefrenceName, targetPropName)})");
+                    codeBuilder.AppendCodeLines($"{copyToMethod.InlineMethodName}({sourceRefrenceName}, ref {targetRefrenceName})");
                 }
                 else
                 {
-                    codeBuilder.AppendCodeLines($"if ({FormatRefrence(targetRefrenceName, targetPropName)} == null)");
+                    codeBuilder.AppendCodeLines($"if ({targetRefrenceName} == null)");
                     codeBuilder.BeginSegment();
                     //创建新对象
-                    MappingNewSubObject(newConvertContext, FormatRefrence(sourceRefrenceName, sourcePropName), FormatRefrence(targetRefrenceName, targetPropName), "=", ";");
+                    MappingNewSubObject(context, sourceRefrenceName, targetRefrenceName, "=", ";");
                     codeBuilder.EndSegment();
                     codeBuilder.AppendCodeLines("else");
                     codeBuilder.BeginSegment();
                     //复制
-                    codeBuilder.AppendCodeLines($"{BuildCopyObjectMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({FormatRefrence(sourceRefrenceName, sourcePropName)}, {FormatRefrence(targetRefrenceName, targetPropName)});");
+                    codeBuilder.AppendCodeLines($"{copyToMethod.InlineMethodName}({sourceRefrenceName}, {targetRefrenceName});");
                     codeBuilder.EndSegment();
                 }
                 codeBuilder.EndSegment();
@@ -506,31 +500,22 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             {
                 if (mappingInfo.TargetType.IsValueType)
                 {
-                    codeBuilder.AppendCodeLines($"{BuildCopyObjectMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({FormatRefrence(sourceRefrenceName, sourcePropName)}, ref {FormatRefrence(targetRefrenceName, targetPropName)});");
+                    codeBuilder.AppendCodeLines($"{copyToMethod.InlineMethodName}({sourceRefrenceName}, ref {targetRefrenceName});");
                 }
                 else
                 {
-                    codeBuilder.AppendCodeLines($"if ({FormatRefrence(targetRefrenceName, targetPropName)} == null)");
+                    codeBuilder.AppendCodeLines($"if ({targetRefrenceName} == null)");
                     codeBuilder.BeginSegment();
                     //创建新的对象
-                    MappingNewSubObject(newConvertContext, FormatRefrence(sourceRefrenceName, sourcePropName), FormatRefrence(targetRefrenceName, targetPropName), "=", ";");
+                    MappingNewSubObject(context, sourceRefrenceName, targetRefrenceName, "=", ";");
 
                     codeBuilder.EndSegment();
                     codeBuilder.AppendCodeLines("else");
                     codeBuilder.BeginSegment();
-                    codeBuilder.AppendCodeLines($"{BuildCopyObjectMethodName(mappingInfo.SourceType, mappingInfo.TargetType)}({FormatRefrence(sourceRefrenceName, sourcePropName)}, {FormatRefrence(targetRefrenceName, targetPropName)});");
+                    codeBuilder.AppendCodeLines($"{copyToMethod.InlineMethodName}({sourceRefrenceName}, {targetRefrenceName});");
                     codeBuilder.EndSegment();
                 }
             }
-        }
-        [Obsolete("使用copymethod里面的名称")]
-        private static string BuildCopyObjectMethodName(ITypeSymbol source, ITypeSymbol target)
-        {
-            var sourceName = new string(source.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)
-                .Where(ch => char.IsLetterOrDigit(ch)).ToArray());
-            var targetName = new string(target.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)
-                .Where(ch => char.IsLetterOrDigit(ch)).ToArray());
-            return $"Copy{sourceName}To{targetName}";
         }
     }
 }

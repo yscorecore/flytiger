@@ -10,9 +10,19 @@ namespace FlyTiger.Mapper.Generators
     internal class ConvertFunctionGenerator
     {
 
+
         public void AppendFunctions(CodeWriter codeWriter,
             CsharpCodeBuilder codeBuilder, List<ConvertMappingInfo> rootMappingInfos, IList<AttributeData> attributeDatas)
         {
+            var generators = new List<BaseGenerator>
+            { 
+               new ConvertObjectGenerator(),
+               new CopySingleObjectGenerator(),
+               new CopyDictionaryGenerator(),
+               new CopyCollectionGenerator(),
+               new QueryableGenerator(),
+            };
+            
             //System.Diagnostics.Debugger.Launch();
             foreach (var rootMappingInfo in rootMappingInfos)
             {
@@ -22,11 +32,7 @@ namespace FlyTiger.Mapper.Generators
                     try
                     {
                         var context = new MapperContext(codeWriter, codeBuilder, rootMappingInfo, attributeDatas);
-                        new ConvertObjectGenerator().AppendFunctions(context);
-                        new CopySingleObjectGenerator().AppendFunctions(context);
-                        new CopyDictionaryGenerator().AppendFunctions(context);
-                        new CopyCollectionGenerator().AppendFunctions(context);
-                        new QueryableGenerator().AppendFunctions(context);
+                        generators.ForEach(p => p.AppendFunctions(context));
                     }
                     catch (Exception ex)
                     {

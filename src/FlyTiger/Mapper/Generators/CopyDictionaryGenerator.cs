@@ -16,20 +16,17 @@ namespace FlyTiger.Mapper.Generators
             var toTypeDisplay = mappingInfo.TargetTypeFullDisplay;
             var fromTypeDisplay = mappingInfo.SourceTypeFullDisplay;
 
-            AddCopyToMethodForDictionary();
-            void AddCopyToMethodForDictionary()
+            if (!mappingInfo.MapUpdate || !mappingInfo.MapConvert) return;
+            if (toType.IsValueType)
             {
-                if (!mappingInfo.MapUpdate || !mappingInfo.MapConvert) return;
-                if (toType.IsValueType)
-                {
-                    this.ReportTargetIsValueTypeCanNotCopy(context);
-                    return;
-                }
+                this.ReportTargetIsValueTypeCanNotCopy(context);
+                return;
+            }
 
-                codeBuilder.AppendCodeLines(
-                    $"private static void {mappingInfo.ConvertToMethodName}<T>(this IDictionary<T, {fromTypeDisplay}> source, IDictionary<T, {toTypeDisplay}> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
-                codeBuilder.BeginSegment();
-                codeBuilder.AppendCodeLines($@"var sourceKeys = source.Keys;
+            codeBuilder.AppendCodeLines(
+                $"private static void {mappingInfo.ConvertToMethodName}<T>(this IDictionary<T, {fromTypeDisplay}> source, IDictionary<T, {toTypeDisplay}> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)");
+            codeBuilder.BeginSegment();
+            codeBuilder.AppendCodeLines($@"var sourceKeys = source.Keys;
 var targetKeys = target.Keys;
 // modify item
 sourceKeys.Intersect(targetKeys).ForEach(key =>
@@ -51,9 +48,7 @@ sourceKeys.Except(targetKeys).ForEach(key =>
     onAddItem?.Invoke(item);
 }});");
 
-                codeBuilder.EndSegment();
-
-            }
+            codeBuilder.EndSegment();
         }
     }
 }
