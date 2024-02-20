@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -9,20 +8,27 @@ namespace FlyTiger
 {
     static class SymbolExtensions
     {
+
+        // TOTO 优化性能
         public static bool SafeEquals(this ISymbol symbol, ISymbol other)
         {
+            if (symbol == null) return other == null;
             if (symbol.Equals(other, SymbolEqualityComparer.Default))
             {
                 return true;
             }
 
-            return symbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
-                   other?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            return symbol?.ToDisplayFullString() ==
+                   other?.ToDisplayFullString();
+        }
+        public static string ToDisplayFullString(this ISymbol symbol)
+        {
+            return symbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         }
 
         private static bool SafeEquals(this INamedTypeSymbol symbol, string globalTypeMetaName)
         {
-            return symbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == globalTypeMetaName;
+            return symbol?.ToDisplayFullString() == globalTypeMetaName;
         }
 
         public static bool Is(this ITypeSymbol symbol, string typeMetaName)
@@ -31,6 +37,7 @@ namespace FlyTiger
         }
 
         private static string TypeNameCombinGlobal(this string typeName) => $"global::{typeName}";
+
         private static string GetGlobalTypeName(Type type)
         {
             if (type.IsGenericType)
@@ -53,6 +60,7 @@ namespace FlyTiger
                 return type.FullName.TypeNameCombinGlobal();
             }
         }
+        //TODO 优化性能
         public static bool SafeEquals(this INamedTypeSymbol symbol, Type type)
         {
             return SafeEquals(symbol, GetGlobalTypeName(type));

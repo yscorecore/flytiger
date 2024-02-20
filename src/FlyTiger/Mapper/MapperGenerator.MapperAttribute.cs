@@ -4,8 +4,8 @@ namespace FlyTiger.Mapper
 {
     partial class MapperGenerator
     {
-        const string AttributeName = "MapperAttribute";
-
+        internal const string AttributeShortName = "Mapper";
+        internal const string AttributeName = "MapperAttribute";
         internal const string IgnorePropertiesPropertyName = "IgnoreProperties";
         internal const string CustomMappingsPropertyName = "CustomMappings";
         internal const string CheckTypeName = "CheckType";
