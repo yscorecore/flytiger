@@ -9,8 +9,11 @@ namespace FlyTiger
 {
     static class SymbolExtensions
     {
+
+        // TOTO 优化性能
         public static bool SafeEquals(this ISymbol symbol, ISymbol other)
         {
+            if (symbol == null) return other == null;
             if (symbol.Equals(other, SymbolEqualityComparer.Default))
             {
                 return true;
@@ -31,6 +34,7 @@ namespace FlyTiger
         }
 
         private static string TypeNameCombinGlobal(this string typeName) => $"global::{typeName}";
+
         private static string GetGlobalTypeName(Type type)
         {
             if (type.IsGenericType)
@@ -53,6 +57,7 @@ namespace FlyTiger
                 return type.FullName.TypeNameCombinGlobal();
             }
         }
+        //TODO 优化性能
         public static bool SafeEquals(this INamedTypeSymbol symbol, Type type)
         {
             return SafeEquals(symbol, GetGlobalTypeName(type));

@@ -10,6 +10,7 @@ namespace FlyTiger.Mapper
     partial class MapperGenerator : ISourceGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
+        public const string MapperExtensionName = "MapperExtensions";
 
         public void Initialize(GeneratorInitializationContext context)
         {
@@ -32,7 +33,7 @@ namespace FlyTiger.Mapper
             {
                 var codeFile = new CodeFile
                 {
-                    BasicName = "MapperExtensions",
+                    BasicName = MapperExtensionName,
                     Content = BuildMapperContent(codeWriter, attributes),
                 };
                 codeWriter.WriteCodeFile(codeFile);
@@ -52,7 +53,7 @@ namespace FlyTiger.Mapper
             codeBuilder.AppendCodeLines($"namespace {NameSpaceName}");
             codeBuilder.BeginSegment();
             // class
-            codeBuilder.AppendCodeLines($@"static class MapperExtensions");
+            codeBuilder.AppendCodeLines($@"static class {MapperExtensionName}");
             codeBuilder.BeginSegment();
             // common
             new CommonFunctionGenerator().AppendFunctions(codeBuilder);

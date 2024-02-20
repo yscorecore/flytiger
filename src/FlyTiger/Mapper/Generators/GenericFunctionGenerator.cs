@@ -7,6 +7,7 @@ namespace FlyTiger.Mapper.Generators
 
     internal class GenericFunctionGenerator
     {
+        public const string ConvertGenericMethodName = "To";
 
         public void AppendFunctions(CodeWriter _,
           CsharpCodeBuilder codeBuilder, List<ConvertMappingInfo> rootConvertMappingInfos)
@@ -78,7 +79,7 @@ private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(E
         private void AppendGenericFunctions((ITypeSymbol Type, string Display) fromType, List<ConvertMappingInfo> mappingInfos,
             CsharpCodeBuilder codeBuilder)
         {
-            var methodName = "To";
+            var methodName = ConvertGenericMethodName;
             var toConvertMappings = mappingInfos.Where(p => p.MapConvert).ToList();
             //TODO temp ignore value type
             var toUpdateMappings = mappingInfos.Where(p => p.MapUpdate).Where(p => !p.TargetType.IsValueType).ToList();
