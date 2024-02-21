@@ -29,7 +29,7 @@ namespace FlyTiger.Mapper.Generators
         {
             return targetPropertiesCache.GetOrAdd(typeSymbol, s => s.GetAllMembers()
                 .OfType<IPropertySymbol>()
-                .Where(p => p.CanBeReferencedByName && !p.IsStatic && !p.IsIndexer && p.DeclaredAccessibility == Accessibility.Public)
+                .Where(p => !p.IsReadOnly && p.CanBeReferencedByName && !p.IsStatic && !p.IsIndexer && p.DeclaredAccessibility == Accessibility.Public)
                 .Select(p => new { p.Name, Property = p })
                 .ToLookup(p => p.Name)
                 .ToDictionary(p => p.Key, p => p.First().Property));

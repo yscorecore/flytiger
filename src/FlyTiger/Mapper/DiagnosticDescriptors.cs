@@ -37,5 +37,29 @@ namespace FlyTiger.Mapper
            Category, DiagnosticSeverity.Warning, isEnabledByDefault: true,
            description: GetLocalizableString(nameof(Resources.DuplicateMapper_Description)));
 
+        public static DiagnosticDescriptor CanNotMapProperty =
+           new DiagnosticDescriptor(
+               "FT40001",
+           GetLocalizableString(nameof(Resources.CanNotMapProperty_Title)),
+           GetLocalizableString(nameof(Resources.CanNotMapProperty_MessageFormat)),
+           Category, DiagnosticSeverity.Warning, isEnabledByDefault: true,
+           description: GetLocalizableString(nameof(Resources.CanNotMapProperty_Description)));
+
+        public static DiagnosticDescriptor TargetPropertyNotFilled =
+           new DiagnosticDescriptor(
+               "FT40002",
+           GetLocalizableString(nameof(Resources.SourcePropertyNotMapped_Title)),
+           GetLocalizableString(nameof(Resources.SourcePropertyNotMapped_MessageFormat)),
+           Category, DiagnosticSeverity.Error, isEnabledByDefault: true,
+           description: GetLocalizableString(nameof(Resources.SourcePropertyNotMapped_Description)));
+
+        public static DiagnosticDescriptor SorucePropertyNotMapped =
+           new DiagnosticDescriptor(
+               "FT40003",
+           GetLocalizableString(nameof(Resources.SourcePropertyNotMapped_Title)),
+           GetLocalizableString(nameof(Resources.SourcePropertyNotMapped_MessageFormat)),
+           Category, DiagnosticSeverity.Error, isEnabledByDefault: true,
+           description: GetLocalizableString(nameof(Resources.SourcePropertyNotMapped_Description)));
+
     }
 }

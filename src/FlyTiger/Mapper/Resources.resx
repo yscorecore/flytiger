@@ -120,6 +120,15 @@
   <data name="AddMapper" xml:space="preserve">
     <value>Add Mapper</value>
   </data>
+  <data name="CanNotMapProperty_Description" xml:space="preserve">
+    <value>Can not map property '{0}' from '{1}' to '{2}'</value>
+  </data>
+  <data name="CanNotMapProperty_MessageFormat" xml:space="preserve">
+    <value>Can not map property</value>
+  </data>
+  <data name="CanNotMapProperty_Title" xml:space="preserve">
+    <value>Can not map property</value>
+  </data>
   <data name="DuplicateMapper_Description" xml:space="preserve">
     <value>Duplicate mapper</value>
   </data>
@@ -149,5 +158,23 @@
   </data>
   <data name="RemoveMapper" xml:space="preserve">
     <value>Remove Mapper</value>
+  </data>
+  <data name="SourcePropertyNotMapped_Description" xml:space="preserve">
+    <value>Source property is not mapped</value>
+  </data>
+  <data name="SourcePropertyNotMapped_MessageFormat" xml:space="preserve">
+    <value>Source property '{0}' in class '{1}' is not mapped, target class is '{2}'.</value>
+  </data>
+  <data name="SourcePropertyNotMapped_Title" xml:space="preserve">
+    <value>Source property is not mapped</value>
+  </data>
+  <data name="TargetPropertyNotFilled_Description" xml:space="preserve">
+    <value>Target property is not filled</value>
+  </data>
+  <data name="TargetPropertyNotFilled_MessageFormat" xml:space="preserve">
+    <value>Target property '{0}' in class '{1}' is not filled, source class is '{2}'.</value>
+  </data>
+  <data name="TargetPropertyNotFilled_Title" xml:space="preserve">
+    <value>Target property is not filled</value>
   </data>
 </root>

@@ -34,10 +34,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mapper.EFCore", "example\Ma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyTiger.IntegrationTest", "test\FlyTiger.IntegrationTest\FlyTiger.IntegrationTest.csproj", "{7559FE1B-1A0F-40AD-A473-88598D6C0E81}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mstest", "mstest", "{07CAE94D-47EE-4EF9-9E9B-08349177EFDE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Flytiger.UnitTest", "mstest\Flytiger.UnitTest.MSTest\Flytiger.UnitTest.csproj", "{F93366B0-8DBD-49DB-87CE-7AC232FC18D7}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,10 +80,6 @@ Global
 		{7559FE1B-1A0F-40AD-A473-88598D6C0E81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7559FE1B-1A0F-40AD-A473-88598D6C0E81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7559FE1B-1A0F-40AD-A473-88598D6C0E81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F93366B0-8DBD-49DB-87CE-7AC232FC18D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F93366B0-8DBD-49DB-87CE-7AC232FC18D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F93366B0-8DBD-49DB-87CE-7AC232FC18D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F93366B0-8DBD-49DB-87CE-7AC232FC18D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,7 +95,6 @@ Global
 		{E72FE7BB-B204-4E65-BCA9-0B21E1EA4E1F} = {F6AE1CB8-57DE-437D-9665-56CACBF8358E}
 		{F1926833-266F-4EB5-BE0F-432443D708A6} = {F6AE1CB8-57DE-437D-9665-56CACBF8358E}
 		{7559FE1B-1A0F-40AD-A473-88598D6C0E81} = {9D50B35B-1EAA-4620-B0A6-245456051247}
-		{F93366B0-8DBD-49DB-87CE-7AC232FC18D7} = {07CAE94D-47EE-4EF9-9E9B-08349177EFDE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DB11BB21-3F5D-42D6-8737-F19C0666F1F8}

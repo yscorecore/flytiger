@@ -25,7 +25,10 @@ namespace FlyTiger
         {
             return symbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         }
-
+        public static string ToErrorFullString(this ISymbol symbol)
+        {
+            return symbol?.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
+        }
         private static bool SafeEquals(this INamedTypeSymbol symbol, string globalTypeMetaName)
         {
             return symbol?.ToDisplayFullString() == globalTypeMetaName;

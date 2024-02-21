@@ -288,20 +288,6 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 var sourceProp = sourceProps[propName];
                 var targetPropType = targetProp.Type;
                 var sourcePropType = sourceProp.Type;
-                if (targetProp.IsReadOnly)
-                {
-                    if (!sourceProp.IsReadOnly)
-                    {
-                        this.ReportReadOnlyPropertyCanNotFilled(convertContext, targetProp, sourceProp);
-                    }
-                    continue;
-                }
-                if (targetProp.SetMethod != null && targetProp.SetMethod.IsInitOnly)
-                {
-                    //TOTO 
-                    this.ReportInitOnlyPropertyCanNotCopyValue(convertContext, targetProp, sourceProp);
-                    continue;
-                }
                 if (CanCopyingDictionaryProperty(sourcePropType, targetPropType, convertContext))
                 {
                     var copyDicMethod = queue.AddMethod(CopyToMethodType.CopyDictionary, convertContext.Fork(sourcePropType, targetPropType));
@@ -336,7 +322,6 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                 {
                     var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
                     MappingNewSubObject(newConvertContext, FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), "=", lineSplitChar);
-
                 }
                 else
                 {

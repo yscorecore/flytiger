@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using static FlyTiger.Mapper.LocationUtils;
 
 namespace FlyTiger.Mapper.Analyzer
 {
@@ -58,12 +59,7 @@ namespace FlyTiger.Mapper.Analyzer
                     SourceLocation = FindAttributeLocation(p),
                     MapperInfo = CreateMapperInfo(p)
                 });
-            Location FindAttributeLocation(AttributeData attributeData)
-            {
-                var syntaxReference = attributeData.ApplicationSyntaxReference;
-                var syntaxNode = syntaxReference.GetSyntax();
-                return syntaxNode.GetLocation();
-            }
+           
             MapperInfo CreateMapperInfo(AttributeData att)
             {
                 var args = att.ConstructorArguments.ToArray();

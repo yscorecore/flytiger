@@ -70,6 +70,33 @@ namespace FlyTiger.Mapper {
         }
         
         /// <summary>
+        ///   查找类似 Can not map property &apos;{0}&apos; from &apos;{1}&apos; to &apos;{2}&apos; 的本地化字符串。
+        /// </summary>
+        internal static string CanNotMapProperty_Description {
+            get {
+                return ResourceManager.GetString("CanNotMapProperty_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Can not map property 的本地化字符串。
+        /// </summary>
+        internal static string CanNotMapProperty_MessageFormat {
+            get {
+                return ResourceManager.GetString("CanNotMapProperty_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Can not map property 的本地化字符串。
+        /// </summary>
+        internal static string CanNotMapProperty_Title {
+            get {
+                return ResourceManager.GetString("CanNotMapProperty_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Duplicate mapper 的本地化字符串。
         /// </summary>
         internal static string DuplicateMapper_Description {
@@ -156,6 +183,60 @@ namespace FlyTiger.Mapper {
         internal static string RemoveMapper {
             get {
                 return ResourceManager.GetString("RemoveMapper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Source property is not mapped 的本地化字符串。
+        /// </summary>
+        internal static string SourcePropertyNotMapped_Description {
+            get {
+                return ResourceManager.GetString("SourcePropertyNotMapped_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Source property &apos;{0}&apos; in class &apos;{1}&apos; is not mapped, target class is &apos;{2}&apos;. 的本地化字符串。
+        /// </summary>
+        internal static string SourcePropertyNotMapped_MessageFormat {
+            get {
+                return ResourceManager.GetString("SourcePropertyNotMapped_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Source property is not mapped 的本地化字符串。
+        /// </summary>
+        internal static string SourcePropertyNotMapped_Title {
+            get {
+                return ResourceManager.GetString("SourcePropertyNotMapped_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Target property is not filled 的本地化字符串。
+        /// </summary>
+        internal static string TargetPropertyNotFilled_Description {
+            get {
+                return ResourceManager.GetString("TargetPropertyNotFilled_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Target property &apos;{0}&apos; in class &apos;{1}&apos; is not filled, source class is &apos;{2}&apos;. 的本地化字符串。
+        /// </summary>
+        internal static string TargetPropertyNotFilled_MessageFormat {
+            get {
+                return ResourceManager.GetString("TargetPropertyNotFilled_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Target property is not filled 的本地化字符串。
+        /// </summary>
+        internal static string TargetPropertyNotFilled_Title {
+            get {
+                return ResourceManager.GetString("TargetPropertyNotFilled_Title", resourceCulture);
             }
         }
     }

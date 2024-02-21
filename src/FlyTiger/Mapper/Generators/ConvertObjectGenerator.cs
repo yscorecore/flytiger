@@ -33,8 +33,7 @@ namespace FlyTiger.Mapper.Generators
             codeBuilder.EndSegment("};");
             codeBuilder.EndSegment();
         }
-        protected void AppendPropertyAssign(string sourceRefrenceName, string targetRefrenceName, string lineSplitChar,
-    MapperContext convertContext)
+        protected void AppendPropertyAssign(string sourceRefrenceName, string targetRefrenceName, string lineSplitChar, MapperContext convertContext)
         {
             var mappingInfo = convertContext.MappingInfo;
             var codeBuilder = convertContext.CodeBuilder;
@@ -65,14 +64,6 @@ namespace FlyTiger.Mapper.Generators
                 var sourceProp = sourceProps[propName];
                 var targetPropType = targetProp.Type;
                 var sourcePropType = sourceProp.Type;
-                if (targetProp.IsReadOnly)
-                {
-                    if (!sourceProp.IsReadOnly)
-                    {
-                        this.ReportReadOnlyPropertyCanNotFilled(convertContext, targetProp, sourceProp);
-                    }
-                    continue;
-                }
 
                 if (CanAssign(sourcePropType, targetPropType, convertContext))
                 {
@@ -97,7 +88,6 @@ namespace FlyTiger.Mapper.Generators
                     // sub object 
                     var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
                     MappingNewSubObject(newConvertContext, FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), "=", lineSplitChar);
-
                 }
                 else
                 {
@@ -111,10 +101,8 @@ namespace FlyTiger.Mapper.Generators
                 if (HasSuggestionPath(prop, sourceProps, out var paths, convertContext))
                 {
                     sourceNotUsedKeys.Remove(paths.First().Name);
-
                     var actualSourceExpression = $"{sourceRefrenceName}.{string.Join(".", paths.Select(p => p.Name))}";
-                    codeBuilder.AppendCodeLines(
-                        $"{FormatRefrence(targetRefrenceName, prop.Key)} = {actualSourceExpression}{lineSplitChar}");
+                    codeBuilder.AppendCodeLines($"{FormatRefrence(targetRefrenceName, prop.Key)} = {actualSourceExpression}{lineSplitChar}");
                 }
                 else
                 {
@@ -230,8 +218,7 @@ namespace FlyTiger.Mapper.Generators
             }
             codeBuilder.EndSegment("}" + tail);
         }
-        protected bool CanMappingCollectionProperty(ITypeSymbol sourcePropType, ITypeSymbol targetPropType,
-    MapperContext convertContext)
+        protected bool CanMappingCollectionProperty(ITypeSymbol sourcePropType, ITypeSymbol targetPropType, MapperContext convertContext)
         {
             if (SourceTypeIsEnumerable() && TargetTypeIsSupportedEnumerable())
             {
