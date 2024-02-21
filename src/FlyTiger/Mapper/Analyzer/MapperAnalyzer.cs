@@ -183,6 +183,10 @@ namespace FlyTiger.Mapper.Analyzer
                 {
                     return CreateMapperInfo(GetFirstArgument(receiveType), GetFirstArgument(returnType), Kind.Query);
                 }
+                if (unboundType.SafeEquals(typeof(IDictionary<,>)) && returnUnboundType.SafeEquals(typeof(IDictionary<,>)))
+                {
+                    return CreateMapperInfo(GetSecondArgument(receiveType), GetSecondArgument(returnType), Kind.Query);
+                }
             }
             return CreateMapperInfo(receiveType, returnType, Kind.Query);
             INamedTypeSymbol GetFirstArgument(INamedTypeSymbol symbol)
