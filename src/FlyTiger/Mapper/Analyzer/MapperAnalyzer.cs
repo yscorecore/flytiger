@@ -59,7 +59,7 @@ namespace FlyTiger.Mapper.Analyzer
                     SourceLocation = FindAttributeLocation(p),
                     MapperInfo = CreateMapperInfo(p)
                 });
-           
+
             MapperInfo CreateMapperInfo(AttributeData att)
             {
                 var args = att.ConstructorArguments.ToArray();

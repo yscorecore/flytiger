@@ -52,5 +52,10 @@ namespace FlyTiger.Mapper.CodeFix
             }
             return document;
         }
+
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
     }
 }

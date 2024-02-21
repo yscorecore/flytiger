@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Composition;
-using System.Text;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis;
-using System.Xml.Linq;
-using Microsoft.CodeAnalysis.CodeActions;
 using System.Collections.Immutable;
+using System.Composition;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 using System.Threading;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 using FlyTiger.Mapper.Analyzer;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FlyTiger.Mapper.CodeFix
 {

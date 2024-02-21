@@ -15,14 +15,14 @@ namespace FlyTiger.Mapper.Generators
             CsharpCodeBuilder codeBuilder, List<ConvertMappingInfo> rootMappingInfos, IList<AttributeData> attributeDatas)
         {
             var generators = new List<BaseGenerator>
-            { 
+            {
                new ConvertObjectGenerator(),
                new CopySingleObjectGenerator(),
                new CopyDictionaryGenerator(),
                new CopyCollectionGenerator(),
                new QueryableGenerator(),
             };
-            
+
             //System.Diagnostics.Debugger.Launch();
             foreach (var rootMappingInfo in rootMappingInfos)
             {

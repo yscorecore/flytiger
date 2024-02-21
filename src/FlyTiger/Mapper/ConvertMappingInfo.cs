@@ -40,10 +40,10 @@ namespace FlyTiger.Mapper
                 CustomerMappings = new Dictionary<string, string>(),
                 IgnoreProperties = new HashSet<string>(),
                 FromAttribute = this.FromAttribute,
-                MapQuery= this.MapQuery,
+                MapQuery = this.MapQuery,
                 MapUpdate = this.MapUpdate,
                 MapConvert = this.MapConvert
-                
+
             };
         }
         public static ConvertMappingInfo FromAttributeData(AttributeData attributeData)

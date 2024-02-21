@@ -34,13 +34,13 @@ namespace FlyTiger.Mapper.CodeFix
             }
             return Task.CompletedTask;
         }
-        
+
         private static async Task<Document> RemoveAttributeAsync(Document document, Diagnostic diagnostic, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             var attribute = root.FindNode(diagnostic.Location.SourceSpan).FirstAncestorOrSelf<AttributeSyntax>();
             var parent = attribute.Parent;
-            if(parent is AttributeListSyntax attributeList)
+            if (parent is AttributeListSyntax attributeList)
             {
                 if (attributeList.Attributes.Count <= 1)
                 {

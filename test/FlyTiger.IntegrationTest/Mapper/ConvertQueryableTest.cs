@@ -117,7 +117,6 @@ namespace FlyTiger.IntegrationTest.Mapper
     [Mapper(typeof(SourceClass<IDictionary<int, int>>), typeof(TargetClass<IDictionary<int, int>>), MapperType = MapperType.Query)]
     [Mapper(typeof(SourceClass<IDictionary<int, int>>), typeof(TargetClass<Dictionary<int, int>>), MapperType = MapperType.Query)]
     [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, int?>>), MapperType = MapperType.Query)]
-    [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int, long>>), MapperType = MapperType.Query)]
     [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int?, int>>), MapperType = MapperType.Query)]
     [Mapper(typeof(SourceClass<Dictionary<int, int>>), typeof(TargetClass<Dictionary<int?, int?>>), MapperType = MapperType.Query)]
     [Mapper(typeof(SourceClass<Dictionary<int, DateTime>>), typeof(TargetClass<Dictionary<int, DateTime?>>), MapperType = MapperType.Query)]

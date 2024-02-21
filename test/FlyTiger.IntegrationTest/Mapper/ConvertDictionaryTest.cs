@@ -3,9 +3,6 @@ using FluentAssertions;
 
 namespace FlyTiger.IntegrationTest.Mapper
 {
-
-    [Mapper(typeof(SourceUser_ConvertDictionaryToDictionary), typeof(TargetUser_ConvertDictionaryToDictionary), MapperType = MapperType.Convert)]
-    [Mapper(typeof(SourceUser_ConvertDictionaryToDictionaryWithPostAction), typeof(TargetUser_ConvertDictionaryToDictionaryWithPostAction), MapperType = MapperType.Convert)]
     public class ConvertDictionaryTest
     {
         #region  ConvertDictionaryToDictionary

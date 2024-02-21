@@ -6,7 +6,7 @@ namespace FlyTiger.Mapper.Generators
 {
     internal class CommonFunctionGenerator
     {
-        public  void AppendFunctions(CsharpCodeBuilder codeBuilder)
+        public void AppendFunctions(CsharpCodeBuilder codeBuilder)
         {
             codeBuilder.AppendCodeLines(@"private static IEnumerable<T> EachItem<T>(this IEnumerable<T> source, Action<T> handler)
 {

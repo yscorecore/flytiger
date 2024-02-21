@@ -8,14 +8,14 @@ namespace FlyTiger.Mapper
 
     internal class CopyToMethodInfo : IEquatable<CopyToMethodInfo>
     {
-     
+
         public CopyToMethodInfo(CopyToMethodType methodType, MapperContext context)
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
             CopyMethodType = methodType;
             Context = context;
             this.InlineMethodName = methodType == CopyToMethodType.ConvertSingle ?
-                BuildConvertObjectMethodName(context.MappingInfo.SourceType, context.MappingInfo.TargetType):
+                BuildConvertObjectMethodName(context.MappingInfo.SourceType, context.MappingInfo.TargetType) :
                 BuildCopyObjectMethodName(context.MappingInfo.SourceType, context.MappingInfo.TargetType);
 
         }
