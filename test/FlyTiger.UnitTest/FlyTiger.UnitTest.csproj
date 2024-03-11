@@ -34,7 +34,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Update="Bogus" Version="35.4.0" />
+      <PackageReference Update="Bogus" Version="35.5.0" />
       <PackageReference Update="Moq" Version="4.20.70" />
       <PackageReference Update="xunit" Version="2.7.0" />
       <PackageReference Update="xunit.runner.visualstudio" Version="2.5.7">
