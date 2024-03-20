@@ -9,7 +9,7 @@
       ]
     },
     "dotnet-reportgenerator-globaltool": {
-      "version": "4.8.7",
+      "version": "5.2.4",
       "commands": [
         "reportgenerator"
       ]
