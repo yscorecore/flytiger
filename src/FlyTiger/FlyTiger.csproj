@@ -20,6 +20,11 @@
         <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     </ItemGroup>
     <ItemGroup>
+      <Compile Update="AutoConstructor\Resources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Resources.resx</DependentUpon>
+      </Compile>
       <Compile Update="CodeException\Code.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
@@ -32,6 +37,10 @@
       </Compile>
     </ItemGroup>
     <ItemGroup>
+      <EmbeddedResource Update="AutoConstructor\Resources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
       <EmbeddedResource Update="CodeException\Code.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>Code.Designer.cs</LastGenOutput>
