@@ -258,11 +258,288 @@ partial class Demo7Child
 
 ## 3. Mapper
 
-### Convert
+### 入门示例
+假如我们有两个User的类，结构相似，我们需要把其中的一个对象转换成另一个对象。
+```csharp
+public record UserDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+}
+public record UserEntity
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+}
+```
+只需要在需要转换的类上面定义```[Mapper(typeof(UserEntity), typeof(UserDto))]```，当定义了以上Mapper特性后，```SourceGenerator```会自动给```UserEntity```增加一个```To```的泛型方法。使用这个泛型方法我们可以把```UserEntity```转换为```UserDto``` 对象。
+```csharp
+[Mapper(typeof(UserEntity), typeof(UserDto))]
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        var user = new UserEntity { Age = 10, Name = "zhangsan", Id = Guid.NewGuid() };
+        var userDto = user.To<UserDto>();
+        Console.WriteLine(userDto);
+    }
+}
+```
+以上代码生成的核心代码如下
+```csharp
+private static global::Mapper.Demo.UserDto ToMapper_Demo_UserDto(this global::Mapper.Demo.UserEntity source)
+{
+    if (source == null) return default;
+    return new global::Mapper.Demo.UserDto
+    {
+        Id = source.Id,
+        Name = source.Name,
+        Age = source.Age,
+    };
+}
+public static T To<T>(this global::Mapper.Demo.UserEntity source) where T : new()
+{
+    if (source == null) return default;
+    if (typeof(T) == typeof(global::Mapper.Demo.UserDto))
+    {
+        return (T)(object)ToMapper_Demo_UserDto(source);
+    }
+    throw new NotSupportedException($"Can not convert '{typeof(global::Mapper.Demo.UserEntity)}' to '{typeof(T)}'.");
+}
+```
 
-### Update
 
-### Query
+### 单个对象存在嵌套对象
+
+```csharp
+[Mapper(typeof(UserEntity), typeof(UserDto))]
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        var user = new UserEntity { Age = 10, Name = "zhangsan", City = new CityEntity { Name = "Xi'an", Province = "Shannxi" };
+        var userDto = user.To<UserDto>();
+        Console.WriteLine(userDto);
+    }
+}
+public record UserEntity
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public CityEntity City { get; set; }
+}
+public record CityEntity
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Province { get; set; }
+}
+public record UserDto
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public CityDto City { get; set; }
+}
+public record CityDto
+{
+    public string Name { get; set; }
+    public string Province { get; set; }
+}
+```
+上面的代码运行输出如下，可以看见```City```属性也被正确的填充了，因为我们定义了```[Mapper(typeof(UserEntity), typeof(UserDto))]```，这样会自动尝试帮我们映射```City```属性，即使两个的类型不同。
+
+```
+UserDto { Name = zhangsan, Age = 10, City = CityDto { Name = xi'an, Province = shannxi } }
+```
+生成的核心代码如下
+```csharp
+private static global::Mapper.Demo.UserDto ToMapper_Demo_UserDto(this global::Mapper.Demo.UserEntity source)
+{
+    if (source == null) return default;
+    return new global::Mapper.Demo.UserDto
+    {
+        Name = source.Name,
+        Age = source.Age,
+        City = source.City == null ? default : new global::Mapper.Demo.CityDto
+        {
+            Name = source.City.Name,
+            Province = source.City.Province,
+        },
+    };
+}
+```
+
+### 导航属性
+
+有时候，目标对象会展示源对象的一些属性，例如以下的例子
+```csharp
+[Mapper(typeof(UserEntity), typeof(UserDto))]
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        var user = new UserEntity { Age = 10, Name = "zhangsan", City = new CityEntity { Name = "xi'an", Province = "shannxi" } };
+        var userDto = user.To<UserDto>();
+        Console.WriteLine(userDto);
+    }
+}
+public record UserEntity
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public CityEntity City { get; set; }
+}
+public record CityEntity
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Province { get; set; }
+}
+public record UserDto
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public Guid CityId { get; set; }
+    public string CityName { get; set; }
+    public string CityProvince { get; set; }
+}
+```
+生成的核心代码如下
+```csharp
+ private static global::Mapper.Demo.UserDto ToMapper_Demo_UserDto(this global::Mapper.Demo.UserEntity source)
+{
+    if (source == null) return default;
+    return new global::Mapper.Demo.UserDto
+    {
+        Name = source.Name,
+        Age = source.Age,
+        CityId = source.City.Id,
+        CityName = source.City.Name,
+        CityProvince = source.City.Province,
+    };
+}
+```
+
+### 单个对象存在嵌套集合对象
+
+```csharp
+[Mapper(typeof(UserEntity), typeof(UserDto))]
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        var user = new UserEntity { Age = 10, Name = "zhangsan", Cities =  new List<CityEntity> { new CityEntity { Name = "xi'an", Province = "shannxi" } } };
+        var userDto = user.To<UserDto>();
+        Console.WriteLine(userDto);
+    }
+}
+public record UserEntity
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public List<CityEntity> Cities { get; set; }
+}
+public record CityEntity
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Province { get; set; }
+}
+public record UserDto
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public CityDto[] Cities { get; set; }
+}
+public record CityDto
+{
+    public string Name { get; set; }
+    public string Province { get; set; }
+}
+
+```
+生成的核心代码如下
+```csharp
+private static global::Mapper.Demo.UserDto ToMapper_Demo_UserDto(this global::Mapper.Demo.UserEntity source)
+{
+    if (source == null) return default;
+    return new global::Mapper.Demo.UserDto
+    {
+        Name = source.Name,
+        Age = source.Age,
+        Cities = source.Cities == null ? default : source.Cities.Select(p => p == null ? default(global::Mapper.Demo.CityDto) : new global::Mapper.Demo.CityDto
+        {
+            Name = p.Name,
+            Province = p.Province,
+        }).ToArray(),
+    };
+}
+```
+
+
+
+### 转换集合对象
+也可以一次性转换集合对象，例如下面的例子
+```csharp
+[Mapper(typeof(UserEntity), typeof(UserDto))]
+internal class Program2
+{
+    static void Main(string[] args)
+    {
+        var userList = new List<UserEntity>
+        {
+                new UserEntity { Age = 10, Name = "zhangsan", Id = Guid.NewGuid() }
+        };
+        var userDtoArray = userList.To<UserDto>().ToArray();
+        Console.WriteLine(userDtoArray);
+    }
+}
+public record UserDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+}
+public record UserEntity
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+}
+```
+核心代码如下
+```csharp
+public static IEnumerable<T> To<T>(this IEnumerable<global::Mapper.Demo.UserEntity> source) where T : new()
+{
+    if (typeof(T) == typeof(global::Mapper.Demo.UserDto))
+    {
+        return (IEnumerable<T>)source?.Select(p => p.ToMapper_Demo_UserDto());
+    }
+    throw new NotSupportedException($"Can not convert '{typeof(global::Mapper.Demo.UserEntity)}' to '{typeof(T)}'.");
+}
+```
+
+### IQueryable的转换
+
+### 更新对象
+
+### 更新字典
+### 更新集合对象，CollectionUpdateMode
+
+### 忽略字段，IgnoreProperties
+
+### 自定义映射，CustomMappings
+
+### 编译检查，CheckType
+
+
+### 减少生成的代码，合理使用MapperType
+
 
 ## 4. AutoNotify
 
