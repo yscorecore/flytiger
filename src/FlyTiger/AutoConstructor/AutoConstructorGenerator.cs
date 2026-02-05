@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace FlyTiger.AutoConstructor
 {
     [Generator]
-    class AutoConstructorGenerator : ISourceGenerator
+    class AutoConstructorGenerator : IIncrementalGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
         const string AttributeName = "AutoConstructorAttribute";
@@ -39,24 +39,44 @@ namespace FlyTiger
 ";
 
 
-        public void Initialize(GeneratorInitializationContext context)
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            context.RegisterForPostInitialization((i) =>
+            // Post init - add attribute definitions
+            context.RegisterPostInitializationOutput((i) =>
             {
                 i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
             });
-            context.RegisterForSyntaxNotifications(() => new AutoConstructorSyntaxReceiver());
-        }
-        public void Execute(GeneratorExecutionContext context)
-        {
-            if (!(context.SyntaxReceiver is AutoConstructorSyntaxReceiver receiver))
-            {
-                return;
-            }
-            var codeWriter = new CodeWriter(context);
 
-            codeWriter.ForeachClassSyntax(receiver.CandidateClasses, ProcessClass);
+            // Syntax provider: find candidate class declarations
+            var classSymbols = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    predicate: (node, _) => node is ClassDeclarationSyntax cds &&
+                        !cds.Modifiers.Any(SyntaxKind.StaticKeyword) && cds.AttributeLists.Any(),
+                    transform: (genCtx, ct) =>
+                    {
+                        var classDecl = (ClassDeclarationSyntax)genCtx.Node;
+                        return genCtx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
+                    })
+                .Where(s => s != null)
+                .Collect();
+
+            // Combine with compilation so we can inspect referenced assemblies
+            var compilationAndClasses = context.CompilationProvider.Combine(context.ParseOptionsProvider).Combine(classSymbols);
+
+
+            context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
+            {
+                var ((compilation, parseOptions),classes) = source;
+                if (classes.IsDefaultOrEmpty) 
+                {
+                    return;
+                }
+                var codeWriter = new CodeWriter(parseOptions, compilation, spc);
+                codeWriter.ForeachClassByInheritanceOrder(classes, ProcessClass);
+            });
         }
+    
+
 
         private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter)
         {
@@ -65,8 +85,7 @@ namespace FlyTiger
                 return null;
             }
 
-
-            var nameMapper = GetSymbolNameMapper(codeWriter.Compilation, classSymbol);
+            var nameMapper = GetSymbolNameMapper(classSymbol);
 
             if (!nameMapper.Any() && !HasDefineValidAutoConstructorInitializeAttribute(classSymbol))
             {
@@ -114,24 +133,43 @@ namespace FlyTiger
             return classSymbol.GetMembers().OfType<IMethodSymbol>()
                   .Any(p => p.Parameters.Length == 0 && p.HasAttribute(InitializeAttributeFullName));
         }
-        IDictionary<string, ArgumentInfo> GetSymbolNameMapper(Compilation compilation, INamedTypeSymbol classSymbol)
+        IDictionary<string, ArgumentInfo> GetSymbolNameMapper(INamedTypeSymbol classSymbol)
         {
             var nameMapper = new Dictionary<string, ArgumentInfo>();
 
-
-            foreach (var baseParam in GetBaseTypeParameters())
+            if (classSymbol.BaseType != null && classSymbol.BaseType.HasAttribute(AttributeFullName))
             {
-
-                var newName = NewArgumentName(baseParam.Name.ToCamelCase(), nameMapper);
-                nameMapper[newName] = new ArgumentInfo
+                foreach (var kv in GetSymbolNameMapper(classSymbol.BaseType))
                 {
-                    ArgName = newName,
-                    ArgTypeSymbol = baseParam.Type,
-                    MemberName = baseParam.Name,
-                    MemberTypeSymbol = baseParam.Type,
-                    Source = ArgumentSource.BaseCtor
-                };
+                    var newName = NewArgumentName(kv.Value.ArgName, nameMapper);
+                    nameMapper[kv.Key] = new ArgumentInfo
+                    {
+                        ArgName = newName,
+                        ArgTypeSymbol = kv.Value.ArgTypeSymbol,
+                        MemberName = newName,
+                        MemberTypeSymbol = kv.Value.MemberTypeSymbol,
+                        Source = ArgumentSource.BaseCtor
+                    };
+                }
             }
+            else
+            {
+                foreach (var baseParam in GetBaseTypeParameters())
+                {
+
+                    var newName = NewArgumentName(baseParam.Name.ToCamelCase(), nameMapper);
+                    nameMapper[newName] = new ArgumentInfo
+                    {
+                        ArgName = newName,
+                        ArgTypeSymbol = baseParam.Type,
+                        MemberName = baseParam.Name,
+                        MemberTypeSymbol = baseParam.Type,
+                        Source = ArgumentSource.BaseCtor
+                    };
+                }
+            }
+
+               
             foreach (var field in GetInstanceFields())
             {
                 var newName = NewArgumentName(field.Name.ToCamelCase(), nameMapper);
@@ -233,7 +271,7 @@ namespace FlyTiger
                 codeBuilder.BeginSegment();
             }
         }
-        void AppendPublicCtor(INamedTypeSymbol classSymbol, IDictionary<string, ArgumentInfo> nameMapper, bool isDependencyInjection, bool nullCheck, CsharpCodeBuilder codeBuilder, CodeWriter writer)
+        void AppendPublicCtor(INamedTypeSymbol classSymbol, IDictionary<string, ArgumentInfo> nameMapper, bool isDependencyInjection, bool nullCheck, CsharpCodeBuilder codeBuilder,CodeWriter codeWriter)
         {
             if (isDependencyInjection)
             {
@@ -262,26 +300,26 @@ namespace FlyTiger
             var allInitializeMethods = GetAllInitializeMethods().ToList();
             if (allInitializeMethods.Count > 1)
             {
-                writer.Context.InitializeMethodShouldOnlyOne(classSymbol, allInitializeMethods);
+                codeWriter.InitializeMethodShouldOnlyOne(classSymbol, allInitializeMethods);
             }
             foreach (var method in allInitializeMethods)
             {
                 if (method.Parameters.Any())
                 {
-                    writer.Context.InitializeMethodShouldHasNoneArguments(method);
+                    codeWriter.InitializeMethodShouldHasNoneArguments(method);
                     // compile error
                     continue;
                 }
 
                 if (method.IsStatic)
                 {
-                    writer.Context.InitializeMethodShouldNotBeStatic(method);
+                    codeWriter.InitializeMethodShouldNotBeStatic(method);
                     codeBuilder.AppendCodeLines(BuildInitializeMethod(method));
                     continue;
                 }
                 if (!method.ReturnsVoid)
                 {
-                    writer.Context.InitializeMethodShouldReturnVoid(method);
+                    codeWriter.InitializeMethodShouldReturnVoid(method);
                     codeBuilder.AppendCodeLines(BuildInitializeMethod(method));
                     continue;
                 }
@@ -344,19 +382,6 @@ namespace FlyTiger
             Property
         }
 
-        private class AutoConstructorSyntaxReceiver : ISyntaxReceiver
-        {
-            public IList<ClassDeclarationSyntax> CandidateClasses { get; } = new List<ClassDeclarationSyntax>();
-
-            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
-            {
-                if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax &&
-                    !classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword) &&
-                    classDeclarationSyntax.AttributeLists.Any())
-                {
-                    CandidateClasses.Add(classDeclarationSyntax);
-                }
-            }
-        }
+       
     }
 }

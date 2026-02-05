@@ -52,7 +52,7 @@ namespace FlyTiger
             }
             if (classSymbol.Constructors.Any(p => p.DeclaringSyntaxReferences.Count() > 0))
             {
-                codeWriter.Context.AlreadyExistsEmptyConstructor(classSymbol);
+                codeWriter.AlreadyExistsEmptyConstructor(classSymbol);
                 return null;
             }
             var instanceName = classSymbol.GetAttributes().Where(p => p.AttributeClass.Is(AttributeFullName))
@@ -62,7 +62,7 @@ namespace FlyTiger
 
             if (!IsValidName(instanceName))
             {
-                codeWriter.Context.InvalidInstancePropertyName(classSymbol, instanceName);
+                codeWriter.InvalidInstancePropertyName(classSymbol, instanceName);
                 return null;
             }
 

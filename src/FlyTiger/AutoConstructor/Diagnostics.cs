@@ -27,7 +27,19 @@ namespace FlyTiger.AutoConstructor
                 DiagnosticDescriptors.InitializeMethodShouldNotBeStatic,
             FindMethodInitializeAttributeLocation(method), method.Name));
         }
+        public static void InitializeMethodShouldNotBeStatic(this CodeWriter context, IMethodSymbol method)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+                DiagnosticDescriptors.InitializeMethodShouldNotBeStatic,
+            FindMethodInitializeAttributeLocation(method), method.Name));
+        }
         public static void InitializeMethodShouldReturnVoid(this GeneratorExecutionContext context, IMethodSymbol method)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+               DiagnosticDescriptors.InitializeMethodShouldReturnVoid,
+             FindMethodInitializeAttributeLocation(method), method.Name));
+        }
+        public static void InitializeMethodShouldReturnVoid(this CodeWriter context, IMethodSymbol method)
         {
             context.ReportDiagnostic(Diagnostic.Create(
                DiagnosticDescriptors.InitializeMethodShouldReturnVoid,
@@ -43,7 +55,23 @@ namespace FlyTiger.AutoConstructor
             }
 
         }
+        public static void InitializeMethodShouldOnlyOne(this CodeWriter context, ITypeSymbol clazz, IEnumerable<IMethodSymbol> methods)
+        {
+            foreach (var method in methods)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                  DiagnosticDescriptors.InitializeMethodShouldOnlyOne,
+                FindMethodInitializeAttributeLocation(method), methods.Count(), clazz.Name));
+            }
+
+        }
         public static void InitializeMethodShouldHasNoneArguments(this GeneratorExecutionContext context, IMethodSymbol method)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticDescriptors.InitializeMethodShouldHasNoneArguments,
+            FindMethodInitializeAttributeLocation(method), method.Name));
+        }
+        public static void InitializeMethodShouldHasNoneArguments(this CodeWriter context, IMethodSymbol method)
         {
             context.ReportDiagnostic(Diagnostic.Create(
             DiagnosticDescriptors.InitializeMethodShouldHasNoneArguments,

@@ -26,7 +26,18 @@ namespace FlyTiger.SingletonPattern
 
             return Location.None;
         }
-        public static void AlreadyExistsEmptyConstructor(this GeneratorExecutionContext context, INamedTypeSymbol classType)
+        public static void AlreadyExistsEmptyConstructor(this CodeWriter context, INamedTypeSymbol classType)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
+               "FT2001",
+               "The class already exists empty constructor",
+               "The class '{0}' already exists empty constructor, can not generate duplicate empty constructor.",
+               Category,
+               DiagnosticSeverity.Error,
+            true),
+               FindSingletonPatternAttributeLocation(classType), classType.Name));
+        }
+        public static void AlreadyExistsEmptyConstructor(this SourceProductionContext context, INamedTypeSymbol classType)
         {
             context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
                "FT2001",
@@ -38,7 +49,18 @@ namespace FlyTiger.SingletonPattern
                FindSingletonPatternAttributeLocation(classType), classType.Name));
         }
 
-        public static void InvalidInstancePropertyName(this GeneratorExecutionContext context, INamedTypeSymbol classType, string propName)
+        public static void InvalidInstancePropertyName(this CodeWriter context, INamedTypeSymbol classType, string propName)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
+                "FT2001",
+                "Invalid instance property name",
+                "Invalid instance property name '{0}'.",
+                Category,
+                DiagnosticSeverity.Error,
+                true),
+                FindSingletonPatternAttributeLocation(classType), propName));
+        }
+        public static void InvalidInstancePropertyName(this SourceProductionContext context, INamedTypeSymbol classType, string propName)
         {
             context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
                 "FT2001",

@@ -13,6 +13,11 @@ namespace FlyTiger.Generator.UnitTest
 {
     public class BaseGeneratorTest
     {
+        protected void ShouldGenerateExpectCodeFile(IIncrementalGenerator generator, string testCaseFileName, params Assembly[] assemblies)
+        { 
+            ShouldGenerateExpectCodeFile(generator.AsSourceGenerator(), testCaseFileName, assemblies);
+        }
+
         protected void ShouldGenerateExpectCodeFile(ISourceGenerator generator, string testCaseFileName, params Assembly[] assemblies)
         {
             XDocument xmlFile = XDocument.Load(Path.Combine("TestCases", testCaseFileName));

@@ -24,9 +24,9 @@ namespace FlyTiger.AutoNotify
             return Location.None;
         }
 
-        public static void InvalidPropertyName(this GeneratorExecutionContext context, IFieldSymbol field, string propName)
+        public static void InvalidPropertyName(this CodeWriter write, IFieldSymbol field, string propName)
         {
-            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
+            write.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
                 "FT1001",
                 "Invalid property name",
                 "Invalid property name '{0}'.",
@@ -35,7 +35,7 @@ namespace FlyTiger.AutoNotify
                 true),
                 FindFieldAutoNofityAttributeLocation(field), propName));
         }
-        public static void PropertyNameAlreadyExists(this GeneratorExecutionContext context, INamedTypeSymbol clazz, IFieldSymbol field, string propName)
+        public static void PropertyNameAlreadyExists(this CodeWriter context, INamedTypeSymbol clazz, IFieldSymbol field, string propName)
         {
             context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor(
                 "FT1002",

@@ -13,14 +13,26 @@ namespace FlyTiger
     {
         public CodeWriter(GeneratorExecutionContext context)
         {
-            Context = context;
+            this.AddSource = context.AddSource;
             this.Compilation = context.Compilation;
+            this.ReportDiagnostic = context.ReportDiagnostic;
+            this.ParseOptions = context.ParseOptions;
+        }
+        public CodeWriter(ParseOptions parseOptions, Compilation compilation, SourceProductionContext context)
+        {
+            this.Compilation = compilation;
+            this.AddSource = context.AddSource;
+            this.ReportDiagnostic = context.ReportDiagnostic;
+            this.ParseOptions = parseOptions;
         }
         public string CodeFileSuffix { get; set; } = "g.cs";
 
         public string CodeFilePrefix { get; set; } = nameof(FlyTiger);
         public Compilation Compilation { get; private set; }
-        public GeneratorExecutionContext Context { get; }
+        public ParseOptions ParseOptions { get; }
+
+        public Action<string,string> AddSource { get; private set; }
+        public Action<Diagnostic> ReportDiagnostic { get; private set; }
 
         private Dictionary<string, int> fileNames = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
 
@@ -32,10 +44,10 @@ namespace FlyTiger
             var name = i == 0 ? codeFile.BasicName : $"{codeFile.BasicName}.{i + 1}";
             fileNames[codeFile.BasicName] = i + 1;
 
-            this.Context.AddSource($"{CodeFilePrefix}.{name}.{CodeFileSuffix}", codeFile.Content);
+            this.AddSource($"{CodeFilePrefix}.{name}.{CodeFileSuffix}", codeFile.Content);
 
             this.Compilation = this.Compilation.AddSyntaxTrees(
-               CSharpSyntaxTree.ParseText(SourceText.From(codeFile.Content, Encoding.UTF8), (CSharpParseOptions)this.Context.ParseOptions));
+               CSharpSyntaxTree.ParseText(SourceText.From(codeFile.Content, Encoding.UTF8), (CSharpParseOptions)this.ParseOptions));
         }
     }
     static class CodeWriterExtensions
@@ -94,6 +106,47 @@ namespace FlyTiger
                 SemanticModel model = codeWriter.Compilation.GetSemanticModel(value.Syntax.SyntaxTree);
                 var clazzSymbol = model.GetDeclaredSymbol(value.Syntax);
                 codeWriter.WriteCodeFile(codeFileFactory(clazzSymbol, codeWriter));
+                value.Handled = true;
+            }
+        }
+        class ClassSyntaxCachedInfo2
+        {
+            public INamedTypeSymbol NameTypedSymbol { get; set; }
+
+            //public string QualifiedName { get; set; }
+
+            public bool Handled { get; set; }
+        }
+  
+        public static void ForeachClassByInheritanceOrder(this CodeWriter codeWriter, IEnumerable<INamedTypeSymbol> classSyntax, Func<INamedTypeSymbol, CodeWriter, CodeFile> codeFileFactory)
+        {
+            _ = codeFileFactory ?? throw new ArgumentNullException(nameof(codeFileFactory));
+            var dic = new Dictionary<INamedTypeSymbol, ClassSyntaxCachedInfo2>(SymbolEqualityComparer.Default);
+
+            foreach (var clazz in classSyntax ?? Enumerable.Empty<INamedTypeSymbol>())
+            {
+                dic[clazz] = new ClassSyntaxCachedInfo2
+                { 
+                    NameTypedSymbol = clazz
+                };
+            }
+
+            foreach (var classCachedInfo in dic.Values)
+            {
+                Visit(classCachedInfo);
+            }
+            void Visit(ClassSyntaxCachedInfo2 value)
+            {
+                if (value.Handled) return;
+                if (value.NameTypedSymbol.BaseType != null)
+                {
+                    if (dic.TryGetValue(value.NameTypedSymbol.BaseType, out var baseCachedInfo))
+                    {
+                        Visit(baseCachedInfo);
+                    }
+                }
+                ;
+                codeWriter.WriteCodeFile(codeFileFactory(value.NameTypedSymbol, codeWriter));
                 value.Handled = true;
             }
         }

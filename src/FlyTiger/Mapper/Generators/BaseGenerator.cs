@@ -21,7 +21,7 @@ namespace FlyTiger.Mapper.Generators
                 var propertyName = targetProperty.Name;
                 var fromType = context.MappingInfo.SourceType.ToErrorFullString();
                 var toType = context.MappingInfo.TargetType.ToErrorFullString();
-                context.CodeWriter.Context.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.TargetPropertyNotFilled, location, propertyName, fromType, toType));
+                context.CodeWriter.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.TargetPropertyNotFilled, location, propertyName, fromType, toType));
             }
         }
         protected void ReportSourcePropertyNotMapped(MapperContext context, IPropertySymbol sourceProperty)
@@ -33,7 +33,7 @@ namespace FlyTiger.Mapper.Generators
                 var propertyName = sourceProperty.Name;
                 var fromType = context.MappingInfo.SourceType.ToErrorFullString();
                 var toType = context.MappingInfo.TargetType.ToErrorFullString();
-                context.CodeWriter.Context.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.SorucePropertyNotMapped, location, propertyName, fromType, toType));
+                context.CodeWriter.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.SorucePropertyNotMapped, location, propertyName, fromType, toType));
             }
         }
         protected void ReportPropertyCanNotBeMapped(MapperContext context, IPropertySymbol targetProperty, IPropertySymbol sourceProperty)
@@ -43,7 +43,7 @@ namespace FlyTiger.Mapper.Generators
             var propertyName = targetProperty.Name;
             var fromType = context.MappingInfo.SourceType.ToErrorFullString();
             var toType = context.MappingInfo.TargetType.ToErrorFullString();
-            context.CodeWriter.Context.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.CanNotMapProperty, location, targetProperty.Name, fromType, toType));
+            context.CodeWriter.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.CanNotMapProperty, location, targetProperty.Name, fromType, toType));
         }
 
     }

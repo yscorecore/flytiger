@@ -133,13 +133,13 @@ namespace FlyTiger
             string propertyName = NormalName(fieldName, overridenNameOpt);
             if (!IsValidName(propertyName))
             {
-                codeWriter.Context.InvalidPropertyName(fieldSymbol, propertyName);
+                codeWriter.InvalidPropertyName(fieldSymbol, propertyName);
                 return;
             }
 
             if (classSymbol.GetAllMembers().Any(t => t.Name == propertyName))
             {
-                codeWriter.Context.PropertyNameAlreadyExists(classSymbol, fieldSymbol, propertyName);
+                codeWriter.PropertyNameAlreadyExists(classSymbol, fieldSymbol, propertyName);
                 return;
             }
 
