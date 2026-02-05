@@ -1,0 +1,9 @@
+﻿<Project>
+  <!-- 这个文件确保生成器被正确引用 -->
+  <ItemGroup Condition="'$(Language)' == 'C#'">
+    <!-- 自动为消费者添加正确的引用属性 -->
+    <PackageReference Update="FlyTiger"
+                      PrivateAssets="all"
+                      IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+</Project>

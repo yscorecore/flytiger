@@ -4,6 +4,8 @@
       <TargetFramework>netstandard2.0</TargetFramework>
       <RootNamespace>FlyTiger</RootNamespace>
       <IncludeBuildOutput>false</IncludeBuildOutput>
+      <DevelopmentDependency>true</DevelopmentDependency>
+      <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
     <ItemGroup>
@@ -17,7 +19,10 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.9.0" />
     </ItemGroup>
     <ItemGroup>
-        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(OutputPath)\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(OutputPath)\netstandard2.0\$(AssemblyName).pdb" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="build\$(AssemblyName).props" Pack="true" PackagePath="build\" />
+        <None Include="build\$(AssemblyName).targets" Pack="true" PackagePath="build\" />
     </ItemGroup>
     <ItemGroup>
       <Compile Update="AutoConstructor\Resources.Designer.cs">
