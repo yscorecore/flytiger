@@ -43,7 +43,7 @@ namespace FlyTiger.Mapper
 
         private string BuildMapperContent(CodeWriter codeWriter, IList<AttributeData> attributeDatas)
         {
-            CsharpCodeBuilder codeBuilder = new CsharpCodeBuilder();
+            CsharpCodeBuilder codeBuilder = new CsharpCodeBuilder("CS1591");
             // using
             codeBuilder.AppendCodeLines("using System;");
             codeBuilder.AppendCodeLines("using System.Collections.Immutable;");

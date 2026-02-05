@@ -18,6 +18,7 @@ namespace ConsoleApp2
     <output>
         <code file="FlyTiger.Class1.g.cs">
             <![CDATA[
+#pragma warning disable CS1591
 using System;
 namespace ConsoleApp2
 {

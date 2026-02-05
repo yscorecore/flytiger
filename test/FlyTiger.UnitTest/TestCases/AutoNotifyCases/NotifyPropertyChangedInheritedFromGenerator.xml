@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <case>
     <input>
         <code>
@@ -13,7 +13,7 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
+            ]]>
         </code>
         <code>
             <![CDATA[
@@ -27,40 +27,10 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
+            ]]>
         </code>
     </input>
     <output>
-        <code file="FlyTiger.Class1.g.cs">
-            <![CDATA[
-using System.ComponentModel;
-namespace ConsoleApp2
-{
-    partial class Class1 : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public int Age 
-        {
-            get 
-            {
-                return this._age;
-            }
-            set
-            {
-                if(this._age != value)
-                {
-                    this._age = value;
-                    this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Age)));
-                }
-            }
-        }
-
-    }
-}
-            ]]>
-        </code>
-
         <code file="FlyTiger.Class2.g.cs">
             <![CDATA[
 using System.ComponentModel;

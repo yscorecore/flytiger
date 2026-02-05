@@ -29,6 +29,7 @@ namespace ConsoleApp2
     <output>
         <code file="FlyTiger.BaseClass.SecondClass.g.cs">
             <![CDATA[
+#pragma warning disable CS1591
 namespace ConsoleApp2
 {
     partial class BaseClass
@@ -46,6 +47,7 @@ namespace ConsoleApp2
         </code>
         <code file="FlyTiger.BaseClass.SecondClass.ThirdClass.g.cs">
             <![CDATA[
+#pragma warning disable CS1591
 namespace ConsoleApp2
 {
     partial class BaseClass

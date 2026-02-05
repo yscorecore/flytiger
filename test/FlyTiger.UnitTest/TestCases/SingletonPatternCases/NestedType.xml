@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <case>
     <input>
         <code>
@@ -21,6 +21,7 @@ namespace ConsoleApp2
     <output>
         <code file="FlyTiger.BaseClass.Class1.g.cs">
             <![CDATA[
+#pragma warning disable CS1591
 using System;
 namespace ConsoleApp2
 {

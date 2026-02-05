@@ -13,7 +13,7 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
+            ]]>
         </code>
         <code>
             <![CDATA[
@@ -27,7 +27,7 @@ namespace ConsoleApp3
 
     }
 }
-        ]]>
+            ]]>
         </code>
     </input>
     <output>
@@ -35,35 +35,6 @@ namespace ConsoleApp3
             <![CDATA[
 using System.ComponentModel;
 namespace ConsoleApp2
-{
-    partial class Class1 : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public int Age 
-        {
-            get 
-            {
-                return this._age;
-            }
-            set
-            {
-                if(this._age != value)
-                {
-                    this._age = value;
-                    this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Age)));
-                }
-            }
-        }
-
-    }
-}
-            ]]>
-        </code>
-        <code file="FlyTiger.Class1.2.g.cs">
-            <![CDATA[
-using System.ComponentModel;
-namespace ConsoleApp3
 {
     partial class Class1 : INotifyPropertyChanged
     {

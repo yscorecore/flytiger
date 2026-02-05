@@ -8,9 +8,18 @@ namespace FlyTiger
     class CsharpCodeBuilder
     {
         private const int TabSize = 4;
-        private StringBuilder stringBuilder = new StringBuilder();
+        private readonly StringBuilder stringBuilder = new StringBuilder();
 
         private int depthOfNesting = 0;
+
+        public CsharpCodeBuilder(params string[] disableWarnings)
+        {
+            if (disableWarnings.Length > 0)
+            {
+                this.AppendCodeLines($"#pragma warning disable {string.Join(", ", disableWarnings)}");
+            }
+        }
+
         public void IncreaseDepth()
         {
             this.depthOfNesting++;

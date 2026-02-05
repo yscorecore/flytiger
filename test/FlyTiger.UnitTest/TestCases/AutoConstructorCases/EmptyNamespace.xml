@@ -18,6 +18,7 @@ partial class Class1
     <output>
         <code file="FlyTiger.Class1.g.cs">
             <![CDATA[
+#pragma warning disable CS1591
 partial class Class1
 {
     public Class1(int age)

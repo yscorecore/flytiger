@@ -66,7 +66,7 @@ namespace FlyTiger
                 return null;
             }
 
-            CsharpCodeBuilder codeBuilder = new CsharpCodeBuilder();
+            CsharpCodeBuilder codeBuilder = new CsharpCodeBuilder("CS1591");
             AppendUsingLines(classSymbol, codeBuilder);
             AppendNamespace(classSymbol, codeBuilder);
             AppendClassDefinition(classSymbol, codeBuilder);

@@ -48,7 +48,7 @@ namespace FlyTiger.CodeException
             {
                 return null;
             }
-            CsharpCodeBuilder codeBuilder = new CsharpCodeBuilder();
+            CsharpCodeBuilder codeBuilder = new CsharpCodeBuilder("CS1591", "CS0219");
             AppendUsingLines(classSymbol, codeBuilder);
             AppendNamespace(classSymbol, codeBuilder);
             AppendClassDefinition(classSymbol, codeBuilder);

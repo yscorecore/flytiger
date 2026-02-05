@@ -18,7 +18,7 @@ namespace AutoCtor
         public string StrValue { get; set; }
         public int IntValue { get; set; }
     }
-    [AutoConstructor(NullCheck =true)]
+    [AutoConstructor(NullCheck = true)]
     public partial class Demo3
     {
         private string strValue;
@@ -55,7 +55,7 @@ namespace AutoCtor
     }
     [AutoConstructor]
     public partial class Demo6Service
-    { 
+    {
         private readonly IService1 service1;
         private readonly IService2 service2;
         public void Action()
@@ -72,7 +72,7 @@ namespace AutoCtor
         private string strValue;
     }
     [AutoConstructor]
-    public partial class Demo7Child: Demo7Parent
+    public partial class Demo7Child : Demo7Parent
     {
         private int intValue;
     }

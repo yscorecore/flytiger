@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <case>
     <input>
         <code>
@@ -19,6 +19,7 @@ namespace ConsoleApp2
     <output>
         <code file="FlyTiger.Class1.g.cs">
             <![CDATA[
+#pragma warning disable CS1591, CS0219
 using System;
 using System.Linq;
 using System.Resources;

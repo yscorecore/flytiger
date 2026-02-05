@@ -3,8 +3,11 @@
 
 
     <ItemGroup>
+      <Compile Remove="AutoConstructor\**" />
       <Compile Remove="Verifiers\**" />
+      <EmbeddedResource Remove="AutoConstructor\**" />
       <EmbeddedResource Remove="Verifiers\**" />
+      <None Remove="AutoConstructor\**" />
       <None Remove="TestCases\**\*.xml" />
       <None Remove="Verifiers\**" />
 
@@ -26,10 +29,6 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
         
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="AutoConstructor\" />
     </ItemGroup>
 
     <!--<ItemGroup>

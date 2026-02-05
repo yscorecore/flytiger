@@ -31,6 +31,7 @@ namespace ConsoleApp2
     <output>
         <code file="FlyTiger.Class1.g.cs">
             <![CDATA[
+#pragma warning disable CS1591
 namespace ConsoleApp2
 {
     partial class Class1
