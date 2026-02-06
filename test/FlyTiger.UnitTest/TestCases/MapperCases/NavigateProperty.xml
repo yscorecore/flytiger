@@ -1,8 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <case>
-    <input>
-        <code>
-            <![CDATA[
+  <input>
+    <code><![CDATA[
 namespace ConsoleApp2
 {
     public class UserInfo
@@ -19,10 +18,8 @@ namespace ConsoleApp2
     }
 }
             
-            ]]>
-        </code>
-        <code>
-            <![CDATA[
+            ]]></code>
+    <code><![CDATA[
 using FlyTiger;
 using FlyTiger.Generator.UnitTest;
 namespace ConsoleApp2
@@ -33,14 +30,304 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
-        </code>
-    </input>
-    <output>
-        <code file="FlyTiger.MapperExtensions.g.cs">
-            <![CDATA[using System;
+        ]]></code>
+  </input>
+  <output>
+    <code file="FlyTiger.MapperAttribute.g.cs"><![CDATA[using System;
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+    sealed class MapperAttribute : Attribute
+    {
+        public MapperAttribute(Type sourceType, Type targetType)
+        {
+
+            SourceType = sourceType ?? throw new ArgumentNullException(nameof(sourceType));
+            TargetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
+        }
+
+        public Type SourceType { get; }
+        public Type TargetType { get; }
+
+        public string[] IgnoreProperties { get; set; }
+
+        public string[] CustomMappings { get; set; }
+
+        public MapperType MapperType { get; set; } = MapperType.All;
+        
+        public CheckType CheckType { get; set; } = CheckType.None;
+
+    }
+    [Flags]
+    enum MapperType
+    {
+        Query = 1,
+        Convert = 2,
+        Update = 4,
+        BatchUpdate = Convert | Update,
+        All = Query | Convert | Update
+    }
+    [Flags]
+    enum CheckType
+    {
+        None = 0,
+        SourceMembersFullUsed = 1,
+        TargetMembersFullFilled = 2,
+        All = SourceMembersFullUsed | TargetMembersFullFilled
+    }
+    enum CollectionUpdateMode
+    {
+        Append = 0,
+        Merge = 1,
+        Update = 2
+    }
+}]]></code>
+    <code file="FlyTiger.EFCoreQueryableExtensions.g.cs"><![CDATA[using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+
+namespace FlyTiger
+{
+    internal static class EFCoreQueryableExtensions
+    {
+        public static IQueryable<TResult> RebuildWithIncludeForEfCore<TResult>(this IQueryable<TResult> toQuery)
+        {
+            if (toQuery?.Expression is MethodCallExpression callExpression
+                && callExpression.Method.Name == nameof(Queryable.Select) && callExpression.Method.DeclaringType == typeof(Queryable)
+                && callExpression.Arguments.Count == 2)
+            {
+                var includePaths = FindIncludeCollectionLambda(callExpression.Arguments[0]);
+                if (includePaths.Any())
+                {
+                    return toQuery.Provider.CreateQuery<TResult>(Expression.Call(
+                         null,
+                         callExpression.Method,
+                         callExpression.Arguments[0], ReplaceSelectCollectionExpression(callExpression.Arguments[1], includePaths)
+                     ));
+                }
+            }
+            return toQuery;
+        }
+        static IList<MemberIncludePath> FindIncludeCollectionLambda(Expression expression)
+        {
+            var includeFinder = new IncludePathFinder();
+            includeFinder.Visit(expression);
+            return includeFinder.MemberIncludePaths;
+        }
+        static Expression ReplaceSelectCollectionExpression(Expression expression, IList<MemberIncludePath> includePaths)
+        {
+            var visitCollectionSelect = new CollectionSelectReplacer(includePaths);
+            return visitCollectionSelect.Visit(expression);
+        }
+#pragma warning disable CS8603,CS8604,CS8618
+        class IncludePathFinder : ExpressionVisitor
+        {
+            public List<MemberIncludePath> MemberIncludePaths { get; private set; } = new List<MemberIncludePath>();
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if ((node.Method.Name == "Include" || node.Method.Name == "ThenInclude") && node.Type.IsGenericType &&
+                    node.Type.GetGenericTypeDefinition().FullName == "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable`2")
+                {
+                    var quoteExpression = node.Arguments[1] as UnaryExpression;
+                    var lambda = quoteExpression?.Operand as LambdaExpression;
+                    var memberIncludePath = FindMemberExpression(lambda);
+                    if (memberIncludePath != null)
+                    {
+                        MemberIncludePaths.Add(memberIncludePath);
+                    }
+                }
+                return base.VisitMethodCall(node);
+            }
+            private MemberIncludePath FindMemberExpression(LambdaExpression lambdaExpression)
+            {
+                if (lambdaExpression == null) return null;
+                if (lambdaExpression.ReturnType.IsGenericType == false)
+                {
+
+                    return null;
+                }
+
+                var itemType = GetItemType(lambdaExpression.ReturnType);
+                if (itemType == null)
+                {
+                    return null;
+                }
+                MemberIncludePath result = new MemberIncludePath();
+                var expression = lambdaExpression.Body;
+                while (true)
+                {
+                    if (expression is MemberExpression member)
+                    {
+                        var memberItemType = GetItemType(member.Type);
+                        if (memberItemType == itemType)
+                        {
+                            result.ItemType = memberItemType;
+                            result.Member = member;
+                            return result.HasCallPath ? result : null;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+
+                    }
+                    else if (expression is ParameterExpression)
+                    {
+                        return null;
+                    }
+                    else if (expression is MethodCallExpression method)
+                    {
+                        result.CallPaths.Insert(0, method);
+                        expression = method.Arguments[0];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                Type GetItemType(Type sourceType)
+                {
+                    if (sourceType.IsArray)
+                    {
+                        return sourceType.GetElementType();
+                    }
+                    if (sourceType.IsGenericType && sourceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    {
+                        return sourceType.GetGenericArguments().First();
+                    }
+                    return sourceType.GetInterfaces()
+                          .Where(p => p.IsGenericType && p.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                          .Select(p => p.GetGenericArguments().First()).FirstOrDefault();
+                }
+            }
+        }
+
+        class CollectionSelectReplacer : ExpressionVisitor
+        {
+            private readonly IDictionary<MemberInfo, MemberIncludePath> memberPathsMap = new Dictionary<MemberInfo, MemberIncludePath>();
+
+            public CollectionSelectReplacer(IEnumerable<MemberIncludePath> memberIncludePaths)
+            {
+                foreach (var memberIncludePath in memberIncludePaths)
+                {
+                    memberPathsMap[memberIncludePath.Member.Member] = memberIncludePath;
+                }
+            }
+            protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
+            {
+                if (node.Expression is MemberExpression member && memberPathsMap.TryGetValue(member.Member, out var paths))
+                {
+                    return node.Update(ReplaceAndConvertExpression(member, paths));
+                }
+
+                return base.VisitMemberAssignment(node);
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+              
+                if (node.Method.DeclaringType == typeof(Enumerable) && node.Arguments[0] is MemberExpression member && memberPathsMap.TryGetValue(member.Member, out var paths))
+                {
+                    var arguments = node.Arguments.ToArray();
+                    arguments[0] = ReplaceExpression(member, paths);
+                    return Expression.Call(null, node.Method, arguments);
+                }
+
+                return base.VisitMethodCall(node);
+            }
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                var source = node.Expression as MemberExpression;
+                if (source != null && memberPathsMap.TryGetValue(source.Member, out var paths))
+                {
+                    if (node.Member.DeclaringType == typeof(Array))
+                    {
+                        if (node.Member.Name == nameof(Array.Length))
+                        {
+                            return BuildCountExpression(ReplaceExpression(source, paths), CountMethod, paths.ItemType);
+                        }
+                        else if (node.Member.Name == nameof(Array.LongLength))
+                        {
+                            return BuildCountExpression(ReplaceExpression(source, paths), LongCountMethod, paths.ItemType);
+                        }
+                    }
+        
+                    else if (node.Member.Name == nameof(ICollection<int>.Count) && node.Member.DeclaringType.IsGenericType)
+                    {
+                        return BuildCountExpression(ReplaceExpression(source, paths), CountMethod, paths.ItemType);
+                    }
+                }
+                return base.VisitMember(node);
+            }
+
+            private Expression ReplaceExpression(MemberExpression expression, MemberIncludePath paths)
+            {
+                Expression exp = expression;
+                foreach (var callPath in paths.CallPaths)
+                {
+                    var arguments = callPath.Arguments.ToArray();
+                    arguments[0] = exp;
+                    exp = Expression.Call(null, callPath.Method, arguments);
+                }
+                return exp;
+            }
+            static MethodInfo ToArrayMethod = typeof(Enumerable).GetMethod(nameof(Enumerable.ToArray));
+            static MethodInfo ToListMethod = typeof(Enumerable).GetMethod(nameof(Enumerable.ToList));
+            static MethodInfo CountMethod = typeof(Enumerable).GetMethods().Single(p => p.Name == nameof(Enumerable.Count) && p.GetParameters().Length == 1);
+            static MethodInfo LongCountMethod = typeof(Enumerable).GetMethods().Single(p => p.Name == nameof(Enumerable.LongCount) && p.GetParameters().Length == 1);
+            private Expression ReplaceAndConvertExpression(MemberExpression expression, MemberIncludePath paths)
+            {
+                var returnType = expression.Type;
+                Expression exp = expression;
+                Type expressionReturnType = expression.Type;
+                foreach (var callPath in paths.CallPaths)
+                {
+                    var arguments = callPath.Arguments.ToArray();
+                    arguments[0] = exp;
+                    exp = Expression.Call(null, callPath.Method, arguments);
+                    expressionReturnType = callPath.Method.ReturnType;
+                }
+                if (expressionReturnType == returnType)
+                {
+                    return exp;
+                }
+                else if (returnType.IsArray)
+                {
+                    return Expression.Call(null, ToArrayMethod.MakeGenericMethod(paths.ItemType), exp);
+                }
+                else if (returnType.IsAssignableFrom(typeof(List<>).MakeGenericType(paths.ItemType)))
+                {
+                    return Expression.Call(null, ToListMethod.MakeGenericMethod(paths.ItemType), exp);
+                }
+                else
+                {
+                    return expression;
+                }
+            }
+            private Expression BuildCountExpression(Expression expression, MethodInfo genericCountMethod, Type itemType)
+            {
+                var method = genericCountMethod.MakeGenericMethod(itemType);
+                return Expression.Call(null, method, expression);
+            }
+        }
+        class MemberIncludePath
+        {
+            public Type ItemType { get; set; }
+            public MemberExpression Member { get; set; }
+            public List<MethodCallExpression> CallPaths { get; } = new List<MethodCallExpression>();
+            public bool HasCallPath { get => CallPaths.Any(); }
+        }
+    }
+#pragma warning restore CS8603,CS8604,CS8618 
+}]]></code>
+    <code file="FlyTiger.MapperExtensions.g.cs"><![CDATA[#pragma warning disable CS1591
+using System;
+using System.Collections.Immutable;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 namespace FlyTiger
 {
     static class MapperExtensions
@@ -49,11 +336,18 @@ namespace FlyTiger
         {
             foreach (var item in source)
             {
-                handler(item);
+                handler?.Invoke(item);
                 yield return item;
             }
         }
-        private static global::ConsoleApp2.UserInfo ToConsoleApp2UserInfo(this global::ConsoleApp2.TUser source)
+        private static void ForEach<T>(this IEnumerable<T> source, Action<T> handler)
+        {
+            foreach (var item in source)
+            {
+                handler?.Invoke(item);
+            }
+        }
+        private static global::ConsoleApp2.UserInfo ToConsoleApp2_UserInfo(this global::ConsoleApp2.TUser source)
         {
             if (source == null) return default;
             return new global::ConsoleApp2.UserInfo
@@ -62,68 +356,223 @@ namespace FlyTiger
                 NameLength = source.Name.Length,
             };
         }
-        private static void ToConsoleApp2UserInfo(this global::ConsoleApp2.TUser source, global::ConsoleApp2.UserInfo target)
+        private static void ToConsoleApp2_UserInfo(this global::ConsoleApp2.TUser source, global::ConsoleApp2.UserInfo target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
         {
-            if (source == null) return;
-            if (target == null) return;
-            target.Name = source.Name;
-            target.NameLength = source.Name.Length;
+            CopyConsoleApp2TUserToConsoleApp2UserInfo(source, target);
+            void CopyConsoleApp2TUserToConsoleApp2UserInfo(global::ConsoleApp2.TUser source, global::ConsoleApp2.UserInfo target)
+            {
+                if (source == null) return;
+                if (target == null) return;
+                target.Name = source.Name;
+                target.NameLength = source.Name.Length;
+            }
         }
-        private static IQueryable<global::ConsoleApp2.UserInfo> ToConsoleApp2UserInfo(this IQueryable<global::ConsoleApp2.TUser> source)
+        private static void ToConsoleApp2_UserInfo<T>(this IDictionary<T, global::ConsoleApp2.TUser> source, IDictionary<T, global::ConsoleApp2.UserInfo> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
+        {
+            var sourceKeys = source.Keys;
+            var targetKeys = target.Keys;
+            // modify item
+            sourceKeys.Intersect(targetKeys).ForEach(key =>
+            {
+                ToConsoleApp2_UserInfo(source[key], target[key], onRemoveItem, onAddItem);
+            });
+            // remove item
+            targetKeys.Except(sourceKeys).ForEach(key =>
+            {
+                var item = target[key];
+                target.Remove(key);
+                onRemoveItem?.Invoke(item);
+            });
+            // add item
+            sourceKeys.Except(targetKeys).ForEach(key =>
+            {
+                var item = source[key].ToConsoleApp2_UserInfo();
+                target.Add(key, item);
+                onAddItem?.Invoke(item);
+            });
+        }
+        private static void ToConsoleApp2_UserInfo<T>(this IEnumerable<global::ConsoleApp2.TUser> source, ICollection<global::ConsoleApp2.UserInfo> target, CollectionUpdateMode updateMode, Func<global::ConsoleApp2.TUser, T> sourceItemKeySelector, Func<global::ConsoleApp2.UserInfo, T> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
+        {
+            if (updateMode == CollectionUpdateMode.Append)
+            {
+                source.Select(p => p.ToConsoleApp2_UserInfo()).ForEach(p =>
+                {
+                    target.Add(p);
+                    onAddItem?.Invoke(p);
+                });
+            }
+            else
+            {
+                var sourceKeys = source.Select(sourceItemKeySelector).ToHashSet();
+                var targetKeys = target.Select(targetItemKeySelector).ToHashSet();
+                // modify item
+                sourceKeys.Intersect(targetKeys).ForEach(key =>
+                {
+                    ToConsoleApp2_UserInfo(
+                        source.Where(p => sourceItemKeySelector(p).Equals(key)).First(),
+                        target.Where(p => targetItemKeySelector(p).Equals(key)).First(),
+                        onRemoveItem, onAddItem);
+                });
+                // remove item
+                if (updateMode == CollectionUpdateMode.Update)
+                {
+                    target.Where(p => !sourceKeys.Contains(targetItemKeySelector(p))).ToList().ForEach(p =>
+                    {
+                        target.Remove(p);
+                        onRemoveItem?.Invoke(p);
+                    });
+                }
+                // add item
+                source.Where(p => !targetKeys.Contains(sourceItemKeySelector(p))).Select(p => p.ToConsoleApp2_UserInfo()).ForEach(p =>
+                {
+                    target.Add(p);
+                    onAddItem?.Invoke(p);
+                });
+            }
+        }
+        private static IQueryable<global::ConsoleApp2.UserInfo> ToConsoleApp2_UserInfo(this IQueryable<global::ConsoleApp2.TUser> source)
         {
             return source?.Select(p => new global::ConsoleApp2.UserInfo
             {
                 Name = p.Name,
                 NameLength = p.Name.Length,
+            }).RebuildWithIncludeForEfCore();
+        }
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, Delegate> sourceKeySelectorCache = new System.Collections.Concurrent.ConcurrentDictionary<int, Delegate>();
+        private static Func<Source, Key> GetSourceKeySelectorFunc<Source, Key>(Expression<Func<Source, Key>> sourceKeyLambda)
+        {
+            int cacheKey = typeof(Source).GetHashCode() ^ sourceKeyLambda.ToString().GetHashCode();
+            return (Func<Source, Key>)sourceKeySelectorCache.GetOrAdd(cacheKey, (_) =>
+            {
+                return sourceKeyLambda.Compile();
             });
         }
-        public static T To<T>(this global::ConsoleApp2.TUser source) where T:new()
+
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, Delegate> targetKeySelectorCache = new System.Collections.Concurrent.ConcurrentDictionary<int, Delegate>();
+        private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(Expression<Func<Source, Key>> sourceKeyLambda)
+        {
+            int cacheKey = typeof(Source).GetHashCode() ^ typeof(Target).GetHashCode() ^ sourceKeyLambda.ToString().GetHashCode();
+            return (Func<Target, Key>)targetKeySelectorCache.GetOrAdd(cacheKey, (_) =>
+            {
+                var newParameter = Expression.Parameter(typeof(Target), "p");
+                var replacer = new ParameterExpressionReplacer(newParameter);
+                var newLambdaBody = replacer.Visit(sourceKeyLambda.Body);
+                var newLambda = Expression.Lambda<Func<Target, Key>>(newLambdaBody, newParameter);
+                return newLambda.Compile();
+            });
+        }
+        public static T To<T>(this global::ConsoleApp2.TUser source) where T : new()
         {
             if (source == null) return default;
             if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
             {
-                return (T)(object)ToConsoleApp2UserInfo(source);
+                return (T)(object)ToConsoleApp2_UserInfo(source);
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
         }
-        public static T To<T>(this global::ConsoleApp2.TUser source, Action<T> postHandler) where T:new()
+        public static T To<T>(this global::ConsoleApp2.TUser source, Action<T> postHandler) where T : class, new()
         {
             var result = source.To<T>();
             postHandler?.Invoke(result);
             return result;
         }
-        public static void To<T>(this global::ConsoleApp2.TUser source, T target) where T:class
+        public static IEnumerable<T> To<T>(this IEnumerable<global::ConsoleApp2.TUser> source) where T : new()
         {
-            if (source == null) return;
             if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
             {
-                ToConsoleApp2UserInfo(source, (global::ConsoleApp2.UserInfo)(object)target);
+                return (IEnumerable<T>)source?.Select(p => p.ToConsoleApp2_UserInfo());
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
+        }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::ConsoleApp2.TUser> source, Action<T> postHandler) where T : class, new()
+        {
+            return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);
+        }
+        public static IDictionary<Key, T> To<Key, T>(this IDictionary<Key, global::ConsoleApp2.TUser> source) where T : new()
+        {
+            if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
+            {
+                return (IDictionary<Key, T>)(source?.ToDictionary(p => p.Key, p => p.Value.ToConsoleApp2_UserInfo()));
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
+        }
+        public static IDictionary<Key, T> To<Key, T>(this IDictionary<Key, global::ConsoleApp2.TUser> source, Action<T> postHandler) where T : class, new()
+        {
+            var res = source?.To<Key, T>();
+            res?.ForEach(p => postHandler?.Invoke(p.Value));
+            return res;
+        }
+        public static void To<T>(this global::ConsoleApp2.TUser source, T target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class
+        {
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            _ = target ?? throw new ArgumentNullException(nameof(target));
+            if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
+            {
+                ToConsoleApp2_UserInfo(source, (global::ConsoleApp2.UserInfo)(object)target, onRemoveItem, onAddItem);
                 return;
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
         }
-        public static IEnumerable<T> To<T>(this IEnumerable<global::ConsoleApp2.TUser> source) where T:new()
+        public static void To<Key, T>(this IDictionary<Key, global::ConsoleApp2.TUser> source, IDictionary<Key, T> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()
         {
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            _ = target ?? throw new ArgumentNullException(nameof(target));
             if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
             {
-                return (IEnumerable<T>)source?.Select(p => p.ToConsoleApp2UserInfo());
+                ToConsoleApp2_UserInfo(source, (IDictionary<Key, global::ConsoleApp2.UserInfo>)target, onRemoveItem, onAddItem);
+                return;
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
         }
-        public static IEnumerable<T> To<T>(this IEnumerable<global::ConsoleApp2.TUser> source, Action<T> postHandler) where T : new()
+        public static void To<T, K>(this IEnumerable<global::ConsoleApp2.TUser> source, ICollection<T> target, CollectionUpdateMode updateMode, Func<global::ConsoleApp2.TUser, K> sourceItemKeySelector, Func<T, K> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()
         {
-            return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            _ = target ?? throw new ArgumentNullException(nameof(target));
+            _ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
+            _ = targetItemKeySelector ?? throw new ArgumentNullException(nameof(targetItemKeySelector));
+            if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
+            {
+                ToConsoleApp2_UserInfo(source, (ICollection<global::ConsoleApp2.UserInfo>)target, updateMode, sourceItemKeySelector, (Func<global::ConsoleApp2.UserInfo, K>)targetItemKeySelector, onRemoveItem, onAddItem);
+                return;
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
         }
-        public static IQueryable<T> To<T>(this IQueryable<global::ConsoleApp2.TUser> source) where T:new()
+        public static void To<T, K>(this IEnumerable<global::ConsoleApp2.TUser> source, ICollection<T> target, CollectionUpdateMode updateMode, Expression<Func<global::ConsoleApp2.TUser, K>> sourceItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()
+        {
+            _ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
+            var sourceFunc = GetSourceKeySelectorFunc(sourceItemKeySelector);
+            var targetFunc = GetTargetKeySelectorFunc<global::ConsoleApp2.TUser, T, K>(sourceItemKeySelector);
+            source.To(target, updateMode, sourceFunc, targetFunc, onRemoveItem, onAddItem);
+        }
+        public static IQueryable<T> To<T>(this IQueryable<global::ConsoleApp2.TUser> source) where T : new()
         {
             if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
             {
-                return (IQueryable<T>)ToConsoleApp2UserInfo(source);
+                return (IQueryable<T>)ToConsoleApp2_UserInfo(source);
             }
             throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
+        }
+        private class ParameterExpressionReplacer : ExpressionVisitor
+        {
+            public ParameterExpressionReplacer(ParameterExpression newParameter)
+            {
+                this.newParameter = newParameter;
+            }
+            private readonly ParameterExpression newParameter;
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                if (node.Expression.NodeType == ExpressionType.Parameter)
+                {
+                    return Expression.PropertyOrField(newParameter, node.Member.Name);
+                }
+                else
+                {
+                    return base.VisitMember(node);
+                }
+            }
         }
     }
-}]]>
-        </code>
-    </output>
+}]]></code>
+  </output>
 </case>

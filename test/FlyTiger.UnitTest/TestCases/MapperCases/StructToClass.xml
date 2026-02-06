@@ -9,7 +9,7 @@ namespace ConsoleApp2
         public string Name { get; set; }
     }
 
-    public partial class TUser
+    public struct TUser
     {
         public string Name { get; set; }
     }
@@ -19,13 +19,14 @@ namespace ConsoleApp2
     <code><![CDATA[
 using FlyTiger;
 using FlyTiger.Generator.UnitTest;
-using ConsoleApp2;
-[MapperAttribute(typeof(TUser), typeof(UserInfo))]
-partial class Convertors
+namespace ConsoleApp2
 {
+    [MapperAttribute(typeof(TUser), typeof(UserInfo))]
+    partial class Convertors
+    {
 
+    }
 }
-
         ]]></code>
   </input>
   <output>
@@ -345,7 +346,6 @@ namespace FlyTiger
         }
         private static global::ConsoleApp2.UserInfo ToConsoleApp2_UserInfo(this global::ConsoleApp2.TUser source)
         {
-            if (source == null) return default;
             return new global::ConsoleApp2.UserInfo
             {
                 Name = source.Name,
@@ -356,7 +356,6 @@ namespace FlyTiger
             CopyConsoleApp2TUserToConsoleApp2UserInfo(source, target);
             void CopyConsoleApp2TUserToConsoleApp2UserInfo(global::ConsoleApp2.TUser source, global::ConsoleApp2.UserInfo target)
             {
-                if (source == null) return;
                 if (target == null) return;
                 target.Name = source.Name;
             }
@@ -456,7 +455,6 @@ namespace FlyTiger
         }
         public static T To<T>(this global::ConsoleApp2.TUser source) where T : new()
         {
-            if (source == null) return default;
             if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
             {
                 return (T)(object)ToConsoleApp2_UserInfo(source);
@@ -497,7 +495,6 @@ namespace FlyTiger
         }
         public static void To<T>(this global::ConsoleApp2.TUser source, T target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class
         {
-            _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = target ?? throw new ArgumentNullException(nameof(target));
             if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
             {

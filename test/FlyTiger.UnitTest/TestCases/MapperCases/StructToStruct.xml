@@ -4,12 +4,12 @@
     <code><![CDATA[
 namespace ConsoleApp2
 {
-    public class UserInfo
+    public struct UserInfo
     {
         public string Name { get; set; }
     }
 
-    public partial class TUser
+    public struct TUser
     {
         public string Name { get; set; }
     }
@@ -19,13 +19,14 @@ namespace ConsoleApp2
     <code><![CDATA[
 using FlyTiger;
 using FlyTiger.Generator.UnitTest;
-using ConsoleApp2;
-[MapperAttribute(typeof(TUser), typeof(UserInfo))]
-partial class Convertors
+namespace ConsoleApp2
 {
+    [MapperAttribute(typeof(TUser), typeof(UserInfo))]
+    partial class Convertors
+    {
 
+    }
 }
-
         ]]></code>
   </input>
   <output>
@@ -345,84 +346,10 @@ namespace FlyTiger
         }
         private static global::ConsoleApp2.UserInfo ToConsoleApp2_UserInfo(this global::ConsoleApp2.TUser source)
         {
-            if (source == null) return default;
             return new global::ConsoleApp2.UserInfo
             {
                 Name = source.Name,
             };
-        }
-        private static void ToConsoleApp2_UserInfo(this global::ConsoleApp2.TUser source, global::ConsoleApp2.UserInfo target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
-        {
-            CopyConsoleApp2TUserToConsoleApp2UserInfo(source, target);
-            void CopyConsoleApp2TUserToConsoleApp2UserInfo(global::ConsoleApp2.TUser source, global::ConsoleApp2.UserInfo target)
-            {
-                if (source == null) return;
-                if (target == null) return;
-                target.Name = source.Name;
-            }
-        }
-        private static void ToConsoleApp2_UserInfo<T>(this IDictionary<T, global::ConsoleApp2.TUser> source, IDictionary<T, global::ConsoleApp2.UserInfo> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
-        {
-            var sourceKeys = source.Keys;
-            var targetKeys = target.Keys;
-            // modify item
-            sourceKeys.Intersect(targetKeys).ForEach(key =>
-            {
-                ToConsoleApp2_UserInfo(source[key], target[key], onRemoveItem, onAddItem);
-            });
-            // remove item
-            targetKeys.Except(sourceKeys).ForEach(key =>
-            {
-                var item = target[key];
-                target.Remove(key);
-                onRemoveItem?.Invoke(item);
-            });
-            // add item
-            sourceKeys.Except(targetKeys).ForEach(key =>
-            {
-                var item = source[key].ToConsoleApp2_UserInfo();
-                target.Add(key, item);
-                onAddItem?.Invoke(item);
-            });
-        }
-        private static void ToConsoleApp2_UserInfo<T>(this IEnumerable<global::ConsoleApp2.TUser> source, ICollection<global::ConsoleApp2.UserInfo> target, CollectionUpdateMode updateMode, Func<global::ConsoleApp2.TUser, T> sourceItemKeySelector, Func<global::ConsoleApp2.UserInfo, T> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
-        {
-            if (updateMode == CollectionUpdateMode.Append)
-            {
-                source.Select(p => p.ToConsoleApp2_UserInfo()).ForEach(p =>
-                {
-                    target.Add(p);
-                    onAddItem?.Invoke(p);
-                });
-            }
-            else
-            {
-                var sourceKeys = source.Select(sourceItemKeySelector).ToHashSet();
-                var targetKeys = target.Select(targetItemKeySelector).ToHashSet();
-                // modify item
-                sourceKeys.Intersect(targetKeys).ForEach(key =>
-                {
-                    ToConsoleApp2_UserInfo(
-                        source.Where(p => sourceItemKeySelector(p).Equals(key)).First(),
-                        target.Where(p => targetItemKeySelector(p).Equals(key)).First(),
-                        onRemoveItem, onAddItem);
-                });
-                // remove item
-                if (updateMode == CollectionUpdateMode.Update)
-                {
-                    target.Where(p => !sourceKeys.Contains(targetItemKeySelector(p))).ToList().ForEach(p =>
-                    {
-                        target.Remove(p);
-                        onRemoveItem?.Invoke(p);
-                    });
-                }
-                // add item
-                source.Where(p => !targetKeys.Contains(sourceItemKeySelector(p))).Select(p => p.ToConsoleApp2_UserInfo()).ForEach(p =>
-                {
-                    target.Add(p);
-                    onAddItem?.Invoke(p);
-                });
-            }
         }
         private static IQueryable<global::ConsoleApp2.UserInfo> ToConsoleApp2_UserInfo(this IQueryable<global::ConsoleApp2.TUser> source)
         {
@@ -456,7 +383,6 @@ namespace FlyTiger
         }
         public static T To<T>(this global::ConsoleApp2.TUser source) where T : new()
         {
-            if (source == null) return default;
             if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
             {
                 return (T)(object)ToConsoleApp2_UserInfo(source);
@@ -494,48 +420,6 @@ namespace FlyTiger
             var res = source?.To<Key, T>();
             res?.ForEach(p => postHandler?.Invoke(p.Value));
             return res;
-        }
-        public static void To<T>(this global::ConsoleApp2.TUser source, T target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class
-        {
-            _ = source ?? throw new ArgumentNullException(nameof(source));
-            _ = target ?? throw new ArgumentNullException(nameof(target));
-            if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
-            {
-                ToConsoleApp2_UserInfo(source, (global::ConsoleApp2.UserInfo)(object)target, onRemoveItem, onAddItem);
-                return;
-            }
-            throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
-        }
-        public static void To<Key, T>(this IDictionary<Key, global::ConsoleApp2.TUser> source, IDictionary<Key, T> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()
-        {
-            _ = source ?? throw new ArgumentNullException(nameof(source));
-            _ = target ?? throw new ArgumentNullException(nameof(target));
-            if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
-            {
-                ToConsoleApp2_UserInfo(source, (IDictionary<Key, global::ConsoleApp2.UserInfo>)target, onRemoveItem, onAddItem);
-                return;
-            }
-            throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
-        }
-        public static void To<T, K>(this IEnumerable<global::ConsoleApp2.TUser> source, ICollection<T> target, CollectionUpdateMode updateMode, Func<global::ConsoleApp2.TUser, K> sourceItemKeySelector, Func<T, K> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()
-        {
-            _ = source ?? throw new ArgumentNullException(nameof(source));
-            _ = target ?? throw new ArgumentNullException(nameof(target));
-            _ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
-            _ = targetItemKeySelector ?? throw new ArgumentNullException(nameof(targetItemKeySelector));
-            if (typeof(T) == typeof(global::ConsoleApp2.UserInfo))
-            {
-                ToConsoleApp2_UserInfo(source, (ICollection<global::ConsoleApp2.UserInfo>)target, updateMode, sourceItemKeySelector, (Func<global::ConsoleApp2.UserInfo, K>)targetItemKeySelector, onRemoveItem, onAddItem);
-                return;
-            }
-            throw new NotSupportedException($"Can not convert '{typeof(global::ConsoleApp2.TUser)}' to '{typeof(T)}'.");
-        }
-        public static void To<T, K>(this IEnumerable<global::ConsoleApp2.TUser> source, ICollection<T> target, CollectionUpdateMode updateMode, Expression<Func<global::ConsoleApp2.TUser, K>> sourceItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()
-        {
-            _ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
-            var sourceFunc = GetSourceKeySelectorFunc(sourceItemKeySelector);
-            var targetFunc = GetTargetKeySelectorFunc<global::ConsoleApp2.TUser, T, K>(sourceItemKeySelector);
-            source.To(target, updateMode, sourceFunc, targetFunc, onRemoveItem, onAddItem);
         }
         public static IQueryable<T> To<T>(this IQueryable<global::ConsoleApp2.TUser> source) where T : new()
         {

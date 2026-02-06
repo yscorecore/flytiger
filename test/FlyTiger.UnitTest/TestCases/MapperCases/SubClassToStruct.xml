@@ -7,11 +7,21 @@ namespace ConsoleApp2
     public class UserInfo
     {
         public string Name { get; set; }
+        public AddressInfo Address {get; set;}
+    }
+    public class AddressInfo
+    {
+        public string City { get; set; }
     }
 
     public partial class TUser
     {
         public string Name { get; set; }
+        public AddressDto Address {get; set;}
+    }
+     public class AddressDto
+    {
+        public string City { get; set; }
     }
 }
             
@@ -19,13 +29,14 @@ namespace ConsoleApp2
     <code><![CDATA[
 using FlyTiger;
 using FlyTiger.Generator.UnitTest;
-using ConsoleApp2;
-[MapperAttribute(typeof(TUser), typeof(UserInfo))]
-partial class Convertors
+namespace ConsoleApp2
 {
+    [MapperAttribute(typeof(TUser), typeof(UserInfo))]
+    partial class Convertors
+    {
 
+    }
 }
-
         ]]></code>
   </input>
   <output>
@@ -349,6 +360,10 @@ namespace FlyTiger
             return new global::ConsoleApp2.UserInfo
             {
                 Name = source.Name,
+                Address = source.Address == null ? default : new global::ConsoleApp2.AddressInfo
+                {
+                    City = source.Address.City,
+                },
             };
         }
         private static void ToConsoleApp2_UserInfo(this global::ConsoleApp2.TUser source, global::ConsoleApp2.UserInfo target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
@@ -359,6 +374,30 @@ namespace FlyTiger
                 if (source == null) return;
                 if (target == null) return;
                 target.Name = source.Name;
+                if (source.Address == null)
+                {
+                    target.Address = default;
+                }
+                else
+                {
+                    if (target.Address == null)
+                    {
+                        target.Address = source.Address == null ? default : new global::ConsoleApp2.AddressInfo
+                        {
+                            City = source.Address.City,
+                        };
+                    }
+                    else
+                    {
+                        CopyConsoleApp2AddressDtoToConsoleApp2AddressInfo(source.Address, target.Address);
+                    }
+                }
+            }
+            void CopyConsoleApp2AddressDtoToConsoleApp2AddressInfo(global::ConsoleApp2.AddressDto source, global::ConsoleApp2.AddressInfo target)
+            {
+                if (source == null) return;
+                if (target == null) return;
+                target.City = source.City;
             }
         }
         private static void ToConsoleApp2_UserInfo<T>(this IDictionary<T, global::ConsoleApp2.TUser> source, IDictionary<T, global::ConsoleApp2.UserInfo> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
@@ -429,6 +468,10 @@ namespace FlyTiger
             return source?.Select(p => new global::ConsoleApp2.UserInfo
             {
                 Name = p.Name,
+                Address = p.Address == null ? default : new global::ConsoleApp2.AddressInfo
+                {
+                    City = p.Address.City,
+                },
             }).RebuildWithIncludeForEfCore();
         }
         private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, Delegate> sourceKeySelectorCache = new System.Collections.Concurrent.ConcurrentDictionary<int, Delegate>();
