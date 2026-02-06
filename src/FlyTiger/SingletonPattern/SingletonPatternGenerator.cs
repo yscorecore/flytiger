@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace FlyTiger.SingletonPattern
 {
     [Generator]
-    class SingletonPatternGenerator : ISourceGenerator
+    class SingletonPatternGenerator : IIncrementalGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
         const string AttributeName = "SingletonPatternAttribute";
@@ -25,23 +25,42 @@ namespace FlyTiger
 }
 ";
 
-        public void Initialize(GeneratorInitializationContext context)
+
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            context.RegisterForPostInitialization((i) =>
+            // Post init - add attribute definitions
+            context.RegisterPostInitializationOutput((i) =>
             {
                 i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
             });
-            context.RegisterForSyntaxNotifications(() => new SingletonPatternSyntaxReceiver());
-        }
+           
+            // Syntax provider: find candidate class declarations
+            var classSymbols = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    predicate: (node, _) => node is ClassDeclarationSyntax cds &&
+                        !cds.Modifiers.Any(SyntaxKind.StaticKeyword) && cds.AttributeLists.Any(),
+                    transform: (genCtx, ct) =>
+                    {
+                        var classDecl = (ClassDeclarationSyntax)genCtx.Node;
+                        return genCtx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
+                    })
+                .Where(s => s != null)
+                .Collect();
 
-        public void Execute(GeneratorExecutionContext context)
-        {
+            // Combine with compilation so we can inspect referenced assemblies
+            var compilationAndClasses = context.CompilationProvider.Combine(context.ParseOptionsProvider).Combine(classSymbols);
 
-            if (!(context.SyntaxReceiver is SingletonPatternSyntaxReceiver receiver))
-                return;
-            var codeWriter = new CodeWriter(context);
 
-            codeWriter.ForeachClassSyntax(receiver.CandidateClasses, ProcessClass);
+            context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
+            {
+                var ((compilation, parseOptions), classes) = source;
+                if (classes.IsDefaultOrEmpty)
+                {
+                    return;
+                }
+                var codeWriter = new CodeWriter(parseOptions, compilation, spc);
+                codeWriter.ForeachClassByInheritanceOrder(classes, ProcessClass);
+            });
         }
 
         private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter)
@@ -118,19 +137,6 @@ public static {classSymbol.GetClassSymbolDisplayText()} {instanceName} => LazyIn
             codeBuilder.AppendCodeLines(content);
         }
 
-        private class SingletonPatternSyntaxReceiver : ISyntaxReceiver
-        {
-            public IList<ClassDeclarationSyntax> CandidateClasses { get; } = new List<ClassDeclarationSyntax>();
-
-            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
-            {
-                if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax &&
-                    !classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword) &&
-                    classDeclarationSyntax.AttributeLists.Any())
-                {
-                    CandidateClasses.Add(classDeclarationSyntax);
-                }
-            }
-        }
+        
     }
 }

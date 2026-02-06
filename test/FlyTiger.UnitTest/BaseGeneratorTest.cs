@@ -39,7 +39,10 @@ namespace FlyTiger.Generator.UnitTest
                     .Which.GetText().ToString().NormalizeCode().Should().BeEquivalentTo(output.Content.NormalizeCode());
             }
         }
-
+        protected void ShouldReportDiagnostic(IIncrementalGenerator generator, string testCaseFileName, params Assembly[] assemblies)
+        {
+            ShouldReportDiagnostic(generator.AsSourceGenerator(), testCaseFileName, assemblies);
+        }
         protected void ShouldReportDiagnostic(ISourceGenerator generator, string testCaseFileName, params Assembly[] assemblies)
         {
             XDocument xmlFile = XDocument.Load(Path.Combine("TestCases", testCaseFileName));
