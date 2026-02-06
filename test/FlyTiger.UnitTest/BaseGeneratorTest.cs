@@ -26,7 +26,7 @@ namespace FlyTiger.Generator.UnitTest
             var newComp = RunGenerators(CreateCompilation(codes, assemblies), out var warningAndErrors,
                 generator);
 
-           // warningAndErrors.Should().BeEmpty();
+            // warningAndErrors.Should().BeEmpty();
 
             var outputs = xmlFile.XPathSelectElements("case/output/code")
                 .Select(prop => (File: prop.Attribute("file").Value, Content: prop.Value));
@@ -75,7 +75,7 @@ namespace FlyTiger.Generator.UnitTest
 
             return assemblyDirectory;
         }
-        protected void UpdateTestOutput(IIncrementalGenerator generator, string testCaseFileName, params Assembly[] assemblies) 
+        protected void UpdateTestOutput(IIncrementalGenerator generator, string testCaseFileName, params Assembly[] assemblies)
         {
             UpdateTestOutput(generator.AsSourceGenerator(), testCaseFileName, assemblies);
         }
@@ -91,7 +91,7 @@ namespace FlyTiger.Generator.UnitTest
             var newComp = RunGenerators(CreateCompilation(codes, assemblies), out var warningAndErrors,
                 generator);
 
-           
+
 
             var outputElement = xmlFile.XPathSelectElement("case/output");
             var outputElements = outputElement.XPathSelectElements("code").ToList();

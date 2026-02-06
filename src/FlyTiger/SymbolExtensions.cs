@@ -143,7 +143,7 @@ namespace FlyTiger
             var classSymbols = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
             foreach (var clazzSymbol in classDeclarationSyntax)
             {
-           
+
                 if (classSymbols.Contains(clazzSymbol))
                 {
                     continue;

@@ -33,7 +33,7 @@ namespace FlyTiger
             {
                 i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
             });
-           
+
             // Syntax provider: find candidate class declarations
             var classSymbols = context.SyntaxProvider
                 .CreateSyntaxProvider(
@@ -137,6 +137,6 @@ public static {classSymbol.GetClassSymbolDisplayText()} {instanceName} => LazyIn
             codeBuilder.AppendCodeLines(content);
         }
 
-        
+
     }
 }

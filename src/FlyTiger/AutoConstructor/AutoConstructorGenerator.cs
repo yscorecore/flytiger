@@ -66,8 +66,8 @@ namespace FlyTiger
 
             context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
             {
-                var ((compilation, parseOptions),classes) = source;
-                if (classes.IsDefaultOrEmpty) 
+                var ((compilation, parseOptions), classes) = source;
+                if (classes.IsDefaultOrEmpty)
                 {
                     return;
                 }
@@ -75,7 +75,7 @@ namespace FlyTiger
                 codeWriter.ForeachClassByInheritanceOrder(classes, ProcessClass);
             });
         }
-    
+
 
 
         private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter)
@@ -169,7 +169,7 @@ namespace FlyTiger
                 }
             }
 
-               
+
             foreach (var field in GetInstanceFields())
             {
                 var newName = NewArgumentName(field.Name.ToCamelCase(), nameMapper);
@@ -271,7 +271,7 @@ namespace FlyTiger
                 codeBuilder.BeginSegment();
             }
         }
-        void AppendPublicCtor(INamedTypeSymbol classSymbol, IDictionary<string, ArgumentInfo> nameMapper, bool isDependencyInjection, bool nullCheck, CsharpCodeBuilder codeBuilder,CodeWriter codeWriter)
+        void AppendPublicCtor(INamedTypeSymbol classSymbol, IDictionary<string, ArgumentInfo> nameMapper, bool isDependencyInjection, bool nullCheck, CsharpCodeBuilder codeBuilder, CodeWriter codeWriter)
         {
             if (isDependencyInjection)
             {
@@ -382,6 +382,6 @@ namespace FlyTiger
             Property
         }
 
-       
+
     }
 }

@@ -6,13 +6,8 @@
       "version": "5.1.250801",
       "commands": [
         "dotnet-format"
-      ]
-    },
-    "dotnet-sonarscanner": {
-      "version": "5.5.3",
-      "commands": [
-        "dotnet-sonarscanner"
-      ]
+      ],
+      "rollForward": false
     }
   }
 }

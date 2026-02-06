@@ -31,7 +31,7 @@ namespace FlyTiger
         public Compilation Compilation { get; private set; }
         public ParseOptions ParseOptions { get; }
 
-        public Action<string,string> AddSource { get; private set; }
+        public Action<string, string> AddSource { get; private set; }
         public Action<Diagnostic> ReportDiagnostic { get; private set; }
 
         private readonly Dictionary<string, int> fileNames = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
@@ -130,7 +130,7 @@ namespace FlyTiger
             foreach (var clazz in classSyntax ?? Enumerable.Empty<INamedTypeSymbol>())
             {
                 dic[clazz] = new ClassSyntaxCachedInfo2
-                { 
+                {
                     NameTypedSymbol = clazz
                 };
             }

@@ -30,7 +30,7 @@ namespace FlyTiger.CodeException
             //codeWriter.ForeachClassSyntax(receiver.CandidateClasses, ProcessClass);
         }
 
-     
+
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             // Post init - add attribute definitions
@@ -261,7 +261,7 @@ namespace FlyTiger.CodeException
 
 
         }
-       
+
 
         public class ExceptionInfo
         {
