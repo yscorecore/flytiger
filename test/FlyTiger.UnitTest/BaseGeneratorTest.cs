@@ -75,7 +75,10 @@ namespace FlyTiger.Generator.UnitTest
 
             return assemblyDirectory;
         }
-
+        protected void UpdateTestOutput(IIncrementalGenerator generator, string testCaseFileName, params Assembly[] assemblies) 
+        {
+            UpdateTestOutput(generator.AsSourceGenerator(), testCaseFileName, assemblies);
+        }
         /// <summary>
         /// 临时方法，用于更新测试用例的 output 节点内容
         /// </summary>

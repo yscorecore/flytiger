@@ -40,7 +40,7 @@ namespace FlyTiger.Mapper
         private static IPropertySymbol[] FindPropertyByInfo(ITypeSymbol symbol, IPropertySymbol[] propInfo)
         {
             var result = propInfo.Select(p => symbol.GetAllMembers().OfType<IPropertySymbol>().SingleOrDefault(t => t.Name == p.Name && t.Type.Equals(p.Type, SymbolEqualityComparer.Default))).ToArray();
-            return result.Contains(null) ? null : result;
+            return result.Contains(null, SymbolEqualityComparer.Default) ? null : result;
         }
         private static IPropertySymbol[] FindKeyPropertyByAttribute(ITypeSymbol symbol)
         {

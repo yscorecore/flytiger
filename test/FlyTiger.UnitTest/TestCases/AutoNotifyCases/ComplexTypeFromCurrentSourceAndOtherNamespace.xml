@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <case>
-    <input>
-        <code>
-            <![CDATA[
+  <input>
+    <code><![CDATA[
 using FlyTiger;
 namespace ConsoleApp3.Sub
 {
@@ -10,10 +9,8 @@ namespace ConsoleApp3.Sub
     {
     }
 }
-        ]]>
-        </code>
-        <code>
-            <![CDATA[
+        ]]></code>
+    <code><![CDATA[
 using FlyTiger;
 namespace ConsoleApp2
 {
@@ -24,13 +21,19 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
-        </code>
-
-    </input>
-    <output>
-        <code file="FlyTiger.Class1.g.cs">
-            <![CDATA[
+        ]]></code>
+  </input>
+  <output>
+    <code file="FlyTiger.AutoNotifyAttribute.g.cs"><![CDATA[using System;
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    sealed class AutoNotifyAttribute : Attribute
+    {
+        public string PropertyName { get; set; }
+    }
+}]]></code>
+    <code file="FlyTiger.Class1.g.cs"><![CDATA[#pragma warning disable CS0067
 using System.ComponentModel;
 namespace ConsoleApp2
 {
@@ -55,8 +58,6 @@ namespace ConsoleApp2
         }
 
     }
-}
-            ]]>
-        </code>
-    </output>
+}]]></code>
+  </output>
 </case>

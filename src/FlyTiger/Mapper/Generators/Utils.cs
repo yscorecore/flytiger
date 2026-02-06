@@ -11,8 +11,8 @@ namespace FlyTiger.Mapper.Generators
 {
     internal class Utils
     {
-        static ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>
-            sourcePropertiesCache = new ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>();
+        private static readonly ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>
+            sourcePropertiesCache = new ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>(SymbolEqualityComparer.Default);
         public static Dictionary<string, IPropertySymbol> GetSourcePropertyDictionary(ITypeSymbol typeSymbol)
         {
             return sourcePropertiesCache.GetOrAdd(typeSymbol, (s) => s.GetAllMembers()
@@ -22,8 +22,8 @@ namespace FlyTiger.Mapper.Generators
                  .ToLookup(p => p.Name)
                  .ToDictionary(p => p.Key, p => p.First().Property));
         }
-        static ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>
-           targetPropertiesCache = new ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>();
+        private static readonly ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>
+           targetPropertiesCache = new ConcurrentDictionary<ITypeSymbol, Dictionary<string, IPropertySymbol>>(SymbolEqualityComparer.Default);
 
         public static Dictionary<string, IPropertySymbol> GetTargetPropertyDictionary(ITypeSymbol typeSymbol)
         {

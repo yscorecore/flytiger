@@ -36,6 +36,7 @@ namespace FlyTiger.Mapper.Generators
                     }
                     catch (Exception ex)
                     {
+                        throw ex;
                         // TOTO report error
                     }
                 }

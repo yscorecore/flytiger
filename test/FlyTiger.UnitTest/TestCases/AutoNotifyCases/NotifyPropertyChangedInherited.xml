@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <case>
-    <input>
-        <code>
-            <![CDATA[
+  <input>
+    <code><![CDATA[
 using FlyTiger;
 namespace ConsoleApp2
 {
@@ -13,10 +12,8 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
-        </code>
-        <code>
-            <![CDATA[
+        ]]></code>
+    <code><![CDATA[
 using FlyTiger;
 namespace ConsoleApp2
 {
@@ -29,42 +26,19 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
-        </code>
-
-    </input>
-    <output>
-        <code file="FlyTiger.Class1.g.cs">
-            <![CDATA[
-using System.ComponentModel;
-namespace ConsoleApp2
+        ]]></code>
+  </input>
+  <output>
+    <code file="FlyTiger.AutoNotifyAttribute.g.cs"><![CDATA[using System;
+namespace FlyTiger
 {
-    partial class Class1
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    sealed class AutoNotifyAttribute : Attribute
     {
-
-        public int Age 
-        {
-            get 
-            {
-                return this._age;
-            }
-            set
-            {
-                if(this._age != value)
-                {
-                    this._age = value;
-                    this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Age)));
-                }
-            }
-        }
-
+        public string PropertyName { get; set; }
     }
-}
-            ]]>
-        </code>
-
-        <code file="FlyTiger.Class2.g.cs">
-            <![CDATA[
+}]]></code>
+    <code file="FlyTiger.Class2.g.cs"><![CDATA[#pragma warning disable CS0067
 using System.ComponentModel;
 namespace ConsoleApp2
 {
@@ -88,8 +62,31 @@ namespace ConsoleApp2
         }
 
     }
-}
-            ]]>
-        </code>
-    </output>
+}]]></code>
+    <code file="FlyTiger.Class1.g.cs"><![CDATA[#pragma warning disable CS0067
+using System.ComponentModel;
+namespace ConsoleApp2
+{
+    partial class Class1
+    {
+
+        public int Age 
+        {
+            get 
+            {
+                return this._age;
+            }
+            set
+            {
+                if(this._age != value)
+                {
+                    this._age = value;
+                    this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Age)));
+                }
+            }
+        }
+
+    }
+}]]></code>
+  </output>
 </case>

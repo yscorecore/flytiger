@@ -31,6 +31,7 @@ namespace FlyTiger.Generator.UnitTest
                 typeof(INotifyPropertyChanged).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };
+            //base.UpdateTestOutput(new AutoNotifyGenerator(), testCaseFileName, assemblies);
             base.ShouldGenerateExpectCodeFile(new AutoNotifyGenerator(), testCaseFileName, assemblies);
         }
 
@@ -49,7 +50,7 @@ namespace FlyTiger.Generator.UnitTest
             };
             base.ShouldReportDiagnostic(new AutoNotifyGenerator(), testCaseFileName, assemblies);
         }
-
+#pragma warning disable CS0067
         public class BaseClass : INotifyPropertyChanged
         {
 
@@ -57,5 +58,6 @@ namespace FlyTiger.Generator.UnitTest
 
 
         }
+#pragma warning restore CS0067
     }
 }

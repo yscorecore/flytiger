@@ -137,9 +137,6 @@ namespace FlyTiger.CodeException
             this.Code = code;
         }
         public string Code { get; set; }
-        protected CodeException(
-            System.Runtime.Serialization.SerializationInfo info,
-            System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }</value>
   </data>

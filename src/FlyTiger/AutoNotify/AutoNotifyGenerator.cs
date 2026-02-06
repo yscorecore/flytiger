@@ -97,11 +97,12 @@ namespace FlyTiger
             var classSymbols = classSymbol.GetContainerClassChains();
 
 
-            CsharpCodeBuilder codeBuilder = new CsharpCodeBuilder();
+            var codeBuilder = new CsharpCodeBuilder("CS0067");
 
-            var allNamespaces = new HashSet<string>();
-
-            allNamespaces.Add("System.ComponentModel");
+            var allNamespaces = new HashSet<string>
+            {
+                "System.ComponentModel"
+            };
 
             foreach (var usingNamespace in allNamespaces.OrderBy(p => p))
             {

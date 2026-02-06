@@ -21,7 +21,7 @@ namespace AutoCtor
     {
         private readonly Func<string, string> _func;
 
-        public string? Convert(string input)
+        public string Convert(string input)
         {
             return _func?.Invoke(input);
         }
