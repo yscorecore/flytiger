@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace FlyTiger.AutoNotify
 {
     [Generator]
-    class AutoNotifyGenerator : ISourceGenerator
+    class AutoNotifyGenerator : IIncrementalGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
         const string AttributeName = "AutoNotifyAttribute";
@@ -23,33 +23,68 @@ namespace FlyTiger
     }
 }
 ";
-        public void Initialize(GeneratorInitializationContext context)
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            context.RegisterForPostInitialization((i) =>
+            // Post init - add attribute definitions
+            context.RegisterPostInitializationOutput((i) =>
             {
                 i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
             });
-            context.RegisterForSyntaxNotifications(() => new AutoNotifySyntaxReceiver());
-        }
 
-        public void Execute(GeneratorExecutionContext context)
-        {
-            if (!(context.SyntaxReceiver is AutoNotifySyntaxReceiver receiver))
-                return;
-
-            var codeWriter = new CodeWriter(context);
-
-            foreach (var clazzSymbol in codeWriter.GetAllClassSymbolsIgnoreRepeated(receiver.CandidateClasses))
+            bool HasInstanceFieldAndDefinedAttribute(FieldDeclarationSyntax fieldDeclarationSyntax)
             {
-                var fieldList = clazzSymbol.GetAllInstanceFieldsByAttribute(AttributeFullName).ToList();
-                if (fieldList.Any())
-                {
-                    var codeFile = ProcessClass(clazzSymbol, fieldList, codeWriter);
-                    codeWriter.WriteCodeFile(codeFile);
-                }
+                return fieldDeclarationSyntax.AttributeLists.Any() &&
+                       !fieldDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword) &&
+                       !fieldDeclarationSyntax.Modifiers.Any(SyntaxKind.ConstKeyword);
             }
-        }
 
+            // Syntax provider: find candidate class declarations
+            var classSymbols = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    predicate: (node, _) => node is ClassDeclarationSyntax cds &&
+                        !cds.Modifiers.Any(SyntaxKind.StaticKeyword),
+                    transform: (genCtx, ct) =>
+                    {
+                        var classDecl = (ClassDeclarationSyntax)genCtx.Node;
+                        var hasInstanceFieldWithAttribute = classDecl.Members.OfType<FieldDeclarationSyntax>()
+                             .Any(HasInstanceFieldAndDefinedAttribute);
+                        if (hasInstanceFieldWithAttribute)
+                        {
+                            return genCtx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    })
+                .Where(s => s != null)
+                .Collect();
+
+            // Combine with compilation so we can inspect referenced assemblies
+            var compilationAndClasses = context.CompilationProvider.Combine(context.ParseOptionsProvider).Combine(classSymbols);
+
+
+            context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
+            {
+                var ((compilation, parseOptions), classes) = source;
+                if (classes.IsDefaultOrEmpty)
+                {
+                    return;
+                }
+                var codeWriter = new CodeWriter(parseOptions, compilation, spc);
+                // codeWriter.ForeachClass(classes, (clazz,cw);
+                foreach (var clazzSymbol in classes)
+                {
+                    var fieldList = clazzSymbol.GetAllInstanceFieldsByAttribute(AttributeFullName).ToList();
+                    if (fieldList.Any())
+                    {
+                        var codeFile = ProcessClass(clazzSymbol, fieldList, codeWriter);
+                        codeWriter.WriteCodeFile(codeFile);
+                    }
+                }
+
+            });
+        }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("MicrosoftCodeAnalysisCorrectness",
             "RS1024:Compare symbols correctly", Justification = "<Pending>")]
@@ -88,9 +123,10 @@ namespace FlyTiger
                     codeBuilder.BeginSegment();
                 }
             }
+            var shouldGeneratePropertyChangedEvent = !classSymbol.AllInterfaces.Contains(notifySymbol) && !BaseTypeHasDefinedFields(classSymbol.BaseType);
 
 
-            if (!classSymbol.AllInterfaces.Contains(notifySymbol))
+            if (shouldGeneratePropertyChangedEvent)
             {
                 codeBuilder.AppendCodeLines(
                     $@"partial class {classSymbol.GetClassSymbolDisplayText()} : {notifySymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)}");
@@ -115,6 +151,15 @@ namespace FlyTiger
                 BasicName = classSymbol.GetCodeFileBasicName(),
                 Content = codeBuilder.ToString(),
             };
+
+            bool BaseTypeHasDefinedFields(INamedTypeSymbol namedTypeSymbol)
+            {
+                if (namedTypeSymbol == null)
+                {
+                    return false;
+                }
+                return namedTypeSymbol.AnyFieldsByAttribute(AttributeFullName) || BaseTypeHasDefinedFields(namedTypeSymbol.BaseType);
+            }
         }
 
         private static void ProcessField(CsharpCodeBuilder source, INamedTypeSymbol classSymbol, IFieldSymbol fieldSymbol, CodeWriter codeWriter)
@@ -184,29 +229,6 @@ public {fieldType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {pr
             }
         }
 
-        class AutoNotifySyntaxReceiver : ISyntaxReceiver
-        {
-            public IList<ClassDeclarationSyntax> CandidateClasses { get; } = new List<ClassDeclarationSyntax>();
 
-            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
-            {
-                if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax)
-                {
-                    var hasInstanceFieldWithAttribute = classDeclarationSyntax.Members.OfType<FieldDeclarationSyntax>()
-                        .Any(HasInstanceFieldAndDefinedAttribute);
-                    if (hasInstanceFieldWithAttribute)
-                    {
-                        CandidateClasses.Add(classDeclarationSyntax);
-                    }
-                }
-
-                bool HasInstanceFieldAndDefinedAttribute(FieldDeclarationSyntax fieldDeclarationSyntax)
-                {
-                    return fieldDeclarationSyntax.AttributeLists.Any() &&
-                           !fieldDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword) &&
-                           !fieldDeclarationSyntax.Modifiers.Any(SyntaxKind.ConstKeyword);
-                }
-            }
-        }
     }
 }

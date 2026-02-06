@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FlyTiger.CodeException
 {
     [Generator]
-    internal class CodeExceptionGenerator : ISourceGenerator
+    internal class CodeExceptionGenerator : IIncrementalGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
         const string AttributeName = "CodeExceptionsAttribute";
@@ -20,26 +21,53 @@ namespace FlyTiger.CodeException
         internal static string ItemAttributeFullName = $"{NameSpaceName}.{ItemAttributeName}";
         public void Execute(GeneratorExecutionContext context)
         {
-            if (!(context.SyntaxReceiver is CodeExceptionSyntaxReceiver receiver))
-                return;
-            var codeWriter = new CodeWriter(context);
+            //if (!(context.SyntaxReceiver is CodeExceptionSyntaxReceiver receiver))
+            //    return;
+            //var codeWriter = new CodeWriter(context);
 
 
 
-            codeWriter.ForeachClassSyntax(receiver.CandidateClasses, ProcessClass);
+            //codeWriter.ForeachClassSyntax(receiver.CandidateClasses, ProcessClass);
         }
 
-        public void Initialize(GeneratorInitializationContext context)
+     
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            context.RegisterForPostInitialization((i) =>
+            // Post init - add attribute definitions
+            context.RegisterPostInitializationOutput((i) =>
             {
                 i.AddSource($"{nameof(Code.CodeExceptionsAttribute)}.g.cs", Code.CodeExceptionsAttribute);
                 i.AddSource($"{nameof(Code.CodeExceptionAttribute)}.g.cs", Code.CodeExceptionAttribute);
                 i.AddSource($"{nameof(Code.TextValuesFormatter)}.g.cs", Code.TextValuesFormatter);
                 i.AddSource($"{nameof(Code.CodeException)}.g.cs", Code.CodeException);
             });
+            // Syntax provider: find candidate class declarations
+            var classSymbols = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    predicate: (node, _) => node is ClassDeclarationSyntax cds &&
+                         cds.AttributeLists.Any(),
+                    transform: (genCtx, ct) =>
+                    {
+                        var classDecl = (ClassDeclarationSyntax)genCtx.Node;
+                        return genCtx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
+                    })
+                .Where(s => s != null)
+                .Collect();
 
-            context.RegisterForSyntaxNotifications(() => new CodeExceptionSyntaxReceiver());
+            // Combine with compilation so we can inspect referenced assemblies
+            var compilationAndClasses = context.CompilationProvider.Combine(context.ParseOptionsProvider).Combine(classSymbols);
+
+
+            context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
+            {
+                var ((compilation, parseOptions), classes) = source;
+                if (classes.IsDefaultOrEmpty)
+                {
+                    return;
+                }
+                var codeWriter = new CodeWriter(parseOptions, compilation, spc);
+                codeWriter.ForeachClassByInheritanceOrder(classes, ProcessClass);
+            });
         }
 
         private CodeFile ProcessClass(INamedTypeSymbol classSymbol, CodeWriter codeWriter)
@@ -233,19 +261,7 @@ namespace FlyTiger.CodeException
 
 
         }
-        private class CodeExceptionSyntaxReceiver : ISyntaxReceiver
-        {
-            public IList<ClassDeclarationSyntax> CandidateClasses { get; } = new List<ClassDeclarationSyntax>();
-
-            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
-            {
-                if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax &&
-                    classDeclarationSyntax.AttributeLists.Any())
-                {
-                    CandidateClasses.Add(classDeclarationSyntax);
-                }
-            }
-        }
+       
 
         public class ExceptionInfo
         {

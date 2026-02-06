@@ -34,7 +34,7 @@ namespace FlyTiger
         public Action<string,string> AddSource { get; private set; }
         public Action<Diagnostic> ReportDiagnostic { get; private set; }
 
-        private Dictionary<string, int> fileNames = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Dictionary<string, int> fileNames = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
 
         public void WriteCodeFile(CodeFile codeFile)
         {
@@ -113,11 +113,15 @@ namespace FlyTiger
         {
             public INamedTypeSymbol NameTypedSymbol { get; set; }
 
-            //public string QualifiedName { get; set; }
-
             public bool Handled { get; set; }
         }
-  
+        public static void ForeachClass(this CodeWriter codeWriter, IEnumerable<INamedTypeSymbol> classSyntax, Func<INamedTypeSymbol, CodeWriter, CodeFile> codeFileFactory)
+        {
+            foreach (var clazz in classSyntax ?? Enumerable.Empty<INamedTypeSymbol>())
+            {
+                codeWriter.WriteCodeFile(codeFileFactory(clazz, codeWriter));
+            }
+        }
         public static void ForeachClassByInheritanceOrder(this CodeWriter codeWriter, IEnumerable<INamedTypeSymbol> classSyntax, Func<INamedTypeSymbol, CodeWriter, CodeFile> codeFileFactory)
         {
             _ = codeFileFactory ?? throw new ArgumentNullException(nameof(codeFileFactory));

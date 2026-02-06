@@ -119,6 +119,12 @@ namespace FlyTiger
             return clazzSymbol.GetMembers().OfType<IFieldSymbol>()
                 .Where(p => p.CanBeReferencedByName && !p.IsStatic && p.HasAttribute(attributeMetaType));
         }
+        public static bool AnyFieldsByAttribute(this INamedTypeSymbol clazzSymbol,
+           string attributeMetaType)
+        {
+            return clazzSymbol.GetMembers().OfType<IFieldSymbol>()
+                .Where(p => p.CanBeReferencedByName && !p.IsStatic && p.HasAttribute(attributeMetaType)).Any();
+        }
         public static IEnumerable<IMethodSymbol> GetAllMethodsByAttribute(this INamedTypeSymbol clazzSymbol,
     string attributeMetaType)
         {
@@ -130,6 +136,55 @@ namespace FlyTiger
         {
             return clazzSymbol.GetMembers().OfType<IPropertySymbol>()
                 .Where(p => p.CanBeReferencedByName && p.HasAttribute(attributeMetaType));
+        }
+        public static IEnumerable<INamedTypeSymbol> DistinctClassSymbol(
+           this IEnumerable<INamedTypeSymbol> classDeclarationSyntax)
+        {
+            var classSymbols = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            foreach (var clazzSymbol in classDeclarationSyntax)
+            {
+           
+                if (classSymbols.Contains(clazzSymbol))
+                {
+                    continue;
+                }
+
+                foreach (var dependency in GetDependencyTree(clazzSymbol))
+                {
+                    if (!classSymbols.Contains(dependency))
+                    {
+                        classSymbols.Add(dependency);
+                        yield return dependency;
+                    }
+
+                }
+            }
+
+            IEnumerable<INamedTypeSymbol> GetDependencyTree(INamedTypeSymbol classSymbol)
+            {
+                List<INamedTypeSymbol> result = new List<INamedTypeSymbol>
+                {
+                    classSymbol
+                };
+
+                var assembly = classSymbol.ContainingAssembly;
+
+
+
+                if (assembly != null)
+                {
+                    var current = classSymbol;
+                    while (current.BaseType != null && assembly.Equals(current.BaseType.ContainingAssembly, SymbolEqualityComparer.Default))
+                    {
+                        result.Insert(0, current.BaseType);
+                        current = current.BaseType;
+                    }
+
+                }
+
+
+                return result;
+            }
         }
         public static IEnumerable<INamedTypeSymbol> GetAllClassSymbolsIgnoreRepeated(this CodeWriter codeWriter,
             IEnumerable<ClassDeclarationSyntax> classDeclarationSyntax)
