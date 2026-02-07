@@ -55,6 +55,11 @@ namespace FlyTiger
     sealed class AutoConstructorInitializeAttribute : Attribute
     {
     }
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    sealed class LoggerAttribute : Attribute
+    {
+        public string FieldName { get; set; } = string.Empty;
+    }
 }]]></code>
     <code file="FlyTiger.Class1.g.cs"><![CDATA[#pragma warning disable CS1591
 namespace ConsoleApp2

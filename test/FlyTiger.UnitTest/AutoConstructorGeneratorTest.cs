@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FlyTiger.AutoConstructor;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 namespace FlyTiger.Generator.UnitTest
 {
@@ -34,6 +35,20 @@ namespace FlyTiger.Generator.UnitTest
             var assemblies = new[]
             {
                 typeof(Binder).GetTypeInfo().Assembly,
+                Assembly.GetExecutingAssembly()
+            };
+            //base.UpdateTestOutput(new AutoConstructorGenerator(), testCaseFileName, assemblies);
+            base.ShouldGenerateExpectCodeFile(new AutoConstructorGenerator(), testCaseFileName, assemblies);
+        }
+        [Theory]
+        [InlineData("AutoConstructorCases/Logger/HappyCase.xml")]
+
+        public void ShouldGenerateExpectConstructorWithLogger(string testCaseFileName)
+        {
+            var assemblies = new[]
+            {
+                typeof(Binder).GetTypeInfo().Assembly,
+                typeof(ILogger<>).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };
             //base.UpdateTestOutput(new AutoConstructorGenerator(), testCaseFileName, assemblies);

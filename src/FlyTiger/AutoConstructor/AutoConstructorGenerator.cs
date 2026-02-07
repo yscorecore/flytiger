@@ -19,7 +19,9 @@ namespace FlyTiger.AutoConstructor
         const string IgnoreAttributeName = "AutoConstructorIgnoreAttribute";
         const string InitializeAttributeName = "AutoConstructorInitializeAttribute";
         const string NullCheckPropertyName = "NullCheck";
+        const string LoggerFieldName = "FieldName";
         static readonly string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
+        static readonly string LoggerAttributeFullName = $"{NameSpaceName}.LoggerAttribute";
         static readonly string IgnoreAttributeFullName = $"{NameSpaceName}.{IgnoreAttributeName}";
         internal static readonly string InitializeAttributeFullName = $"{NameSpaceName}.{InitializeAttributeName}";
         const string AttributeCode = @"using System;
@@ -37,6 +39,11 @@ namespace FlyTiger
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     sealed class AutoConstructorInitializeAttribute : Attribute
     {
+    }
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    sealed class LoggerAttribute : Attribute
+    {
+        public string FieldName { get; set; } = string.Empty;
     }
 }
 ";
@@ -82,8 +89,7 @@ namespace FlyTiger
                 foreach (var classDeclaration in source.Right)
                 {
                     var model = codeWriter.Compilation.GetSemanticModel(classDeclaration.SyntaxTree);
-                    var classSymbol = model.GetDeclaredSymbol(classDeclaration) as INamedTypeSymbol;
-                    if (classSymbol == null)
+                    if (!(model.GetDeclaredSymbol(classDeclaration) is INamedTypeSymbol classSymbol))
                         continue;
 
                     var file = ProcessClass(classSymbol, codeWriter);
@@ -112,7 +118,7 @@ namespace FlyTiger
                 return null;
             }
 
-            var nameMapper = GetSymbolNameMapper(classSymbol);
+            var nameMapper = GetSymbolNameMapper(codeWriter.Compilation, classSymbol);
 
             if (!nameMapper.Any() && !HasDefineValidAutoConstructorInitializeAttribute(classSymbol))
             {
@@ -129,7 +135,7 @@ namespace FlyTiger
             AppendNamespace(classSymbol, builder);
             AppendClassDefinition(classSymbol, builder);
             AppendPublicCtor(classSymbol, nameMapper, isDependencyInjection, nullChecked, builder, codeWriter);
-
+            AppendExtensionFields(classSymbol, nameMapper, builder);
             builder.EndAllSegments();
             return new CodeFile
             {
@@ -154,13 +160,29 @@ namespace FlyTiger
             }
             return false;
         }
+        string GetLoggerFieldName(INamedTypeSymbol classSymbol)
+        {
+            var attr = classSymbol.GetAttributes()
+                .Where(p => p.AttributeClass.Is(LoggerAttributeFullName))
+                .FirstOrDefault();
+            if (attr != null)
+            {
+                var val = attr.NamedArguments.Where(p => p.Key == LoggerFieldName)
+                     .Select(p => p.Value.Value).FirstOrDefault();
+                if (val != null)
+                {
+                    return Convert.ToString(val);
+                }
+            }
+            return "logger";
+        }
 
         bool HasDefineValidAutoConstructorInitializeAttribute(INamedTypeSymbol classSymbol)
         {
             return classSymbol.GetMembers().OfType<IMethodSymbol>()
                   .Any(p => p.Parameters.Length == 0 && p.HasAttribute(InitializeAttributeFullName));
         }
-        IDictionary<string, ArgumentInfo> GetSymbolNameMapper(INamedTypeSymbol classSymbol)
+        IDictionary<string, ArgumentInfo> GetSymbolNameMapper(Compilation compilation, INamedTypeSymbol classSymbol)
         {
             var nameMapper = new Dictionary<string, ArgumentInfo>();
 
@@ -189,7 +211,7 @@ namespace FlyTiger
                 else
                 {
                     // 对于同一个程序集且有 AutoConstructor 注解的基类，递归处理
-                    foreach (var kv in GetSymbolNameMapper(classSymbol.BaseType))
+                    foreach (var kv in GetSymbolNameMapper(compilation, classSymbol.BaseType))
                     {
                         var newName = NewArgumentName(kv.Value.ArgName, nameMapper);
                         nameMapper[kv.Key] = new ArgumentInfo
@@ -229,7 +251,31 @@ namespace FlyTiger
                     Source = ArgumentSource.Property
                 };
             }
+            // otherFields LoggerAttribute
+            if (classSymbol.HasAttribute(LoggerAttributeFullName))
+            {
+                var loggerName = GetLoggerFieldName(classSymbol);
+                var newName = NewArgumentName(loggerName, nameMapper);
+                INamedTypeSymbol loggerOpenType = compilation.GetTypeByMetadataName("Microsoft.Extensions.Logging.ILogger`1");
+                if (loggerOpenType != null)
+                {
+                    INamedTypeSymbol loggerOfT = loggerOpenType.Construct(classSymbol);
+                    nameMapper[newName] = new ArgumentInfo
+                    {
+                        ArgName = newName,
+                        ArgTypeSymbol = loggerOfT,
+                        MemberName = loggerName,
+                        MemberTypeSymbol = loggerOfT,
+                        Source = ArgumentSource.AppendField,
 
+                    };
+                }
+                else
+                {
+                    //TODO report error
+                }
+
+            }
 
             return nameMapper;
 
@@ -374,6 +420,8 @@ namespace FlyTiger
                     return $"this.{argumentInfo.MemberName} = {argumentInfo.ArgName};";
                 }
             }
+
+
             string BuildInitializeMethod(IMethodSymbol method)
             {
                 if (method.IsStatic)
@@ -391,7 +439,19 @@ namespace FlyTiger
             }
 
         }
+        void AppendExtensionFields(INamedTypeSymbol classSymbol, IDictionary<string, ArgumentInfo> nameMapper, CsharpCodeBuilder codeBuilder)
+        {
+            foreach (var field in nameMapper.Values.Where(p => p.Source == ArgumentSource.AppendField))
+            {
+                codeBuilder.AppendCodeLines(BuildAppendFieldLine(field));
+            }
+            string BuildAppendFieldLine(ArgumentInfo argumentInfo)
+            {
 
+                return $"private readonly {argumentInfo.MemberTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {argumentInfo.MemberName};";
+
+            }
+        }
 
 
         private class ArgumentInfo
@@ -404,7 +464,6 @@ namespace FlyTiger
             public ITypeSymbol MemberTypeSymbol { get; set; }
 
             public ArgumentSource Source { get; set; }
-
             public string GetCtorMethodArgumentItem()
             {
                 return $"{ArgTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {ArgName}";
@@ -414,7 +473,8 @@ namespace FlyTiger
         {
             BaseCtor,
             Field,
-            Property
+            Property,
+            AppendField,
         }
 
 

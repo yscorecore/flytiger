@@ -5,23 +5,13 @@
 using FlyTiger;
 namespace ConsoleApp2
 {
+    [Logger]
     [AutoConstructor()]
     partial class Class1
     {
+        private int value;
         
-        private int value;
-
-    }
-}
-        ]]></code>
-    <code><![CDATA[
-using FlyTiger;
-namespace ConsoleApp3
-{
-    [AutoConstructor()]
-    partial class Class1
-    {
-        private int value;
+        private string str;
 
     }
 }
@@ -55,21 +45,13 @@ namespace ConsoleApp2
 {
     partial class Class1
     {
-        public Class1(int value)
+        public Class1(int value, string str, global::Microsoft.Extensions.Logging.ILogger<global::ConsoleApp2.Class1> logger)
         {
             this.value = value;
+            this.str = str;
+            this.logger = logger;
         }
-    }
-}]]></code>
-    <code file="FlyTiger.Class1.2.g.cs"><![CDATA[#pragma warning disable CS1591
-namespace ConsoleApp3
-{
-    partial class Class1
-    {
-        public Class1(int value)
-        {
-            this.value = value;
-        }
+        private readonly global::Microsoft.Extensions.Logging.ILogger<global::ConsoleApp2.Class1> logger;
     }
 }]]></code>
   </output>
