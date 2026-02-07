@@ -1,8 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <case>
-    <input>
-        <code>
-            <![CDATA[
+  <input>
+    <code><![CDATA[
 using FlyTiger;
 namespace ConsoleApp3
 {
@@ -12,10 +11,8 @@ namespace ConsoleApp3
         private FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.Model2 _v2;
     }
 }
-        ]]>
-        </code>
-        <code>
-            <![CDATA[
+        ]]></code>
+    <code><![CDATA[
 using FlyTiger;
 
 namespace ConsoleApp2
@@ -28,14 +25,39 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
-        </code>
-
-    </input>
-    <output>
-        <code file="FlyTiger.Class1.g.cs">
-            <![CDATA[
-#pragma warning disable CS1591
+        ]]></code>
+  </input>
+  <output>
+    <code file="FlyTiger.AutoConstructorAttribute.g.cs"><![CDATA[using System;
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorAttribute : Attribute
+    {
+        public bool NullCheck { get; set; } = false;
+    }
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorIgnoreAttribute : Attribute
+    {
+    }
+    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorInitializeAttribute : Attribute
+    {
+    }
+}]]></code>
+    <code file="FlyTiger.Class2.g.cs"><![CDATA[#pragma warning disable CS1591
+namespace ConsoleApp3
+{
+    partial class Class2
+    {
+        public Class2(global::FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.Model1 v1, global::FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.Model2 v2)
+            : base(v1)
+        {
+            this._v2 = v2;
+        }
+    }
+}]]></code>
+    <code file="FlyTiger.Class1.g.cs"><![CDATA[#pragma warning disable CS1591
 namespace ConsoleApp2
 {
     partial class Class1
@@ -45,24 +67,6 @@ namespace ConsoleApp2
             this._v1 = v1;
         }
     }
-}
-            ]]>
-        </code>
-        <code file="FlyTiger.Class2.g.cs">
-            <![CDATA[
-#pragma warning disable CS1591
-namespace ConsoleApp3
-{
-    partial class Class2
-    {
-        public Class2(global::FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.Model1 v1, global::FlyTiger.Generator.UnitTest.AutoConstructorGeneratorTest.Model2 v2)
-            : base(v1: v1)
-        {
-            this._v2 = v2;
-        }
-    }
-}
-            ]]>
-        </code>
-    </output>
+}]]></code>
+  </output>
 </case>

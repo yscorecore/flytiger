@@ -36,6 +36,7 @@ namespace FlyTiger.Generator.UnitTest
                 typeof(Binder).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };
+            //base.UpdateTestOutput(new AutoConstructorGenerator(), testCaseFileName, assemblies);
             base.ShouldGenerateExpectCodeFile(new AutoConstructorGenerator(), testCaseFileName, assemblies);
         }
 

@@ -25,6 +25,12 @@ namespace FlyTiger
             this.ReportDiagnostic = context.ReportDiagnostic;
             this.ParseOptions = parseOptions;
         }
+        public CodeWriter(Compilation compilation, SourceProductionContext context)
+        {
+            this.Compilation = compilation;
+            this.AddSource = context.AddSource;
+            this.ReportDiagnostic = context.ReportDiagnostic;
+        }
         public string CodeFileSuffix { get; set; } = "g.cs";
 
         public string CodeFilePrefix { get; set; } = nameof(FlyTiger);
@@ -46,8 +52,8 @@ namespace FlyTiger
 
             this.AddSource($"{CodeFilePrefix}.{name}.{CodeFileSuffix}", codeFile.Content);
 
-            this.Compilation = this.Compilation.AddSyntaxTrees(
-               CSharpSyntaxTree.ParseText(SourceText.From(codeFile.Content, Encoding.UTF8), (CSharpParseOptions)this.ParseOptions));
+            //this.Compilation = this.Compilation.AddSyntaxTrees(
+            //   CSharpSyntaxTree.ParseText(SourceText.From(codeFile.Content, Encoding.UTF8), (CSharpParseOptions)this.ParseOptions));
         }
     }
     static class CodeWriterExtensions

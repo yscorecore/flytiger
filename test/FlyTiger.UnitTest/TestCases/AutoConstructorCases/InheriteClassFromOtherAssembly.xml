@@ -1,8 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <case>
-    <input>
-        <code>
-            <![CDATA[
+  <input>
+    <code><![CDATA[
 using FlyTiger;
 namespace ConsoleApp2
 {
@@ -13,10 +12,8 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
-        </code>
-        <code>
-            <![CDATA[
+        ]]></code>
+    <code><![CDATA[
 using FlyTiger;
 namespace ConsoleApp2
 {
@@ -27,10 +24,8 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
-        </code>
-        <code>
-            <![CDATA[
+        ]]></code>
+    <code><![CDATA[
 using FlyTiger;
 namespace ConsoleApp2
 {
@@ -41,14 +36,27 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
-        </code>
-    </input>
-    <output>
-
-        <code file="FlyTiger.Class1.g.cs">
-            <![CDATA[
-#pragma warning disable CS1591
+        ]]></code>
+  </input>
+  <output>
+    <code file="FlyTiger.AutoConstructorAttribute.g.cs"><![CDATA[using System;
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorAttribute : Attribute
+    {
+        public bool NullCheck { get; set; } = false;
+    }
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorIgnoreAttribute : Attribute
+    {
+    }
+    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorInitializeAttribute : Attribute
+    {
+    }
+}]]></code>
+    <code file="FlyTiger.Class1.g.cs"><![CDATA[#pragma warning disable CS1591
 namespace ConsoleApp2
 {
     partial class Class1
@@ -58,40 +66,30 @@ namespace ConsoleApp2
             this.value = value;
         }
     }
-}
-            ]]>
-        </code>
-        <code file="FlyTiger.Class2.g.cs">
-            <![CDATA[
-#pragma warning disable CS1591
+}]]></code>
+    <code file="FlyTiger.Class2.g.cs"><![CDATA[#pragma warning disable CS1591
 namespace ConsoleApp2
 {
     partial class Class2
     {
         public Class2(string value, string value1)
-            : base(value: value)
+            : base(value)
         {
             this.value = value1;
         }
     }
-}
-            ]]>
-        </code>
-        <code file="FlyTiger.Class3.g.cs">
-            <![CDATA[
-#pragma warning disable CS1591
+}]]></code>
+    <code file="FlyTiger.Class3.g.cs"><![CDATA[#pragma warning disable CS1591
 namespace ConsoleApp2
 {
     partial class Class3
     {
         public Class3(string strValue, int intValue, string value)
-            : base(strValue: strValue, intValue: intValue)
+            : base(strValue, intValue)
         {
             this.value = value;
         }
     }
-}
-            ]]>
-        </code>
-    </output>
+}]]></code>
+  </output>
 </case>

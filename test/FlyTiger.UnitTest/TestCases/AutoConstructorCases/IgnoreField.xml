@@ -1,8 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <case>
-    <input>
-        <code>
-            <![CDATA[
+  <input>
+    <code><![CDATA[
 using FlyTiger;
 namespace ConsoleApp2
 {
@@ -16,13 +15,27 @@ namespace ConsoleApp2
 
     }
 }
-        ]]>
-        </code>
-    </input>
-    <output>
-        <code file="FlyTiger.Class1.g.cs">
-            <![CDATA[
-#pragma warning disable CS1591
+        ]]></code>
+  </input>
+  <output>
+    <code file="FlyTiger.AutoConstructorAttribute.g.cs"><![CDATA[using System;
+namespace FlyTiger
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorAttribute : Attribute
+    {
+        public bool NullCheck { get; set; } = false;
+    }
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorIgnoreAttribute : Attribute
+    {
+    }
+    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+    sealed class AutoConstructorInitializeAttribute : Attribute
+    {
+    }
+}]]></code>
+    <code file="FlyTiger.Class1.g.cs"><![CDATA[#pragma warning disable CS1591
 namespace ConsoleApp2
 {
     partial class Class1
@@ -32,8 +45,6 @@ namespace ConsoleApp2
             this.str = str;
         }
     }
-}
-            ]]>
-        </code>
-    </output>
+}]]></code>
+  </output>
 </case>

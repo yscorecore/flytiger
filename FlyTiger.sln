@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36203.30 d17.14
+VisualStudioVersion = 17.14.36203.30
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6C7E5914-CD6B-40F1-BFD7-8FB17E3EAE11}"
 	ProjectSection(SolutionItems) = preProject
@@ -39,6 +39,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyTiger.IntegrationTest", "test\FlyTiger.IntegrationTest\FlyTiger.IntegrationTest.csproj", "{7559FE1B-1A0F-40AD-A473-88598D6C0E81}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper.Demo", "example\Mapper.Demo\Mapper.Demo.csproj", "{107B28AF-1073-4E8E-BA6F-A8773FF01F97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlyTiger.IntegrationTest.Dll", "test\FlyTiger.IntegrationTest.Dll\FlyTiger.IntegrationTest.Dll.csproj", "{3EF39176-8C0E-4F58-B789-3CE67B3F644D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -90,6 +92,10 @@ Global
 		{107B28AF-1073-4E8E-BA6F-A8773FF01F97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{107B28AF-1073-4E8E-BA6F-A8773FF01F97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{107B28AF-1073-4E8E-BA6F-A8773FF01F97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EF39176-8C0E-4F58-B789-3CE67B3F644D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EF39176-8C0E-4F58-B789-3CE67B3F644D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EF39176-8C0E-4F58-B789-3CE67B3F644D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EF39176-8C0E-4F58-B789-3CE67B3F644D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,6 +112,7 @@ Global
 		{F1926833-266F-4EB5-BE0F-432443D708A6} = {F6AE1CB8-57DE-437D-9665-56CACBF8358E}
 		{7559FE1B-1A0F-40AD-A473-88598D6C0E81} = {9D50B35B-1EAA-4620-B0A6-245456051247}
 		{107B28AF-1073-4E8E-BA6F-A8773FF01F97} = {F6AE1CB8-57DE-437D-9665-56CACBF8358E}
+		{3EF39176-8C0E-4F58-B789-3CE67B3F644D} = {9D50B35B-1EAA-4620-B0A6-245456051247}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DB11BB21-3F5D-42D6-8737-F19C0666F1F8}

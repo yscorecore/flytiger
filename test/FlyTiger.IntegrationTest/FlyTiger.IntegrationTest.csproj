@@ -7,5 +7,6 @@
   </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\src\FlyTiger\FlyTiger.csproj" OutputItemType="Analyzer" />
+        <ProjectReference Include="..\FlyTiger.IntegrationTest.Dll\FlyTiger.IntegrationTest.Dll.csproj" />
     </ItemGroup>
 </Project>

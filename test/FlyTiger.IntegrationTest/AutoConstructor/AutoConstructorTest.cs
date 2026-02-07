@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using FluentAssertions;
+using FlyTiger.IntegrationTest.Dll;
 
 namespace FlyTiger.IntegrationTest
 {
@@ -44,6 +45,14 @@ namespace FlyTiger.IntegrationTest
             c6.AutoProp1.Should().Be("prop");
             c6.Field2.Should().Be(2);
         }
+
+
+        [Fact]
+        public void ShouldGenerateFromOtherAssemblyBaseClass()
+        {
+            var c7 = new Class7("", 1, "");
+        }
+
 
         [AutoConstructor]
         partial class Class1
@@ -104,5 +113,10 @@ namespace FlyTiger.IntegrationTest
         }
 
 
+    }
+    [AutoConstructor]
+    partial class Class7 : BaseClassFromOtherAssembly
+    {
+        private string strValue2;
     }
 }

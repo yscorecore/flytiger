@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace FlyTiger.AutoConstructor
 {
@@ -12,6 +14,7 @@ namespace FlyTiger.AutoConstructor
     class AutoConstructorGenerator : IIncrementalGenerator
     {
         const string NameSpaceName = nameof(FlyTiger);
+        const string AttributeNameShort = "AutoConstructor";
         const string AttributeName = "AutoConstructorAttribute";
         const string IgnoreAttributeName = "AutoConstructorIgnoreAttribute";
         const string InitializeAttributeName = "AutoConstructorInitializeAttribute";
@@ -55,25 +58,49 @@ namespace FlyTiger
                     transform: (genCtx, ct) =>
                     {
                         var classDecl = (ClassDeclarationSyntax)genCtx.Node;
-                        return genCtx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
+                        if (classDecl.AttributeLists
+                           .SelectMany(al => al.Attributes)
+                           .Any(a => a.Name.ToString() == AttributeName || a.Name.ToString() == AttributeNameShort))
+                        {
+                            return classDecl;
+                        }
+
+                        return classDecl;
                     })
                 .Where(s => s != null)
                 .Collect();
 
-            // Combine with compilation so we can inspect referenced assemblies
-            var compilationAndClasses = context.CompilationProvider.Combine(context.ParseOptionsProvider).Combine(classSymbols);
+            // Fix: Replace `Collect` with `ToImmutableArray` as `Collect` is not available for `IncrementalValueProvider`.
+            var compilationAndClasses = context.CompilationProvider.Combine(classSymbols);
 
-
+            // 注册执行回调
             context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
             {
-                var ((compilation, parseOptions), classes) = source;
-                if (classes.IsDefaultOrEmpty)
+                // Execute(source.Left, source.Right, spc);
+                var codeWriter = new CodeWriter(source.Left, spc);
+
+                foreach (var classDeclaration in source.Right)
                 {
-                    return;
+                    var model = codeWriter.Compilation.GetSemanticModel(classDeclaration.SyntaxTree);
+                    var classSymbol = model.GetDeclaredSymbol(classDeclaration) as INamedTypeSymbol;
+                    if (classSymbol == null)
+                        continue;
+
+                    var file = ProcessClass(classSymbol, codeWriter);
+                    codeWriter.WriteCodeFile(file);
                 }
-                var codeWriter = new CodeWriter(parseOptions, compilation, spc);
-                codeWriter.ForeachClassByInheritanceOrder(classes, ProcessClass);
             });
+
+            //context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
+            //{
+            //    var ((compilation, parseOptions), classes) = source;
+            //    if (classes.IsDefaultOrEmpty)
+            //    {
+            //        return;
+            //    }
+            //    var codeWriter = new CodeWriter(parseOptions, compilation, spc);
+            //    codeWriter.ForeachClassByInheritanceOrder(classes, ProcessClass);
+            //});
         }
 
 
@@ -137,35 +164,43 @@ namespace FlyTiger
         {
             var nameMapper = new Dictionary<string, ArgumentInfo>();
 
-            if (classSymbol.BaseType != null && classSymbol.BaseType.HasAttribute(AttributeFullName))
+            if (classSymbol.BaseType != null)
             {
-                foreach (var kv in GetSymbolNameMapper(classSymbol.BaseType))
-                {
-                    var newName = NewArgumentName(kv.Value.ArgName, nameMapper);
-                    nameMapper[kv.Key] = new ArgumentInfo
-                    {
-                        ArgName = newName,
-                        ArgTypeSymbol = kv.Value.ArgTypeSymbol,
-                        MemberName = newName,
-                        MemberTypeSymbol = kv.Value.MemberTypeSymbol,
-                        Source = ArgumentSource.BaseCtor
-                    };
-                }
-            }
-            else
-            {
-                foreach (var baseParam in GetBaseTypeParameters())
-                {
 
-                    var newName = NewArgumentName(baseParam.Name.ToCamelCase(), nameMapper);
-                    nameMapper[newName] = new ArgumentInfo
+                //检查基类是否来自其他程序集
+                bool isFromOtherAssembly = !SymbolEqualityComparer.Default.Equals(classSymbol.BaseType.ContainingAssembly, classSymbol.ContainingAssembly);
+
+                if (isFromOtherAssembly || !classSymbol.BaseType.HasAttribute(AttributeFullName))
+                {
+                    // 对于来自其他程序集的基类或没有 AutoConstructor 注解的基类，直接获取其构造函数参数
+                    foreach (var baseParam in GetBaseTypeParameters())
                     {
-                        ArgName = newName,
-                        ArgTypeSymbol = baseParam.Type,
-                        MemberName = baseParam.Name,
-                        MemberTypeSymbol = baseParam.Type,
-                        Source = ArgumentSource.BaseCtor
-                    };
+                        var newName = NewArgumentName(baseParam.Name.ToCamelCase(), nameMapper);
+                        nameMapper[newName] = new ArgumentInfo
+                        {
+                            ArgName = newName,
+                            ArgTypeSymbol = baseParam.Type,
+                            MemberName = baseParam.Name,
+                            MemberTypeSymbol = baseParam.Type,
+                            Source = ArgumentSource.BaseCtor
+                        };
+                    }
+                }
+                else
+                {
+                    // 对于同一个程序集且有 AutoConstructor 注解的基类，递归处理
+                    foreach (var kv in GetSymbolNameMapper(classSymbol.BaseType))
+                    {
+                        var newName = NewArgumentName(kv.Value.ArgName, nameMapper);
+                        nameMapper[kv.Key] = new ArgumentInfo
+                        {
+                            ArgName = newName,
+                            ArgTypeSymbol = kv.Value.ArgTypeSymbol,
+                            MemberName = newName,
+                            MemberTypeSymbol = kv.Value.MemberTypeSymbol,
+                            Source = ArgumentSource.BaseCtor
+                        };
+                    }
                 }
             }
 
@@ -285,7 +320,7 @@ namespace FlyTiger
             var baseCtorArgs = nameMapper.Values.Where(p => p.Source == ArgumentSource.BaseCtor);
             if (baseCtorArgs.Any())
             {
-                string baseArgs = string.Join(", ", baseCtorArgs.Select(p => $"{p.MemberName}: {p.ArgName}"));
+                string baseArgs = string.Join(", ", baseCtorArgs.Select(p => p.ArgName));
                 codeBuilder.AppendCodeLines($"    : base({baseArgs})");
             }
 
