@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using FlyTiger.Mapper.Generators;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FlyTiger.Mapper
@@ -24,47 +24,34 @@ namespace FlyTiger.Mapper
                 i.AddSource($"{EFCoreQueryableExtensionsFullName}.g.cs", EFCoreExtensionsCode);
             });
 
-            // Syntax provider: find candidate class declarations
-            var classDeclarations = context.SyntaxProvider
-                .CreateSyntaxProvider(
-                    predicate: (node, _) => node is ClassDeclarationSyntax cds && cds.AttributeLists.Any(),
-                    transform: (genCtx, ct) =>
-                    {
-                        var classDecl = (ClassDeclarationSyntax)genCtx.Node;
-                        // 在 transform 阶段直接检查是否有 [Mapper] 属性（支持多种写法）
-                        if (classDecl.AttributeLists.SelectMany(al => al.Attributes)
-                            .Any(a =>
-                                a.Name.ToString() == AttributeName ||
-                                a.Name.ToString() == AttributeShortName ||
-                                a.Name.ToString() == $"{NameSpaceName}.{AttributeName}" ||
-                                a.Name.ToString() == $"{NameSpaceName}.{AttributeShortName}"))
-                        {
-                            return classDecl;
-                        }
-                        return null;
-                    })
-                .Where(s => s != null)
+            // Use ForAttributeWithMetadataName for reliable attribute matching in VS design-time builds
+            var mapperAttributes = context.SyntaxProvider
+                .ForAttributeWithMetadataName(
+                    AttributeFullName,
+                    predicate: (node, _) => node is ClassDeclarationSyntax,
+                    transform: (ctx, _) => ctx.Attributes)
+                .SelectMany((attrs, _) => attrs)
                 .Collect();
 
             // Combine with compilation so we can inspect referenced assemblies
-            var compilationAndClasses = context.CompilationProvider.Combine(classDeclarations);
+            var compilationAndAttributes = context.CompilationProvider.Combine(mapperAttributes);
 
 
-            context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
+            context.RegisterSourceOutput(compilationAndAttributes, (spc, source) =>
             {
-                var (compilation, classes) = source;
-                if (classes.IsDefaultOrEmpty)
+                var (compilation, attributes) = source;
+                if (attributes.IsDefaultOrEmpty)
                 {
                     return;
                 }
                 var codeWriter = new CodeWriter(compilation, spc);
-                var attributes = FindAllAttributes(codeWriter, classes);
-                if (attributes.Count > 0)
+                var attributeList = attributes.ToList();
+                if (attributeList.Count > 0)
                 {
                     var codeFile = new CodeFile
                     {
                         BasicName = MapperExtensionName,
-                        Content = BuildMapperContent(codeWriter, attributes),
+                        Content = BuildMapperContent(codeWriter, attributeList),
                     };
                     codeWriter.WriteCodeFile(codeFile);
                 }
@@ -95,19 +82,6 @@ namespace FlyTiger.Mapper
             new GenericFunctionGenerator().AppendFunctions(codeWriter, codeBuilder, rootMappingInfos);
             codeBuilder.EndAllSegments();
             return codeBuilder.ToString();
-        }
-        private IList<AttributeData> FindAllAttributes(CodeWriter codeWriter, IList<ClassDeclarationSyntax> classDeclarations)
-        {
-            var attributes = new List<AttributeData>();
-            foreach (var classDecl in classDeclarations)
-            {
-                var model = codeWriter.Compilation.GetSemanticModel(classDecl.SyntaxTree);
-                if (model.GetDeclaredSymbol(classDecl) is INamedTypeSymbol classSymbol)
-                {
-                    attributes.AddRange(classSymbol.GetAttributes().Where(t => t.AttributeClass.Is(AttributeFullName)));
-                }
-            }
-            return attributes;
         }
 
     }

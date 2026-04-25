@@ -1,30 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 namespace FlyTiger
 {
     class CodeWriter
     {
-        public CodeWriter(GeneratorExecutionContext context)
-        {
-            this.AddSource = context.AddSource;
-            this.Compilation = context.Compilation;
-            this.ReportDiagnostic = context.ReportDiagnostic;
-            this.ParseOptions = context.ParseOptions;
-        }
-        public CodeWriter(ParseOptions parseOptions, Compilation compilation, SourceProductionContext context)
-        {
-            this.Compilation = compilation;
-            this.AddSource = context.AddSource;
-            this.ReportDiagnostic = context.ReportDiagnostic;
-            this.ParseOptions = parseOptions;
-        }
         public CodeWriter(Compilation compilation, SourceProductionContext context)
         {
             this.Compilation = compilation;
@@ -34,11 +17,10 @@ namespace FlyTiger
         public string CodeFileSuffix { get; set; } = "g.cs";
 
         public string CodeFilePrefix { get; set; } = nameof(FlyTiger);
-        public Compilation Compilation { get; private set; }
-        public ParseOptions ParseOptions { get; }
+        public Compilation Compilation { get; }
 
-        public Action<string, string> AddSource { get; private set; }
-        public Action<Diagnostic> ReportDiagnostic { get; private set; }
+        public Action<string, string> AddSource { get; }
+        public Action<Diagnostic> ReportDiagnostic { get; }
 
         private readonly Dictionary<string, int> fileNames = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
 
@@ -51,9 +33,6 @@ namespace FlyTiger
             fileNames[codeFile.BasicName] = i + 1;
 
             this.AddSource($"{CodeFilePrefix}.{name}.{CodeFileSuffix}", codeFile.Content);
-
-            //this.Compilation = this.Compilation.AddSyntaxTrees(
-            //   CSharpSyntaxTree.ParseText(SourceText.From(codeFile.Content, Encoding.UTF8), (CSharpParseOptions)this.ParseOptions));
         }
     }
     static class CodeWriterExtensions
@@ -76,14 +55,7 @@ namespace FlyTiger
             foreach (var clazz in classSyntax ?? Enumerable.Empty<ClassDeclarationSyntax>())
             {
                 SemanticModel model = codeWriter.Compilation.GetSemanticModel(clazz.SyntaxTree);
-                var clazzSymbol = model.GetDeclaredSymbol(clazz);
-
-                var digs = model.GetDeclarationDiagnostics();
-                if (digs.Length > 0)
-                {
-                    // Log warning..
-                }
-
+                var clazzSymbol = model.GetDeclaredSymbol(clazz) as INamedTypeSymbol;
                 var qualifiedName = clazzSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 dic[qualifiedName] = new ClassSyntaxCachedInfo
                 {
@@ -110,7 +82,7 @@ namespace FlyTiger
                     }
                 }
                 SemanticModel model = codeWriter.Compilation.GetSemanticModel(value.Syntax.SyntaxTree);
-                var clazzSymbol = model.GetDeclaredSymbol(value.Syntax);
+                var clazzSymbol = model.GetDeclaredSymbol(value.Syntax) as INamedTypeSymbol;
                 codeWriter.WriteCodeFile(codeFileFactory(clazzSymbol, codeWriter));
                 value.Handled = true;
             }

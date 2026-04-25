@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -31,54 +32,42 @@ namespace FlyTiger
                 i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
             });
 
-            bool HasInstanceFieldAndDefinedAttribute(FieldDeclarationSyntax fieldDeclarationSyntax)
-            {
-                return fieldDeclarationSyntax.AttributeLists.Any() &&
-                       !fieldDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword) &&
-                       !fieldDeclarationSyntax.Modifiers.Any(SyntaxKind.ConstKeyword);
-            }
-
             // Syntax provider: find candidate class declarations
-            var classSymbols = context.SyntaxProvider
+            var classDeclarations = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     predicate: (node, _) => node is ClassDeclarationSyntax cds &&
-                        !cds.Modifiers.Any(SyntaxKind.StaticKeyword),
-                    transform: (genCtx, ct) =>
+                        !cds.Modifiers.Any(SyntaxKind.StaticKeyword) &&
+                        cds.Members.OfType<FieldDeclarationSyntax>()
+                            .Any(f => f.AttributeLists.Any() &&
+                                !f.Modifiers.Any(SyntaxKind.StaticKeyword) &&
+                                !f.Modifiers.Any(SyntaxKind.ConstKeyword)),
+                    transform: (genCtx, _) =>
                     {
-                        var classDecl = (ClassDeclarationSyntax)genCtx.Node;
-                        var hasInstanceFieldWithAttribute = classDecl.Members.OfType<FieldDeclarationSyntax>()
-                             .Any(HasInstanceFieldAndDefinedAttribute);
-                        if (hasInstanceFieldWithAttribute)
-                        {
-                            return genCtx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
-                        }
-                        else
-                        {
-                            return null;
-                        }
+                        return (ClassDeclarationSyntax)genCtx.Node;
                     })
-                .Where(s => s != null)
                 .Collect();
 
             // Combine with compilation so we can inspect referenced assemblies
-            var compilationAndClasses = context.CompilationProvider.Combine(context.ParseOptionsProvider).Combine(classSymbols);
+            var compilationAndClasses = context.CompilationProvider.Combine(classDeclarations);
 
 
             context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
             {
-                var ((compilation, parseOptions), classes) = source;
+                var (compilation, classes) = source;
                 if (classes.IsDefaultOrEmpty)
                 {
                     return;
                 }
-                var codeWriter = new CodeWriter(parseOptions, compilation, spc);
-                // codeWriter.ForeachClass(classes, (clazz,cw);
-                foreach (var clazzSymbol in classes)
+                var codeWriter = new CodeWriter(compilation, spc);
+                foreach (var classDecl in classes)
                 {
-                    var fieldList = clazzSymbol.GetAllInstanceFieldsByAttribute(AttributeFullName).ToList();
+                    var model = codeWriter.Compilation.GetSemanticModel(classDecl.SyntaxTree);
+                    if (!(model.GetDeclaredSymbol(classDecl) is INamedTypeSymbol classSymbol))
+                        continue;
+                    var fieldList = classSymbol.GetAllInstanceFieldsByAttribute(AttributeFullName).ToList();
                     if (fieldList.Any())
                     {
-                        var codeFile = ProcessClass(clazzSymbol, fieldList, codeWriter);
+                        var codeFile = ProcessClass(classSymbol, fieldList, codeWriter);
                         codeWriter.WriteCodeFile(codeFile);
                     }
                 }

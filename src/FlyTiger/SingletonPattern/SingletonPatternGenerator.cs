@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -34,31 +35,32 @@ namespace FlyTiger
                 i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
             });
 
-            // Syntax provider: find candidate class declarations
+            // Use ForAttributeWithMetadataName for reliable attribute matching in VS design-time builds
             var classSymbols = context.SyntaxProvider
-                .CreateSyntaxProvider(
+                .ForAttributeWithMetadataName(
+                    AttributeFullName,
                     predicate: (node, _) => node is ClassDeclarationSyntax cds &&
-                        !cds.Modifiers.Any(SyntaxKind.StaticKeyword) && cds.AttributeLists.Any(),
-                    transform: (genCtx, ct) =>
+                        !cds.Modifiers.Any(SyntaxKind.StaticKeyword),
+                    transform: (ctx, _) =>
                     {
-                        var classDecl = (ClassDeclarationSyntax)genCtx.Node;
-                        return genCtx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
+                        var classDecl = (ClassDeclarationSyntax)ctx.TargetNode;
+                        return ctx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
                     })
                 .Where(s => s != null)
                 .Collect();
 
             // Combine with compilation so we can inspect referenced assemblies
-            var compilationAndClasses = context.CompilationProvider.Combine(context.ParseOptionsProvider).Combine(classSymbols);
+            var compilationAndClasses = context.CompilationProvider.Combine(classSymbols);
 
 
             context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
             {
-                var ((compilation, parseOptions), classes) = source;
+                var (compilation, classes) = source;
                 if (classes.IsDefaultOrEmpty)
                 {
                     return;
                 }
-                var codeWriter = new CodeWriter(parseOptions, compilation, spc);
+                var codeWriter = new CodeWriter(compilation, spc);
                 codeWriter.ForeachClassByInheritanceOrder(classes, ProcessClass);
             });
         }

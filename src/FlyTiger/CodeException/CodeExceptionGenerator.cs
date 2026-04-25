@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FlyTiger.CodeException
@@ -19,18 +19,6 @@ namespace FlyTiger.CodeException
         const string IncludeExceptionDataPropertyName = "IncludeExceptionData";
         internal static string AttributeFullName = $"{NameSpaceName}.{AttributeName}";
         internal static string ItemAttributeFullName = $"{NameSpaceName}.{ItemAttributeName}";
-        public void Execute(GeneratorExecutionContext context)
-        {
-            //if (!(context.SyntaxReceiver is CodeExceptionSyntaxReceiver receiver))
-            //    return;
-            //var codeWriter = new CodeWriter(context);
-
-
-
-            //codeWriter.ForeachClassSyntax(receiver.CandidateClasses, ProcessClass);
-        }
-
-
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             // Post init - add attribute definitions
@@ -41,31 +29,31 @@ namespace FlyTiger.CodeException
                 i.AddSource($"{nameof(Code.TextValuesFormatter)}.g.cs", Code.TextValuesFormatter);
                 i.AddSource($"{nameof(Code.CodeException)}.g.cs", Code.CodeException);
             });
-            // Syntax provider: find candidate class declarations
+            // Use ForAttributeWithMetadataName for reliable attribute matching in VS design-time builds
             var classSymbols = context.SyntaxProvider
-                .CreateSyntaxProvider(
-                    predicate: (node, _) => node is ClassDeclarationSyntax cds &&
-                         cds.AttributeLists.Any(),
-                    transform: (genCtx, ct) =>
+                .ForAttributeWithMetadataName(
+                    AttributeFullName,
+                    predicate: (node, _) => node is ClassDeclarationSyntax,
+                    transform: (ctx, _) =>
                     {
-                        var classDecl = (ClassDeclarationSyntax)genCtx.Node;
-                        return genCtx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
+                        var classDecl = (ClassDeclarationSyntax)ctx.TargetNode;
+                        return ctx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
                     })
                 .Where(s => s != null)
                 .Collect();
 
             // Combine with compilation so we can inspect referenced assemblies
-            var compilationAndClasses = context.CompilationProvider.Combine(context.ParseOptionsProvider).Combine(classSymbols);
+            var compilationAndClasses = context.CompilationProvider.Combine(classSymbols);
 
 
             context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
             {
-                var ((compilation, parseOptions), classes) = source;
+                var (compilation, classes) = source;
                 if (classes.IsDefaultOrEmpty)
                 {
                     return;
                 }
-                var codeWriter = new CodeWriter(parseOptions, compilation, spc);
+                var codeWriter = new CodeWriter(compilation, spc);
                 codeWriter.ForeachClassByInheritanceOrder(classes, ProcessClass);
             });
         }

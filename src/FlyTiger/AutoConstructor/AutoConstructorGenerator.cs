@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 namespace FlyTiger.AutoConstructor
 {
@@ -57,56 +55,33 @@ namespace FlyTiger
                 i.AddSource($"{AttributeFullName}.g.cs", AttributeCode);
             });
 
-            // Syntax provider: find candidate class declarations
-            var classSymbols = context.SyntaxProvider
-                .CreateSyntaxProvider(
+            // Use ForAttributeWithMetadataName for reliable attribute matching in VS design-time builds
+            var classDeclarations = context.SyntaxProvider
+                .ForAttributeWithMetadataName(
+                    AttributeFullName,
                     predicate: (node, _) => node is ClassDeclarationSyntax cds &&
-                        !cds.Modifiers.Any(SyntaxKind.StaticKeyword) && cds.AttributeLists.Any(),
-                    transform: (genCtx, ct) =>
+                        !cds.Modifiers.Any(SyntaxKind.StaticKeyword),
+                    transform: (ctx, _) =>
                     {
-                        var classDecl = (ClassDeclarationSyntax)genCtx.Node;
-                        if (classDecl.AttributeLists
-                           .SelectMany(al => al.Attributes)
-                           .Any(a => a.Name.ToString() == AttributeName || a.Name.ToString() == AttributeNameShort))
-                        {
-                            return classDecl;
-                        }
-
-                        return classDecl;
+                        var classDecl = (ClassDeclarationSyntax)ctx.TargetNode;
+                        var classSymbol = ctx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
+                        return classSymbol;
                     })
                 .Where(s => s != null)
                 .Collect();
 
-            // Fix: Replace `Collect` with `ToImmutableArray` as `Collect` is not available for `IncrementalValueProvider`.
-            var compilationAndClasses = context.CompilationProvider.Combine(classSymbols);
+            var compilationAndClasses = context.CompilationProvider.Combine(classDeclarations);
 
-            // 注册执行回调
             context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
             {
-                // Execute(source.Left, source.Right, spc);
                 var codeWriter = new CodeWriter(source.Left, spc);
 
-                foreach (var classDeclaration in source.Right)
+                foreach (var classSymbol in source.Right)
                 {
-                    var model = codeWriter.Compilation.GetSemanticModel(classDeclaration.SyntaxTree);
-                    if (!(model.GetDeclaredSymbol(classDeclaration) is INamedTypeSymbol classSymbol))
-                        continue;
-
                     var file = ProcessClass(classSymbol, codeWriter);
                     codeWriter.WriteCodeFile(file);
                 }
             });
-
-            //context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
-            //{
-            //    var ((compilation, parseOptions), classes) = source;
-            //    if (classes.IsDefaultOrEmpty)
-            //    {
-            //        return;
-            //    }
-            //    var codeWriter = new CodeWriter(parseOptions, compilation, spc);
-            //    codeWriter.ForeachClassByInheritanceOrder(classes, ProcessClass);
-            //});
         }
 
 
