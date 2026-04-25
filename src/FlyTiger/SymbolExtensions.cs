@@ -72,7 +72,9 @@ namespace FlyTiger
         public static bool HasAttribute(this ISymbol symbol, string attributeMetaType)
         {
             return symbol.GetAttributes().Any(ad =>
-                ad.AttributeClass.ToDisplayString() == attributeMetaType);
+                ad.AttributeClass != null &&
+                (ad.AttributeClass.ToDisplayString() == attributeMetaType ||
+                 ad.AttributeClass.Name == attributeMetaType.Split('.').Last()));
         }
 
 

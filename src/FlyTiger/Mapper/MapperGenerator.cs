@@ -25,29 +25,39 @@ namespace FlyTiger.Mapper
             });
 
             // Syntax provider: find candidate class declarations
-            var classSymbols = context.SyntaxProvider
+            var classDeclarations = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     predicate: (node, _) => node is ClassDeclarationSyntax cds && cds.AttributeLists.Any(),
                     transform: (genCtx, ct) =>
                     {
                         var classDecl = (ClassDeclarationSyntax)genCtx.Node;
-                        return genCtx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
+                        // 在 transform 阶段直接检查是否有 [Mapper] 属性（支持多种写法）
+                        if (classDecl.AttributeLists.SelectMany(al => al.Attributes)
+                            .Any(a =>
+                                a.Name.ToString() == AttributeName ||
+                                a.Name.ToString() == AttributeShortName ||
+                                a.Name.ToString() == $"{NameSpaceName}.{AttributeName}" ||
+                                a.Name.ToString() == $"{NameSpaceName}.{AttributeShortName}"))
+                        {
+                            return classDecl;
+                        }
+                        return null;
                     })
                 .Where(s => s != null)
                 .Collect();
 
             // Combine with compilation so we can inspect referenced assemblies
-            var compilationAndClasses = context.CompilationProvider.Combine(context.ParseOptionsProvider).Combine(classSymbols);
+            var compilationAndClasses = context.CompilationProvider.Combine(classDeclarations);
 
 
             context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
             {
-                var ((compilation, parseOptions), classes) = source;
+                var (compilation, classes) = source;
                 if (classes.IsDefaultOrEmpty)
                 {
                     return;
                 }
-                var codeWriter = new CodeWriter(parseOptions, compilation, spc);
+                var codeWriter = new CodeWriter(compilation, spc);
                 var attributes = FindAllAttributes(codeWriter, classes);
                 if (attributes.Count > 0)
                 {
@@ -86,11 +96,18 @@ namespace FlyTiger.Mapper
             codeBuilder.EndAllSegments();
             return codeBuilder.ToString();
         }
-        private IList<AttributeData> FindAllAttributes(CodeWriter codeWriter, IList<INamedTypeSymbol> classes)
+        private IList<AttributeData> FindAllAttributes(CodeWriter codeWriter, IList<ClassDeclarationSyntax> classDeclarations)
         {
-            return classes
-                  .SelectMany(p => p.GetAttributes().Where(t => t.AttributeClass.Is(AttributeFullName)))
-                  .ToList();
+            var attributes = new List<AttributeData>();
+            foreach (var classDecl in classDeclarations)
+            {
+                var model = codeWriter.Compilation.GetSemanticModel(classDecl.SyntaxTree);
+                if (model.GetDeclaredSymbol(classDecl) is INamedTypeSymbol classSymbol)
+                {
+                    attributes.AddRange(classSymbol.GetAttributes().Where(t => t.AttributeClass.Is(AttributeFullName)));
+                }
+            }
+            return attributes;
         }
 
     }
