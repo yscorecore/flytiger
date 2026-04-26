@@ -14,7 +14,7 @@ namespace FlyTiger.Mapper
             this.MappingInfo = convertMappingInfo;
             this.CodeBuilder = codeBuilder;
             this.AttributeLists = attributeList;
-            this.WorkedPaths.Add((convertMappingInfo.SourceType, convertMappingInfo.TargetType));
+            this.WorkedPaths.Add((convertMappingInfo.SourceType, convertMappingInfo.TargetType, convertMappingInfo.ConvertToMethodName));
         }
 
         private MapperContext(MapperContext baseConvertContext, ConvertMappingInfo convertMappingInfo, IList<AttributeData> attributeList)
@@ -22,14 +22,14 @@ namespace FlyTiger.Mapper
                 convertMappingInfo, attributeList)
         {
             this.AttributeLists = this.AttributeLists;
-            this.WorkedPaths = new List<(ITypeSymbol, ITypeSymbol)>(baseConvertContext.WorkedPaths);
-            this.WorkedPaths.Add((convertMappingInfo.SourceType, convertMappingInfo.TargetType));
+            this.WorkedPaths = new List<(ITypeSymbol, ITypeSymbol, string)>(baseConvertContext.WorkedPaths);
+            this.WorkedPaths.Add((convertMappingInfo.SourceType, convertMappingInfo.TargetType, convertMappingInfo.ConvertToMethodName));
         }
         public CodeWriter CodeWriter { get; }
         public Compilation Compilation { get => this.CodeWriter.Compilation; }
         public ConvertMappingInfo MappingInfo { get; }
         public CsharpCodeBuilder CodeBuilder { get; }
-        public List<(ITypeSymbol Source, ITypeSymbol Target)> WorkedPaths { get; } = new List<(ITypeSymbol, ITypeSymbol)>();
+        public List<(ITypeSymbol Source, ITypeSymbol Target, string ConvertToMethodName)> WorkedPaths { get; } = new List<(ITypeSymbol, ITypeSymbol, string)>();
         public IList<AttributeData> AttributeLists { get; } = new List<AttributeData>();
         public bool HasWalked(ITypeSymbol source, ITypeSymbol target)
         {
@@ -53,6 +53,25 @@ namespace FlyTiger.Mapper
                     return true;
                 }
             }
+            return false;
+        }
+
+        /// <summary>
+        /// Try to get the conversion method name for a previously walked (source, target) pair.
+        /// Used for handling self-referencing (circular) properties by calling the existing method.
+        /// </summary>
+        public bool TryGetConvertMethodName(ITypeSymbol source, ITypeSymbol target, out string convertToMethodName)
+        {
+            foreach (var path in WorkedPaths)
+            {
+                if (path.Source.Equals(source, SymbolEqualityComparer.Default) &&
+                    path.Target.Equals(target, SymbolEqualityComparer.Default))
+                {
+                    convertToMethodName = path.ConvertToMethodName;
+                    return true;
+                }
+            }
+            convertToMethodName = null;
             return false;
         }
 
@@ -84,4 +103,3 @@ namespace FlyTiger.Mapper
     }
 
 }
-

@@ -95,11 +95,21 @@ namespace FlyTiger.Mapper.Generators
         public static bool CanMappingSubObjectProperty(ITypeSymbol sourceType, ITypeSymbol targetType,
           MapperContext convertContext)
         {
-            if (convertContext.HasWalked(targetType))
+            if (sourceType.IsPrimitive() || targetType.IsPrimitive())
             {
                 return false;
             }
-            if (sourceType.IsPrimitive() || targetType.IsPrimitive())
+
+            if (targetType is IArrayTypeSymbol arrayTargetType)
+            {
+                if (sourceType is IArrayTypeSymbol arraySourceType)
+                {
+                    return CanMappingSubObjectProperty(arraySourceType.ElementType, arrayTargetType.ElementType, convertContext);
+                }
+                return false;
+            }
+
+            if (convertContext.HasWalked(sourceType, targetType))
             {
                 return false;
             }

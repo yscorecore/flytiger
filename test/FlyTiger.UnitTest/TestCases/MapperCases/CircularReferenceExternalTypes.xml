@@ -318,5 +318,256 @@ namespace FlyTiger
     }
 #pragma warning restore CS8603,CS8604,CS8618 
 }]]></code>
+    <code file="FlyTiger.MapperExtensions.g.cs"><![CDATA[#pragma warning disable CS1591
+using System;
+using System.Collections.Immutable;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+namespace FlyTiger
+{
+    static class MapperExtensions
+    {
+        private static IEnumerable<T> EachItem<T>(this IEnumerable<T> source, Action<T> handler)
+        {
+            foreach (var item in source)
+            {
+                handler?.Invoke(item);
+                yield return item;
+            }
+        }
+        private static void ForEach<T>(this IEnumerable<T> source, Action<T> handler)
+        {
+            foreach (var item in source)
+            {
+                handler?.Invoke(item);
+            }
+        }
+        private static global::ExternalTypes.Bcd ToExternalTypes_Bcd(this global::ExternalTypes.Abc source)
+        {
+            if (source == null) return default;
+            return new global::ExternalTypes.Bcd
+            {
+                Name = source.Name,
+                Instance = source.Instance == null ? default : source.Instance.Select(p => p == null ? default : p.ToExternalTypes_Bcd()).ToArray(),
+            };
+        }
+        private static void ToExternalTypes_Bcd(this global::ExternalTypes.Abc source, global::ExternalTypes.Bcd target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
+        {
+            CopyExternalTypesAbcToExternalTypesBcd(source, target);
+            void CopyExternalTypesAbcToExternalTypesBcd(global::ExternalTypes.Abc source, global::ExternalTypes.Bcd target)
+            {
+                if (source == null) return;
+                if (target == null) return;
+                target.Name = source.Name;
+            }
+        }
+        private static void ToExternalTypes_Bcd<T>(this IDictionary<T, global::ExternalTypes.Abc> source, IDictionary<T, global::ExternalTypes.Bcd> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
+        {
+            var sourceKeys = source.Keys;
+            var targetKeys = target.Keys;
+            // modify item
+            sourceKeys.Intersect(targetKeys).ForEach(key =>
+            {
+                ToExternalTypes_Bcd(source[key], target[key], onRemoveItem, onAddItem);
+            });
+            // remove item
+            targetKeys.Except(sourceKeys).ForEach(key =>
+            {
+                var item = target[key];
+                target.Remove(key);
+                onRemoveItem?.Invoke(item);
+            });
+            // add item
+            sourceKeys.Except(targetKeys).ForEach(key =>
+            {
+                var item = source[key].ToExternalTypes_Bcd();
+                target.Add(key, item);
+                onAddItem?.Invoke(item);
+            });
+        }
+        private static void ToExternalTypes_Bcd<T>(this IEnumerable<global::ExternalTypes.Abc> source, ICollection<global::ExternalTypes.Bcd> target, CollectionUpdateMode updateMode, Func<global::ExternalTypes.Abc, T> sourceItemKeySelector, Func<global::ExternalTypes.Bcd, T> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null)
+        {
+            if (updateMode == CollectionUpdateMode.Append)
+            {
+                source.Select(p => p.ToExternalTypes_Bcd()).ForEach(p =>
+                {
+                    target.Add(p);
+                    onAddItem?.Invoke(p);
+                });
+            }
+            else
+            {
+                var sourceKeys = source.Select(sourceItemKeySelector).ToHashSet();
+                var targetKeys = target.Select(targetItemKeySelector).ToHashSet();
+                // modify item
+                sourceKeys.Intersect(targetKeys).ForEach(key =>
+                {
+                    ToExternalTypes_Bcd(
+                        source.Where(p => sourceItemKeySelector(p).Equals(key)).First(),
+                        target.Where(p => targetItemKeySelector(p).Equals(key)).First(),
+                        onRemoveItem, onAddItem);
+                });
+                // remove item
+                if (updateMode == CollectionUpdateMode.Update)
+                {
+                    target.Where(p => !sourceKeys.Contains(targetItemKeySelector(p))).ToList().ForEach(p =>
+                    {
+                        target.Remove(p);
+                        onRemoveItem?.Invoke(p);
+                    });
+                }
+                // add item
+                source.Where(p => !targetKeys.Contains(sourceItemKeySelector(p))).Select(p => p.ToExternalTypes_Bcd()).ForEach(p =>
+                {
+                    target.Add(p);
+                    onAddItem?.Invoke(p);
+                });
+            }
+        }
+        private static IQueryable<global::ExternalTypes.Bcd> ToExternalTypes_Bcd(this IQueryable<global::ExternalTypes.Abc> source)
+        {
+            return source?.Select(p => new global::ExternalTypes.Bcd
+            {
+                Name = p.Name,
+                Instance = p.Instance == null ? default : p.Instance.Select(p => p == null ? default : p.ToExternalTypes_Bcd()).ToArray(),
+            }).RebuildWithIncludeForEfCore();
+        }
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, Delegate> sourceKeySelectorCache = new System.Collections.Concurrent.ConcurrentDictionary<int, Delegate>();
+        private static Func<Source, Key> GetSourceKeySelectorFunc<Source, Key>(Expression<Func<Source, Key>> sourceKeyLambda)
+        {
+            int cacheKey = typeof(Source).GetHashCode() ^ sourceKeyLambda.ToString().GetHashCode();
+            return (Func<Source, Key>)sourceKeySelectorCache.GetOrAdd(cacheKey, (_) =>
+            {
+                return sourceKeyLambda.Compile();
+            });
+        }
+
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, Delegate> targetKeySelectorCache = new System.Collections.Concurrent.ConcurrentDictionary<int, Delegate>();
+        private static Func<Target, Key> GetTargetKeySelectorFunc<Source, Target, Key>(Expression<Func<Source, Key>> sourceKeyLambda)
+        {
+            int cacheKey = typeof(Source).GetHashCode() ^ typeof(Target).GetHashCode() ^ sourceKeyLambda.ToString().GetHashCode();
+            return (Func<Target, Key>)targetKeySelectorCache.GetOrAdd(cacheKey, (_) =>
+            {
+                var newParameter = Expression.Parameter(typeof(Target), "p");
+                var replacer = new ParameterExpressionReplacer(newParameter);
+                var newLambdaBody = replacer.Visit(sourceKeyLambda.Body);
+                var newLambda = Expression.Lambda<Func<Target, Key>>(newLambdaBody, newParameter);
+                return newLambda.Compile();
+            });
+        }
+        public static T To<T>(this global::ExternalTypes.Abc source) where T : new()
+        {
+            if (source == null) return default;
+            if (typeof(T) == typeof(global::ExternalTypes.Bcd))
+            {
+                return (T)(object)ToExternalTypes_Bcd(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ExternalTypes.Abc)}' to '{typeof(T)}'.");
+        }
+        public static T To<T>(this global::ExternalTypes.Abc source, Action<T> postHandler) where T : class, new()
+        {
+            var result = source.To<T>();
+            postHandler?.Invoke(result);
+            return result;
+        }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::ExternalTypes.Abc> source) where T : new()
+        {
+            if (typeof(T) == typeof(global::ExternalTypes.Bcd))
+            {
+                return (IEnumerable<T>)source?.Select(p => p.ToExternalTypes_Bcd());
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ExternalTypes.Abc)}' to '{typeof(T)}'.");
+        }
+        public static IEnumerable<T> To<T>(this IEnumerable<global::ExternalTypes.Abc> source, Action<T> postHandler) where T : class, new()
+        {
+            return source == null || postHandler == null ? source.To<T>() : source.To<T>().EachItem(postHandler);
+        }
+        public static IDictionary<Key, T> To<Key, T>(this IDictionary<Key, global::ExternalTypes.Abc> source) where T : new()
+        {
+            if (typeof(T) == typeof(global::ExternalTypes.Bcd))
+            {
+                return (IDictionary<Key, T>)(source?.ToDictionary(p => p.Key, p => p.Value.ToExternalTypes_Bcd()));
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ExternalTypes.Abc)}' to '{typeof(T)}'.");
+        }
+        public static IDictionary<Key, T> To<Key, T>(this IDictionary<Key, global::ExternalTypes.Abc> source, Action<T> postHandler) where T : class, new()
+        {
+            var res = source?.To<Key, T>();
+            res?.ForEach(p => postHandler?.Invoke(p.Value));
+            return res;
+        }
+        public static void To<T>(this global::ExternalTypes.Abc source, T target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class
+        {
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            _ = target ?? throw new ArgumentNullException(nameof(target));
+            if (typeof(T) == typeof(global::ExternalTypes.Bcd))
+            {
+                ToExternalTypes_Bcd(source, (global::ExternalTypes.Bcd)(object)target, onRemoveItem, onAddItem);
+                return;
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ExternalTypes.Abc)}' to '{typeof(T)}'.");
+        }
+        public static void To<Key, T>(this IDictionary<Key, global::ExternalTypes.Abc> source, IDictionary<Key, T> target, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()
+        {
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            _ = target ?? throw new ArgumentNullException(nameof(target));
+            if (typeof(T) == typeof(global::ExternalTypes.Bcd))
+            {
+                ToExternalTypes_Bcd(source, (IDictionary<Key, global::ExternalTypes.Bcd>)target, onRemoveItem, onAddItem);
+                return;
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ExternalTypes.Abc)}' to '{typeof(T)}'.");
+        }
+        public static void To<T, K>(this IEnumerable<global::ExternalTypes.Abc> source, ICollection<T> target, CollectionUpdateMode updateMode, Func<global::ExternalTypes.Abc, K> sourceItemKeySelector, Func<T, K> targetItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()
+        {
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            _ = target ?? throw new ArgumentNullException(nameof(target));
+            _ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
+            _ = targetItemKeySelector ?? throw new ArgumentNullException(nameof(targetItemKeySelector));
+            if (typeof(T) == typeof(global::ExternalTypes.Bcd))
+            {
+                ToExternalTypes_Bcd(source, (ICollection<global::ExternalTypes.Bcd>)target, updateMode, sourceItemKeySelector, (Func<global::ExternalTypes.Bcd, K>)targetItemKeySelector, onRemoveItem, onAddItem);
+                return;
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ExternalTypes.Abc)}' to '{typeof(T)}'.");
+        }
+        public static void To<T, K>(this IEnumerable<global::ExternalTypes.Abc> source, ICollection<T> target, CollectionUpdateMode updateMode, Expression<Func<global::ExternalTypes.Abc, K>> sourceItemKeySelector, Action<object> onRemoveItem = null, Action<object> onAddItem = null) where T : class, new()
+        {
+            _ = sourceItemKeySelector ?? throw new ArgumentNullException(nameof(sourceItemKeySelector));
+            var sourceFunc = GetSourceKeySelectorFunc(sourceItemKeySelector);
+            var targetFunc = GetTargetKeySelectorFunc<global::ExternalTypes.Abc, T, K>(sourceItemKeySelector);
+            source.To(target, updateMode, sourceFunc, targetFunc, onRemoveItem, onAddItem);
+        }
+        public static IQueryable<T> To<T>(this IQueryable<global::ExternalTypes.Abc> source) where T : new()
+        {
+            if (typeof(T) == typeof(global::ExternalTypes.Bcd))
+            {
+                return (IQueryable<T>)ToExternalTypes_Bcd(source);
+            }
+            throw new NotSupportedException($"Can not convert '{typeof(global::ExternalTypes.Abc)}' to '{typeof(T)}'.");
+        }
+        private class ParameterExpressionReplacer : ExpressionVisitor
+        {
+            public ParameterExpressionReplacer(ParameterExpression newParameter)
+            {
+                this.newParameter = newParameter;
+            }
+            private readonly ParameterExpression newParameter;
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                if (node.Expression.NodeType == ExpressionType.Parameter)
+                {
+                    return Expression.PropertyOrField(newParameter, node.Member.Name);
+                }
+                else
+                {
+                    return base.VisitMember(node);
+                }
+            }
+        }
+    }
+}]]></code>
   </output>
 </case>

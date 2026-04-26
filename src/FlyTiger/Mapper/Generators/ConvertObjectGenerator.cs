@@ -89,6 +89,12 @@ namespace FlyTiger.Mapper.Generators
                     var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
                     MappingNewSubObject(newConvertContext, FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), "=", lineSplitChar);
                 }
+                else if (CanMappingSelfReferencingCollection(sourcePropType, targetPropType, convertContext, out var selfRefConvertMethodName))
+                {
+                    // self-referencing collection (e.g., Abc[] -> Bcd[] where Abc->Bcd is the current mapping)
+                    MappingSelfReferencingCollection(convertContext, FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), sourcePropType, targetPropType, selfRefConvertMethodName, lineSplitChar);
+                }
+
                 else
                 {
                     this.ReportPropertyCanNotBeMapped(convertContext, targetProp, sourceProp);
@@ -358,8 +364,178 @@ namespace FlyTiger.Mapper.Generators
             }
         }
 
+        /// <summary>
+        /// Checks if source and target are both enumerable types whose element types
+        /// match a previously walked mapping (self-referencing collection, e.g., Abc[] -> Bcd[]).
+        /// </summary>
+        protected bool CanMappingSelfReferencingCollection(ITypeSymbol sourcePropType, ITypeSymbol targetPropType,
+            MapperContext convertContext, out string convertMethodName)
+        {
+            convertMethodName = null;
+            if (!SourceTypeIsEnumerable(sourcePropType) || !TargetTypeIsSupportedEnumerable(targetPropType))
+            {
+                return false;
+            }
 
+            var sourceItemType = GetItemType(sourcePropType);
+            var targetItemType = GetItemType(targetPropType);
+            if (sourceItemType == null || targetItemType == null)
+            {
+                return false;
+            }
 
+            return convertContext.TryGetConvertMethodName(sourceItemType, targetItemType, out convertMethodName);
+        }
+
+        /// <summary>
+        /// Checks if source and target are class/struct types that match a previously walked mapping
+        /// (self-referencing sub-object, e.g., Abc Parent -> Bcd Parent).
+        /// </summary>
+        protected bool CanMappingSelfReferencingSubObject(ITypeSymbol sourcePropType, ITypeSymbol targetPropType,
+            MapperContext convertContext, out string convertMethodName)
+        {
+            convertMethodName = null;
+            if (sourcePropType.IsPrimitive() || targetPropType.IsPrimitive())
+            {
+                return false;
+            }
+            // Skip arrays - those are handled by CanMappingSelfReferencingCollection
+            if (sourcePropType is IArrayTypeSymbol || targetPropType is IArrayTypeSymbol)
+            {
+                return false;
+            }
+            return convertContext.TryGetConvertMethodName(sourcePropType, targetPropType, out convertMethodName);
+        }
+
+        /// <summary>
+        /// Generates mapping code for a self-referencing collection property.
+        /// Calls the existing conversion method for each element instead of creating inline sub-objects.
+        /// </summary>
+        protected void MappingSelfReferencingCollection(MapperContext convertContext, string sourcePropertyExpression,
+            string targetPropertyExpression, ITypeSymbol sourcePropType, ITypeSymbol targetPropType, string convertMethodName, string lineSplitChar)
+        {
+            var codeBuilder = convertContext.CodeBuilder;
+            var toTargetMethod = GetToTargetMethodName(targetPropType);
+            var sourceItemType = GetItemType(sourcePropType);
+
+            if (sourceItemType != null && !sourceItemType.IsValueType)
+            {
+                codeBuilder.AppendCodeLines(
+                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default : {sourcePropertyExpression}.Select(p => p == null ? default : p.{convertMethodName}()).{toTargetMethod}(){lineSplitChar}");
+            }
+            else
+            {
+                codeBuilder.AppendCodeLines(
+                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default : {sourcePropertyExpression}.Select(p => p.{convertMethodName}()).{toTargetMethod}(){lineSplitChar}");
+            }
+        }
+
+        /// <summary>
+        /// Generates mapping code for a self-referencing sub-object property.
+        /// Calls the existing conversion method instead of creating inline sub-objects.
+        /// </summary>
+        protected void MappingSelfReferencingSubObject(MapperContext convertContext, string sourcePropertyExpression,
+            string targetPropertyExpression, string convertMethodName, string lineSplitChar)
+        {
+            var codeBuilder = convertContext.CodeBuilder;
+            var sourcePropertyType = convertContext.MappingInfo.SourceType;
+
+            if (sourcePropertyType.IsValueType)
+            {
+                codeBuilder.AppendCodeLines(
+                    $"{targetPropertyExpression} = {sourcePropertyExpression}.{convertMethodName}(){lineSplitChar}");
+            }
+            else
+            {
+                codeBuilder.AppendCodeLines(
+                    $"{targetPropertyExpression} = {sourcePropertyExpression} == null ? default : {sourcePropertyExpression}.{convertMethodName}(){lineSplitChar}");
+            }
+        }
+
+        private bool SourceTypeIsEnumerable(ITypeSymbol sourcePropType)
+        {
+            if (sourcePropType is IArrayTypeSymbol)
+            {
+                return true;
+            }
+
+            if (sourcePropType is INamedTypeSymbol namedSourcePropType)
+            {
+                if (namedSourcePropType.IsGenericType)
+                {
+                    if (namedSourcePropType.ConstructUnboundGenericType().SafeEquals(typeof(IEnumerable<>)))
+                    {
+                        return true;
+                    }
+
+                    if (sourcePropType.AllInterfaces.Any(p =>
+                            p.IsGenericType && p.ConstructUnboundGenericType().SafeEquals(typeof(IEnumerable<>))))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool TargetTypeIsSupportedEnumerable(ITypeSymbol targetPropType)
+        {
+            if (targetPropType is IArrayTypeSymbol)
+            {
+                return true;
+            }
+
+            if (targetPropType is INamedTypeSymbol namedTargetPropType)
+            {
+                if (namedTargetPropType.IsGenericType)
+                {
+                    var targetUnboundGenericType = namedTargetPropType.ConstructUnboundGenericType();
+                    return
+                        targetUnboundGenericType.SafeEquals(typeof(IList<>)) ||
+                        targetUnboundGenericType.SafeEquals(typeof(List<>)) ||
+                        targetUnboundGenericType.SafeEquals(typeof(IEnumerable<>)) ||
+                        targetUnboundGenericType.SafeEquals(typeof(IQueryable<>)) ||
+                        targetUnboundGenericType.SafeEquals(typeof(ICollection<>)) ||
+                        targetUnboundGenericType.SafeEquals(typeof(IImmutableList<>)) ||
+                        targetUnboundGenericType.SafeEquals(typeof(ImmutableList<>)) ||
+                        targetUnboundGenericType.SafeEquals(typeof(ImmutableArray<>));
+                }
+            }
+
+            return false;
+        }
+
+        private string GetToTargetMethodName(ITypeSymbol targetPropertyType)
+        {
+            if (targetPropertyType is IArrayTypeSymbol)
+            {
+                return nameof(Enumerable.ToArray);
+            }
+
+            if (targetPropertyType is INamedTypeSymbol namedType)
+            {
+                var genericType = namedType.ConstructUnboundGenericType();
+                if (genericType.SafeEquals(typeof(IQueryable<>)))
+                {
+                    return nameof(Queryable.AsQueryable);
+                }
+                if (genericType.SafeEquals(typeof(ImmutableArray<>)))
+                {
+                    return nameof(ImmutableArray.ToImmutableArray);
+                }
+                if (genericType.SafeEquals(typeof(IImmutableList<>)))
+                {
+                    return nameof(ImmutableList.ToImmutableList);
+                }
+                if (genericType.SafeEquals(typeof(ImmutableList<>)))
+                {
+                    return nameof(ImmutableList.ToImmutableList);
+                }
+            }
+
+            return nameof(Enumerable.ToList);
+        }
 
     }
 }

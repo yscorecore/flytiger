@@ -254,6 +254,10 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
             {
                 return false;
             }
+            if (convertContext.HasWalked(sourceType, targetType))
+            {
+                return false;
+            }
             return CanMappingSubObjectProperty(sourceType, targetType, convertContext);
         }
         private void AppendObjectPropertyCopyAssign(string sourceRefrenceName, string targetRefrenceName, MapperContext convertContext, CopyToQueue queue)
@@ -323,6 +327,7 @@ source.Where(p => !targetKeys.Contains({sourceItemKeySelector})).Select(p => new
                     var newConvertContext = convertContext.Fork(sourcePropType, targetPropType);
                     MappingNewSubObject(newConvertContext, FormatRefrence(sourceRefrenceName, propName), FormatRefrence(targetRefrenceName, propName), "=", lineSplitChar);
                 }
+
                 else
                 {
                     this.ReportPropertyCanNotBeMapped(convertContext, targetProp, sourceProp);

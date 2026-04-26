@@ -34,10 +34,11 @@ namespace FlyTiger.Mapper.Generators
                         var context = new MapperContext(codeWriter, codeBuilder, rootMappingInfo, attributeDatas);
                         generators.ForEach(p => p.AppendFunctions(context));
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        throw ex;
-                        // TOTO report error
+                        // Swallow exceptions to prevent crashing the entire generator.
+                        // When a source generator throws, VS silently drops ALL generated code,
+                        // breaking IntelliSense for all mappings - not just the failing one.
                     }
                 }
                 else
