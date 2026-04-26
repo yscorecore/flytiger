@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
@@ -65,7 +65,8 @@ namespace FlyTiger.Mapper
             foreach (var path in WorkedPaths)
             {
                 if (path.Source.Equals(source, SymbolEqualityComparer.Default) &&
-                    path.Target.Equals(target, SymbolEqualityComparer.Default))
+                    path.Target.Equals(target, SymbolEqualityComparer.Default) &&
+                    !string.IsNullOrEmpty(path.ConvertToMethodName))
                 {
                     convertToMethodName = path.ConvertToMethodName;
                     return true;
