@@ -62,6 +62,7 @@ namespace FlyTiger.Generator.UnitTest
 
         [InlineData("MapperCases/AllInOne.xml")]
         [InlineData("MapperCases/ManySourceTypesToOneTargetType.xml")]
+        [InlineData("MapperCases/CircularReferenceExternalTypes.xml")]
 
         public void ShouldGenerateConverterClass(string testCaseFileName)
         {
@@ -72,7 +73,7 @@ namespace FlyTiger.Generator.UnitTest
                 typeof(IQueryable<>).GetTypeInfo().Assembly,
                 Assembly.GetExecutingAssembly()
             };
-            // base.UpdateTestOutput(new MapperGenerator(), testCaseFileName, assemblies);
+            //base.UpdateTestOutput(new MapperGenerator(), testCaseFileName, assemblies);
             base.ShouldGenerateExpectCodeFile(new MapperGenerator(), testCaseFileName, assemblies);
         }
     }

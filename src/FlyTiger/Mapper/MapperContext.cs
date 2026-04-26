@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
@@ -14,7 +14,7 @@ namespace FlyTiger.Mapper
             this.MappingInfo = convertMappingInfo;
             this.CodeBuilder = codeBuilder;
             this.AttributeLists = attributeList;
-            this.WorkedPaths.Add(convertMappingInfo.TargetType);
+            this.WorkedPaths.Add((convertMappingInfo.SourceType, convertMappingInfo.TargetType));
         }
 
         private MapperContext(MapperContext baseConvertContext, ConvertMappingInfo convertMappingInfo, IList<AttributeData> attributeList)
@@ -22,25 +22,37 @@ namespace FlyTiger.Mapper
                 convertMappingInfo, attributeList)
         {
             this.AttributeLists = this.AttributeLists;
-            this.WorkedPaths = new List<ITypeSymbol>(baseConvertContext.WorkedPaths);
-            this.WorkedPaths.Add(convertMappingInfo.TargetType);
+            this.WorkedPaths = new List<(ITypeSymbol, ITypeSymbol)>(baseConvertContext.WorkedPaths);
+            this.WorkedPaths.Add((convertMappingInfo.SourceType, convertMappingInfo.TargetType));
         }
         public CodeWriter CodeWriter { get; }
         public Compilation Compilation { get => this.CodeWriter.Compilation; }
         public ConvertMappingInfo MappingInfo { get; }
         public CsharpCodeBuilder CodeBuilder { get; }
-        public List<ITypeSymbol> WorkedPaths { get; } = new List<ITypeSymbol>();
+        public List<(ITypeSymbol Source, ITypeSymbol Target)> WorkedPaths { get; } = new List<(ITypeSymbol, ITypeSymbol)>();
         public IList<AttributeData> AttributeLists { get; } = new List<AttributeData>();
-        public bool HasWalked(ITypeSymbol symbol)
+        public bool HasWalked(ITypeSymbol source, ITypeSymbol target)
         {
             foreach (var path in WorkedPaths)
             {
-                if (path.Equals(symbol, SymbolEqualityComparer.Default))
+                if (path.Source.Equals(source, SymbolEqualityComparer.Default) &&
+                    path.Target.Equals(target, SymbolEqualityComparer.Default))
                 {
                     return true;
                 }
             }
+            return false;
+        }
 
+        public bool HasWalked(ITypeSymbol target)
+        {
+            foreach (var path in WorkedPaths)
+            {
+                if (path.Target.Equals(target, SymbolEqualityComparer.Default))
+                {
+                    return true;
+                }
+            }
             return false;
         }
 
@@ -72,3 +84,4 @@ namespace FlyTiger.Mapper
     }
 
 }
+
